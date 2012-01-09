@@ -1,5 +1,8 @@
 CFLAGS += -g
 
+# Uncomment to demo parametric testing.
+#CFLAGS += -std=c99
+
 all: example
 
 example: example.c greatest.h example-suite.o

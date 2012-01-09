@@ -3,3 +3,5 @@ allocation or depend on anything beyond ANSI C89.
 
 If C99 is available, then suites can pass arguments to tests for
 parametric testing.
+
+For usage examples, look at example.c and example-suite.c.

@@ -23,11 +23,19 @@ TEST expect_equal() {
     PASS();
 }
 
-TEST  expect_str_equal() {
+TEST expect_str_equal() {
     char *foo = "foo";
     ASSERT_STR_EQ("bar", foo);
     PASS();
 }
+
+/* If using C99, greatest can also do parametric tests. */
+#if __STDC_VERSION__ >= 19901L
+TEST parametric_example(int arg) {
+    ASSERT(arg > 10);
+    PASS();
+}
+#endif
 
 SUITE(suite) {
     int i=0;
@@ -35,6 +43,12 @@ SUITE(suite) {
         RUN_TEST(example_test_case);
     RUN_TEST(expect_equal);
     RUN_TEST(expect_str_equal);
+
+    /* Run a test, with arguments. */
+#if __STDC_VERSION__ >= 19901L
+    RUN_TEST(parametric_example, 10);
+    RUN_TEST(parametric_example, 11);
+#endif
 }
 
 /* Add all the definitions that need to be in the test runner's main file. */
