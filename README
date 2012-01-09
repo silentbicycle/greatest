@@ -1,0 +1,5 @@
+A unit testing system for C, contained in 1 file. It doesn't use dynamic
+allocation or depend on anything beyond ANSI C89.
+
+If C99 is available, then suites can pass arguments to tests for
+parametric testing.
