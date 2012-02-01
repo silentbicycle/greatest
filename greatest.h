@@ -72,6 +72,7 @@ typedef void (greatest_suite_cb)(void);
 
 typedef struct greatest_run_info {
     unsigned int verbose;       /* verbose flag */
+    unsigned int list_only;     /* list suite/tests only flag */
     unsigned int tests_run;     /* total test count */
 
     /* Overall pass/fail/skip counts. */
@@ -139,6 +140,8 @@ void greatest_usage(const char *name);
         if (greatest_pre_test(#test) == 1) {                            \
             int res = test(__VA_ARGS__);                                \
             greatest_post_test(#test, res);                             \
+        } else if (greatest_info.list_only) {                           \
+            fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
         }                                                               \
     } while (0)
 #else
@@ -147,6 +150,8 @@ void greatest_usage(const char *name);
         if (greatest_pre_test(#test) == 1) {                            \
             int res = test();                                           \
             greatest_post_test(#test, res);                             \
+        } else if (greatest_info.list_only) {                           \
+            fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
         }                                                               \
     } while (0)
 #endif
@@ -237,7 +242,7 @@ void greatest_usage(const char *name);
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
-    greatest_run_info greatest_info = {0, 0,                            \
+    greatest_run_info greatest_info = {0, 0, 0,                         \
                                        0, 0, 0,                         \
                                        {0, 0, 0, 0,                     \
                                         0, 0, 0, 0},                    \
@@ -247,8 +252,9 @@ void greatest_usage(const char *name);
                                        0, 0};                           \
                                                                         \
 int greatest_pre_test(const char *name) {                               \
-    if (greatest_info.test_filter == NULL ||                            \
-        0 == strcmp(name, greatest_info.test_filter)) {                 \
+    if (!greatest_info.list_only                                        \
+        && (greatest_info.test_filter == NULL ||                        \
+            0 == strcmp(name, greatest_info.test_filter))) {            \
         GREATEST_SET_TIME(greatest_info.suite.pre_test);                \
         return 1;               /* test should be run */                \
     } else {                                                            \
@@ -354,7 +360,13 @@ void greatest_do_skip(const char *name) {                               \
                                                                         \
 void greatest_usage(const char *name) {                                 \
     fprintf(GREATEST_STDOUT,                                            \
-        "Usage: %s [-v] [-s SUITE] [-t TEST]\n", name);                 \
+        "Usage: %s [-hlv] [-s SUITE] [-t TEST]\n"                       \
+        "  -h        print this Help\n"                                 \
+        "  -l        List suites and their tests, then exit\n"          \
+        "  -v        Verbose output\n"                                  \
+        "  -s SUITE  only run suite SUITE\n"                            \
+        "  -t TEST   only run test TEST\n",                             \
+        name);                                                          \
 }                                                                       \
 // (eat the trailing semicolon from GREATEST_MAIN_DEFS)
 
@@ -379,6 +391,8 @@ void greatest_usage(const char *name) {                                 \
                 i++;                                                    \
             } else if (0 == strcmp("-v", argv[i])) {                    \
                 greatest_info.verbose = 1;                              \
+            } else if (0 == strcmp("-l", argv[i])) {                    \
+                greatest_info.list_only = 1;                            \
             } else if (0 == strcmp("-h", argv[i])) {                    \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_SUCCESS);                                     \
@@ -394,15 +408,18 @@ void greatest_usage(const char *name) {                                 \
 
 #define GREATEST_MAIN_END()                                             \
     do {                                                                \
-        GREATEST_SET_TIME(greatest_info.end);                           \
-        fprintf(GREATEST_STDOUT,                                        \
-            "\nTotal: %u tests", greatest_info.tests_run);              \
-        GREATEST_CLOCK_DIFF(greatest_info.begin, greatest_info.end);    \
-        fprintf(GREATEST_STDOUT, "\n");                                 \
-        fprintf(GREATEST_STDOUT,                                        \
-            "Pass: %u, fail: %u, skip: %u.\n",                          \
-            greatest_info.passed,                                       \
-            greatest_info.failed, greatest_info.skipped);               \
+        if (!greatest_info.list_only) {                                 \
+            GREATEST_SET_TIME(greatest_info.end);                       \
+            fprintf(GREATEST_STDOUT,                                    \
+                "\nTotal: %u tests", greatest_info.tests_run);          \
+            GREATEST_CLOCK_DIFF(greatest_info.begin,                    \
+                greatest_info.end);                                     \
+            fprintf(GREATEST_STDOUT, "\n");                             \
+            fprintf(GREATEST_STDOUT,                                    \
+                "Pass: %u, fail: %u, skip: %u.\n",                      \
+                greatest_info.passed,                                   \
+                greatest_info.failed, greatest_info.skipped);           \
+        }                                                               \
         return (greatest_info.failed > 0                                \
             ? EXIT_FAILURE : EXIT_SUCCESS);                             \
     } while (0)
