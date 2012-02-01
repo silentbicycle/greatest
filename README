@@ -6,3 +6,10 @@ some compile time options, and additional functionality (parametric
 testing) is available if compiled with -std=c99.
 
 For usage examples, look at example.c and example-suite.c.
+
+    Usage: (test_runner) [-hlv] [-s SUITE] [-t TEST]
+      -h        print this Help
+      -l        List suites and their tests, then exit
+      -v        Verbose output
+      -s SUITE  only run suite SUITE
+      -t TEST   only run test TEST
