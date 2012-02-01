@@ -10,3 +10,5 @@ example: example.c greatest.h example-suite.o
 
 clean:
 	rm -f example *.o *.core
+
+example-suite.o: example-suite.c
