@@ -9,9 +9,10 @@ extern SUITE(other_suite);
 /* Just test against the output of random, to show a
  * variety of results. */
 TEST example_test_case() {
+    int r = 0;
     ASSERT(1 == 1);
 
-    int r = random() % 10;
+    r = random() % 10;
     if (r == 1) SKIP();
     ASSERT(r >= 1);
     PASS();
@@ -44,10 +45,10 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     RUN_TEST(expect_str_equal);
 
-    /* Run a test, with arguments. */
+    /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
-    RUN_TEST(parametric_example, 10);
-    RUN_TEST(parametric_example, 11);
+    RUN_TESTp(parametric_example, 10);
+    RUN_TESTp(parametric_example, 11);
 #endif
 }
 

@@ -135,7 +135,7 @@ void greatest_usage(const char *name);
 /* Run a test in the current suite.
  * If __VA_ARGS__ (C99) is supported, allow parametric testing. */
 #if __STDC_VERSION__ >= 19901L
-#define GREATEST_RUN_TEST(test, ...)                                    \
+#define GREATEST_RUN_TESTp(test, ...)                                   \
     do {                                                                \
         if (greatest_pre_test(#test) == 1) {                            \
             int res = test(__VA_ARGS__);                                \
@@ -144,7 +144,8 @@ void greatest_usage(const char *name);
             fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
         }                                                               \
     } while (0)
-#else
+#endif
+
 #define GREATEST_RUN_TEST(test)                                         \
     do {                                                                \
         if (greatest_pre_test(#test) == 1) {                            \
@@ -154,7 +155,6 @@ void greatest_usage(const char *name);
             fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
         }                                                               \
     } while (0)
-#endif
 
 /* Message-less forms. */
 #define GREATEST_PASS() return 0
@@ -351,7 +351,8 @@ void greatest_do_skip(const char *name) {                               \
     if (greatest_info.verbose) {                                        \
         fprintf(GREATEST_STDOUT, "SKIP %s: \"%s\"",                     \
             name,                                                       \
-            greatest_info.fail_msg ? greatest_info.fail_msg : "skipped" );  \
+            greatest_info.fail_msg ?                                    \
+            greatest_info.fail_msg : "skipped" );                       \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, "s");                                  \
     }                                                                   \
@@ -364,11 +365,12 @@ void greatest_usage(const char *name) {                                 \
         "  -h        print this Help\n"                                 \
         "  -l        List suites and their tests, then exit\n"          \
         "  -v        Verbose output\n"                                  \
-        "  -s SUITE  only run suite SUITE\n"                            \
-        "  -t TEST   only run test TEST\n",                             \
+        "  -s SUITE  only run suite named SUITE\n"                      \
+        "  -t TEST   only run test named TEST\n",                       \
         name);                                                          \
 }                                                                       \
-// (eat the trailing semicolon from GREATEST_MAIN_DEFS)
+/* (hack to eat the semicolon following GREATEST_MAIN_DEFS) */          \
+struct GREATEST_TRAILING_COMMA_EATER
 
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
@@ -444,6 +446,10 @@ void greatest_usage(const char *name) {                                 \
 #define SKIP GREATEST_SKIP
 #define FAILm GREATEST_FAILm
 #define SKIPm GREATEST_SKIPm
-#endif
+
+#if __STDC_VERSION__ >= 19901L
+#endif /* C99 */
+#define RUN_TESTp GREATEST_RUN_TESTp
+#endif /* USE_ABBREVS */
 
 #endif
