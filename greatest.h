@@ -156,6 +156,9 @@ void greatest_usage(const char *name);
         }                                                               \
     } while (0)
 
+/* Check if the test runner is in verbose mode. */
+#define GREATEST_IS_VERBOSE() (greatest_info.verbose)
+
 /* Message-less forms. */
 #define GREATEST_PASS() return 0
 #define GREATEST_FAIL() GREATEST_FAILm(NULL)
