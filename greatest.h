@@ -70,6 +70,10 @@ typedef struct greatest_suite_info {
 /* Type for a suite function. */
 typedef void (greatest_suite_cb)(void);
 
+/* Type for a teardown callback. If non-NULL, this will be
+ * run after the current test case finishes (and then set to NULL). */
+typedef void (greatest_teardown_cb)(void *udata);
+
 typedef struct greatest_run_info {
     unsigned int verbose;       /* verbose flag */
     unsigned int list_only;     /* list suite/tests only flag */
@@ -86,7 +90,11 @@ typedef struct greatest_run_info {
     /* info to print about the most recent failure */
     char *fail_file;
     unsigned int fail_line;
-    char *fail_msg;
+    char *msg;
+
+    /* current teardown hook and userdata */
+    greatest_teardown_cb *teardown;
+    void *teardown_udata;
 
     /* formatting info for ".....s...F"-style output */
     unsigned int col;
@@ -116,6 +124,7 @@ void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
+void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 
 /**********
@@ -123,36 +132,36 @@ void greatest_usage(const char *name);
  **********/
 
 /* Define a suite. */
-#define GREATEST_SUITE(name) void name()
+#define GREATEST_SUITE(NAME) void NAME()
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
 #define GREATEST_TEST static int
 
 /* Run a suite. */
-#define GREATEST_RUN_SUITE(s_name) greatest_run_suite(s_name, #s_name)
+#define GREATEST_RUN_SUITE(S_NAME) greatest_run_suite(S_NAME, #S_NAME)
 
 /* Run a test in the current suite.
  * If __VA_ARGS__ (C99) is supported, allow parametric testing. */
 #if __STDC_VERSION__ >= 19901L
-#define GREATEST_RUN_TESTp(test, ...)                                   \
+#define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
-        if (greatest_pre_test(#test) == 1) {                            \
-            int res = test(__VA_ARGS__);                                \
-            greatest_post_test(#test, res);                             \
+        if (greatest_pre_test(#TEST) == 1) {                            \
+            int res = TEST(__VA_ARGS__);                                \
+            greatest_post_test(#TEST, res);                             \
         } else if (greatest_info.list_only) {                           \
-            fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
+            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 #endif
 
-#define GREATEST_RUN_TEST(test)                                         \
+#define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
-        if (greatest_pre_test(#test) == 1) {                            \
-            int res = test();                                           \
-            greatest_post_test(#test, res);                             \
+        if (greatest_pre_test(#TEST) == 1) {                            \
+            int res = TEST();                                           \
+            greatest_post_test(#TEST, res);                             \
         } else if (greatest_info.list_only) {                           \
-            fprintf(GREATEST_STDOUT, "  %s\n", #test);                  \
+            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 
@@ -160,50 +169,50 @@ void greatest_usage(const char *name);
 #define GREATEST_IS_VERBOSE() (greatest_info.verbose)
 
 /* Message-less forms. */
-#define GREATEST_PASS() return 0
+#define GREATEST_PASS() GREATEST_PASSm(NULL)
 #define GREATEST_FAIL() GREATEST_FAILm(NULL)
 #define GREATEST_SKIP() GREATEST_SKIPm(NULL)
-#define GREATEST_ASSERT(cond) GREATEST_ASSERTm(#cond, cond)
-#define GREATEST_ASSERT_FALSE(cond) GREATEST_ASSERT_FALSEm(#cond, cond)
-#define GREATEST_ASSERT_EQ(exp, got) GREATEST_ASSERT_EQm("!= " #exp, exp, got)
-#define GREATEST_ASSERT_STR_EQ(exp, got) GREATEST_ASSERT_STR_EQm("!= " #exp, exp, got)
+#define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
+#define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
+#define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm("!= " #EXP, EXP, GOT)
+#define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm("!= " #EXP, EXP, GOT)
 
 /* The following forms take an additional message argument first,
  * to be displayed by the test runner. */
 
 /* Fail if a condition is not true, with message. */
-#define GREATEST_ASSERTm(msg, cond)                                     \
+#define GREATEST_ASSERTm(MSG, COND)                                     \
     do {                                                                \
-        greatest_info.fail_msg = msg;                                   \
+        greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if (!(cond)) return -1;                                         \
-        greatest_info.fail_msg = NULL;                                  \
+        if (!(COND)) return -1;                                         \
+        greatest_info.msg = NULL;                                       \
     } while (0)
 
-#define GREATEST_ASSERT_FALSEm(msg, cond)                               \
+#define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
-        greatest_info.fail_msg = msg;                                   \
+        greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((cond)) return -1;                                          \
-        greatest_info.fail_msg = NULL;                                  \
+        if ((COND)) return -1;                                          \
+        greatest_info.msg = NULL;                                       \
     } while (0)
 
-#define GREATEST_ASSERT_EQm(msg, exp, got)                              \
+#define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
-        greatest_info.fail_msg = msg;                                   \
+        greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((exp) != (got)) return -1;                                  \
-        greatest_info.fail_msg = NULL;                                  \
+        if ((EXP) != (GOT)) return -1;                                  \
+        greatest_info.msg = NULL;                                       \
     } while (0)
 
-#define GREATEST_ASSERT_STR_EQm(msg, exp, got)                          \
+#define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
-        char *exp_s = (exp);                                            \
-        char *got_s = (got);                                            \
-        greatest_info.fail_msg = msg;                                   \
+        char *exp_s = (EXP);                                            \
+        char *got_s = (GOT);                                            \
+        greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         if (0 != strcmp(exp_s, got_s)) {                                \
@@ -213,35 +222,53 @@ void greatest_usage(const char *name);
                 "Got:\n####\n%s\n####\n", got_s);                       \
             return -1;                                                  \
         }                                                               \
-        greatest_info.fail_msg = NULL;                                  \
+        greatest_info.msg = NULL;                                       \
     } while (0)
 
-#define GREATEST_FAILm(msg)                                             \
+#define GREATEST_CALL_TEARDOWN()                                        \
     do {                                                                \
+        if (greatest_info.teardown) {                                   \
+            greatest_info.teardown(greatest_info.teardown_udata);       \
+            greatest_info.teardown = NULL;                              \
+            greatest_info.teardown_udata = NULL;                        \
+        }                                                               \
+    } while (0)                                                         \
+        
+#define GREATEST_PASSm(MSG)                                             \
+    do {                                                                \
+        GREATEST_CALL_TEARDOWN();                                       \
+        greatest_info.msg = MSG;                                        \
+        return 0;                                                       \
+    } while (0)
+        
+#define GREATEST_FAILm(MSG)                                             \
+    do {                                                                \
+        GREATEST_CALL_TEARDOWN();                                       \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        greatest_info.fail_msg = msg;                                   \
+        greatest_info.msg = MSG;                                        \
         return -1;                                                      \
     } while (0)
 
-#define GREATEST_SKIPm(msg)                                             \
+#define GREATEST_SKIPm(MSG)                                             \
     do {                                                                \
-        greatest_info.fail_msg = msg;                                   \
+        GREATEST_CALL_TEARDOWN();                                       \
+        greatest_info.msg = MSG;                                        \
         return 1;                                                       \
     } while (0)
 
-#define GREATEST_SET_TIME(name)                                         \
-    name = clock();                                                     \
-    if (name == (int) -1) {                                             \
+#define GREATEST_SET_TIME(NAME)                                         \
+    NAME = clock();                                                     \
+    if (NAME == (int) -1) {                                             \
         fprintf(GREATEST_STDOUT,                                        \
-            "clock error: %s\n", #name);                                \
+            "clock error: %s\n", #NAME);                                \
         exit(EXIT_FAILURE);                                             \
     }
 
-#define GREATEST_CLOCK_DIFF(c1, c2)                                     \
+#define GREATEST_CLOCK_DIFF(C1, C2)                                     \
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
-        (long unsigned int) (c2) - (c1),                                \
-        ((c2) - (c1))/ (1.0 * CLOCKS_PER_SEC))                          \
+        (long unsigned int) (C2) - (C1),                                \
+        ((C2) - (C1))/ (1.0 * CLOCKS_PER_SEC))                          \
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
@@ -249,7 +276,7 @@ void greatest_usage(const char *name);
                                        0, 0, 0,                         \
                                        {0, 0, 0, 0,                     \
                                         0, 0, 0, 0},                    \
-                                       NULL, 0, NULL,                   \
+                                       NULL, 0, NULL, NULL, NULL,       \
                                        0, GREATEST_DEFAULT_WIDTH,       \
                                        NULL, NULL,                      \
                                        0, 0};                           \
@@ -323,7 +350,8 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
     if (greatest_info.verbose) {                                        \
-        fprintf(GREATEST_STDOUT, "PASS %s:", name );                    \
+        fprintf(GREATEST_STDOUT, "PASS %s: %s",                         \
+            name, greatest_info.msg ? greatest_info.msg : "");          \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, ".");                                  \
     }                                                                   \
@@ -333,8 +361,8 @@ void greatest_do_pass(const char *name) {                               \
 void greatest_do_fail(const char *name) {                               \
     if (greatest_info.verbose) {                                        \
         fprintf(GREATEST_STDOUT,                                        \
-            "FAIL %s: \"%s\" (%s:%u)",                                  \
-            name, greatest_info.fail_msg ? greatest_info.fail_msg : "", \
+            "FAIL %s: %s (%s:%u)",                                      \
+            name, greatest_info.msg ? greatest_info.msg : "",           \
             greatest_info.fail_file, greatest_info.fail_line);          \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, "F");                                  \
@@ -342,9 +370,9 @@ void greatest_do_fail(const char *name) {                               \
         if (greatest_info.col % greatest_info.width != 0)               \
             fprintf(GREATEST_STDOUT, "\n");                             \
         greatest_info.col = 0;                                          \
-        fprintf(GREATEST_STDOUT, "FAIL %s: \"%s\" (%s:%u)\n",           \
+        fprintf(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",               \
             name,                                                       \
-            greatest_info.fail_msg ? greatest_info.fail_msg : "",       \
+            greatest_info.msg ? greatest_info.msg : "",                 \
             greatest_info.fail_file, greatest_info.fail_line);          \
     }                                                                   \
     greatest_info.suite.failed++;                                       \
@@ -352,10 +380,10 @@ void greatest_do_fail(const char *name) {                               \
                                                                         \
 void greatest_do_skip(const char *name) {                               \
     if (greatest_info.verbose) {                                        \
-        fprintf(GREATEST_STDOUT, "SKIP %s: \"%s\"",                     \
+        fprintf(GREATEST_STDOUT, "SKIP %s: %s",                         \
             name,                                                       \
-            greatest_info.fail_msg ?                                    \
-            greatest_info.fail_msg : "skipped" );                       \
+            greatest_info.msg ?                                         \
+            greatest_info.msg : "" );                                   \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, "s");                                  \
     }                                                                   \
@@ -372,6 +400,14 @@ void greatest_usage(const char *name) {                                 \
         "  -t TEST   only run test named TEST\n",                       \
         name);                                                          \
 }                                                                       \
+                                                                        \
+/* Set the teardown callback.                                           \
+ * (Uppercase because it's part of the user interface.) */              \
+void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata) {  \
+    greatest_info.teardown = cb;                                        \
+    greatest_info.teardown_udata = udata;                               \
+}                                                                       \
+                                                                        \
 /* (hack to eat the semicolon following GREATEST_MAIN_DEFS) */          \
 struct GREATEST_TRAILING_COMMA_EATER
 
@@ -447,6 +483,7 @@ struct GREATEST_TRAILING_COMMA_EATER
 #define PASS GREATEST_PASS
 #define FAIL GREATEST_FAIL
 #define SKIP GREATEST_SKIP
+#define PASSm GREATEST_PASSm
 #define FAILm GREATEST_FAILm
 #define SKIPm GREATEST_SKIPm
 

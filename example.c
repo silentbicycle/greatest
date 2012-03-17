@@ -30,6 +30,36 @@ TEST expect_str_equal() {
     PASS();
 }
 
+static int teardown_was_called = 0;
+
+static void teardown_cb(void *udata) {
+    int *flag = (int *) udata;
+    (*flag) = 1;
+}
+
+TEST teardown_example_PASS() {
+    teardown_was_called = 0;
+    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
+    PASS();
+}
+
+TEST teardown_example_FAIL() {
+    teardown_was_called = 0;
+    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
+    FAILm("Failing to trigger teardown callback");
+}
+
+TEST teardown_example_SKIP() {
+    teardown_was_called = 0;
+    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
+    SKIPm("Skipping to trigger teardown callback");
+}
+
+TEST check_if_teardown_was_called() {
+    ASSERT_EQ(1, teardown_was_called);
+    PASSm("teardown_was_called");
+}
+
 /* If using C99, greatest can also do parametric tests. */
 #if __STDC_VERSION__ >= 19901L
 TEST parametric_example(int arg) {
@@ -44,6 +74,15 @@ SUITE(suite) {
         RUN_TEST(example_test_case);
     RUN_TEST(expect_equal);
     RUN_TEST(expect_str_equal);
+
+    RUN_TEST(teardown_example_PASS);
+    RUN_TEST(check_if_teardown_was_called);
+
+    RUN_TEST(teardown_example_FAIL);
+    RUN_TEST(check_if_teardown_was_called);
+
+    RUN_TEST(teardown_example_SKIP);
+    RUN_TEST(check_if_teardown_was_called);
 
     /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
