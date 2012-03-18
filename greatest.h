@@ -184,7 +184,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
             greatest_info.teardown(greatest_info.teardown_udata);       \
             greatest_info.teardown = NULL;                              \
             greatest_info.teardown_udata = NULL;                        \
-            fprintf(stderr, "-- cleared teardown\n");                   \
         }                                                               \
     } while (0)                                                         \
 
