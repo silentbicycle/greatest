@@ -177,6 +177,17 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm("!= " #EXP, EXP, GOT)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm("!= " #EXP, EXP, GOT)
 
+/* If set, call and clear the teardown callback. */
+#define GREATEST_CALL_TEARDOWN()                                        \
+    do {                                                                \
+        if (greatest_info.teardown) {                                   \
+            greatest_info.teardown(greatest_info.teardown_udata);       \
+            greatest_info.teardown = NULL;                              \
+            greatest_info.teardown_udata = NULL;                        \
+            fprintf(stderr, "-- cleared teardown\n");                   \
+        }                                                               \
+    } while (0)                                                         \
+
 /* The following forms take an additional message argument first,
  * to be displayed by the test runner. */
 
@@ -186,7 +197,10 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if (!(COND)) return -1;                                         \
+        if (!(COND)) {                                                  \
+            GREATEST_CALL_TEARDOWN();                                   \
+            return -1;                                                  \
+        }                                                               \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -195,7 +209,10 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((COND)) return -1;                                          \
+        if ((COND)) {                                                   \
+            GREATEST_CALL_TEARDOWN();                                   \
+            return -1;                                                  \
+        }                                                               \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -204,7 +221,10 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((EXP) != (GOT)) return -1;                                  \
+        if ((EXP) != (GOT)) {                                           \
+            GREATEST_CALL_TEARDOWN();                                   \
+            return -1;                                                  \
+        }                                                               \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -216,6 +236,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         if (0 != strcmp(exp_s, got_s)) {                                \
+            GREATEST_CALL_TEARDOWN();                                   \
             fprintf(GREATEST_STDOUT,                                    \
                 "Expected:\n####\n%s\n####\n", exp_s);                  \
             fprintf(GREATEST_STDOUT,                                    \
@@ -224,15 +245,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         }                                                               \
         greatest_info.msg = NULL;                                       \
     } while (0)
-
-#define GREATEST_CALL_TEARDOWN()                                        \
-    do {                                                                \
-        if (greatest_info.teardown) {                                   \
-            greatest_info.teardown(greatest_info.teardown_udata);       \
-            greatest_info.teardown = NULL;                              \
-            greatest_info.teardown_udata = NULL;                        \
-        }                                                               \
-    } while (0)                                                         \
         
 #define GREATEST_PASSm(MSG)                                             \
     do {                                                                \
