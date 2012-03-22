@@ -283,15 +283,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
-    greatest_run_info greatest_info = {0, 0, 0,                         \
-                                       0, 0, 0,                         \
-                                       {0, 0, 0, 0,                     \
-                                        0, 0, 0, 0},                    \
-                                       NULL, 0, NULL, NULL, NULL,       \
-                                       0, GREATEST_DEFAULT_WIDTH,       \
-                                       NULL, NULL,                      \
-                                       0, 0};                           \
-                                                                        \
 int greatest_pre_test(const char *name) {                               \
     if (!greatest_info.list_only                                        \
         && (greatest_info.test_filter == NULL ||                        \
@@ -419,8 +410,14 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata) {  \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-/* (hack to eat the semicolon following GREATEST_MAIN_DEFS) */          \
-struct GREATEST_TRAILING_COMMA_EATER
+    greatest_run_info greatest_info = {0, 0, 0,                         \
+                                       0, 0, 0,                         \
+                                       {0, 0, 0, 0,                     \
+                                        0, 0, 0, 0},                    \
+                                       NULL, 0, NULL, NULL, NULL,       \
+                                       0, GREATEST_DEFAULT_WIDTH,       \
+                                       NULL, NULL,                      \
+                                       0, 0}
 
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
