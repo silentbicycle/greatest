@@ -24,7 +24,37 @@
  * If C99 is available, then suites can pass arguments to tests for
  * parametric testing. */
 
+
+/*********************************************************************
+ * Minimal test runner template
+ *********************************************************************/
+#if 0
+
+#include "greatest.h"
+
+TEST foo() {
+    PASS();
+}
+
+SUITE(suite) {
+    RUN_TEST(foo);
+}
+
+/* Add all the definitions that need to be in the test runner's main file. */
+GREATEST_MAIN_DEFS();
+
+int main(int argc, char **argv) {
+    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+    RUN_SUITE(suite);
+    GREATEST_MAIN_END();        /* display results */
+}
+
+#endif
+/*********************************************************************/
+
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
