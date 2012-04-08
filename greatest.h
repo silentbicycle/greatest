@@ -313,6 +313,7 @@ void greatest_post_test(const char *name, int res) {                    \
         fprintf(GREATEST_STDOUT, "\n");                                 \
         greatest_info.col = 0;                                          \
     }                                                                   \
+    if (GREATEST_STDOUT == stdout) fflush(stdout);                      \
 }                                                                       \
                                                                         \
 static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
