@@ -17,6 +17,8 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
+#define GREATEST_VERSION 0.8
+
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
  * beyond ANSI C89.
