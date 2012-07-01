@@ -302,7 +302,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 #define GREATEST_SET_TIME(NAME)                                         \
     NAME = clock();                                                     \
-    if (NAME == (int) -1) {                                             \
+    if (NAME == (clock_t) -1) {                                         \
         fprintf(GREATEST_STDOUT,                                        \
             "clock error: %s\n", #NAME);                                \
         exit(EXIT_FAILURE);                                             \
