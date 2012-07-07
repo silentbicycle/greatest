@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-#define GREATEST_VERSION 0.8
+#define GREATEST_VERSION 0.81
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -34,12 +34,33 @@
 
 #include "greatest.h"
 
-TEST foo() {
+TEST foo_should_foo() {
     PASS();
 }
 
+static void suite_setup_cb(void *data) {
+    printf("setup callback for each test case\n");
+}
+
+static void suite_teardown_cb(void *data) {
+    printf("teardown callback for each test case\n");
+}
+
+static void single_test_teardown_cb(void *data) {
+    printf("teardown callback for a single test case\n");
+}
+
 SUITE(suite) {
-    RUN_TEST(foo);
+    /* Optional setup/teardown callbacks which will be run before/after
+     * every test case in the suite.
+     * Cleared when the suite finishes. */
+    SET_SUITE_SETUP(suite_setup_cb, voidp_to_callback_data);
+    SET_SUITE_TEARDOWN(suite_teardown_cb, voidp_to_callback_data);
+
+    /* Optional teardown for a single test case.
+     * Cleared after the test finishes. */
+    SET_TEARDOWN(single_test_teardown_cb, voidp_to_callback_data);
+    RUN_TEST(foo_should_foo);
 }
 
 /* Add all the definitions that need to be in the test runner's main file. */
@@ -102,8 +123,9 @@ typedef struct greatest_suite_info {
 /* Type for a suite function. */
 typedef void (greatest_suite_cb)(void);
 
-/* Type for a teardown callback. If non-NULL, this will be
- * run after the current test case finishes (and then set to NULL). */
+/* Types for setup/teardown callbacks. If non-NULL, these will be run
+ * and passed the pointer to their additional data. */
+typedef void (greatest_setup_cb)(void *udata);
 typedef void (greatest_teardown_cb)(void *udata);
 
 typedef struct greatest_run_info {
@@ -124,9 +146,13 @@ typedef struct greatest_run_info {
     unsigned int fail_line;
     char *msg;
 
-    /* current teardown hook and userdata */
-    greatest_teardown_cb *teardown;
+    /* current setup/teardown hooks and userdata */
+    greatest_teardown_cb *teardown;         /* single-test teardown */
     void *teardown_udata;
+    greatest_setup_cb *suite_setup;         /* every-test setup */
+    void *suite_setup_udata;
+    greatest_teardown_cb *suite_teardown;   /* every-test teardown */
+    void *suite_teardown_udata;
 
     /* formatting info for ".....s...F"-style output */
     unsigned int col;
@@ -156,6 +182,8 @@ void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
+void GREATEST_SET_SUITE_SETUP_CB(greatest_setup_cb *cb, void *udata);
+void GREATEST_SET_SUITE_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 
@@ -320,6 +348,9 @@ int greatest_pre_test(const char *name) {                               \
         && (greatest_info.test_filter == NULL ||                        \
             0 == strcmp(name, greatest_info.test_filter))) {            \
         GREATEST_SET_TIME(greatest_info.suite.pre_test);                \
+        if (greatest_info.suite_setup) {                                \
+            greatest_info.suite_setup(greatest_info.suite_setup_udata); \
+        }                                                               \
         return 1;               /* test should be run */                \
     } else {                                                            \
         return 0;               /* skipped */                           \
@@ -328,6 +359,11 @@ int greatest_pre_test(const char *name) {                               \
                                                                         \
 void greatest_post_test(const char *name, int res) {                    \
     GREATEST_SET_TIME(greatest_info.suite.post_test);                   \
+    if (greatest_info.suite_teardown) {                                 \
+        void *udata = greatest_info.suite_teardown_udata;               \
+        greatest_info.suite_teardown(udata);                            \
+    }                                                                   \
+                                                                        \
     if (res < 0) {                                                      \
         greatest_do_fail(name);                                         \
     } else if (res > 0) {                                               \
@@ -377,6 +413,10 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
             greatest_info.suite.post_suite);                            \
         fprintf(GREATEST_STDOUT, "\n");                                 \
     }                                                                   \
+    greatest_info.suite_setup = NULL;                                   \
+    greatest_info.suite_setup_udata = NULL;                             \
+    greatest_info.suite_teardown = NULL;                                \
+    greatest_info.suite_teardown_udata = NULL;                          \
     greatest_info.passed += greatest_info.suite.passed;                 \
     greatest_info.failed += greatest_info.suite.failed;                 \
     greatest_info.skipped += greatest_info.suite.skipped;               \
@@ -443,11 +483,25 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata) {  \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
+void GREATEST_SET_SUITE_SETUP_CB(greatest_setup_cb *cb, void *udata) {  \
+    greatest_info.suite_setup = cb;                                     \
+    greatest_info.suite_setup_udata = udata;                            \
+}                                                                       \
+                                                                        \
+void GREATEST_SET_SUITE_TEARDOWN_CB(greatest_teardown_cb *cb,           \
+                                    void *udata) {                      \
+    greatest_info.suite_teardown = cb;                                  \
+    greatest_info.suite_teardown_udata = udata;                         \
+}                                                                       \
+                                                                        \
     greatest_run_info greatest_info = {0, 0, 0,                         \
                                        0, 0, 0,                         \
                                        {0, 0, 0, 0,                     \
                                         0, 0, 0, 0},                    \
-                                       NULL, 0, NULL, NULL, NULL,       \
+                                       NULL, 0, NULL,                   \
+                                       NULL, NULL,                      \
+                                       NULL, NULL,                      \
+                                       NULL, NULL,                      \
                                        0, GREATEST_DEFAULT_WIDTH,       \
                                        NULL, NULL,                      \
                                        0, 0}
@@ -527,6 +581,9 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata) {  \
 #define PASSm          GREATEST_PASSm
 #define FAILm          GREATEST_FAILm
 #define SKIPm          GREATEST_SKIPm
+#define SET_TEARDOWN   GREATEST_SET_TEARDOWN_CB
+#define SET_SUITE_SETUP   GREATEST_SET_SUITE_SETUP_CB
+#define SET_SUITE_TEARDOWN   GREATEST_SET_SUITE_TEARDOWN_CB
 
 #if __STDC_VERSION__ >= 19901L
 #endif /* C99 */

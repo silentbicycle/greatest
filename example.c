@@ -68,6 +68,14 @@ TEST parametric_example(int arg) {
 }
 #endif
 
+static void trace_setup() {
+    printf("-- in suite setup callback\n");
+}
+
+static void trace_teardown() {
+    printf("-- in suite teardown callback\n");
+}
+
 SUITE(suite) {
     int i=0;
     for (i=0; i<200; i++)
@@ -75,6 +83,11 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     RUN_TEST(expect_str_equal);
 
+    /* Add setup/teardown for each test case. */
+    GREATEST_SET_SUITE_SETUP_CB(trace_setup, NULL);
+    GREATEST_SET_SUITE_TEARDOWN_CB(trace_teardown, NULL);
+
+    /* Check that the test-specific teardown hook is called. */
     RUN_TEST(teardown_example_PASS);
     RUN_TEST(check_if_teardown_was_called);
 
