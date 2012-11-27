@@ -206,8 +206,8 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_SKIP() GREATEST_SKIPm(NULL)
 #define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
 #define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
-#define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm("!= " #EXP, EXP, GOT)
-#define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm("!= " #EXP, EXP, GOT)
+#define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
 
 /* If set, call and clear the teardown callback. */
 #define GREATEST_CALL_TEARDOWN()                                        \
