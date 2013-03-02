@@ -76,6 +76,10 @@ SUITE(suite) {
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
 
+    /* Set so asserts below won't fail if running in list-only or
+     * first-fail modes. (setup() won't be called and clear it.) */
+    teardown_was_called = -1;
+
     /* Add setup/teardown for each test case. */
     GREATEST_SET_SETUP_CB(trace_setup, NULL);
     GREATEST_SET_TEARDOWN_CB(trace_teardown, NULL);

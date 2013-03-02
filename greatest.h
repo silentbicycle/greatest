@@ -17,7 +17,9 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-#define GREATEST_VERSION 0.82
+#define GREATEST_VERSION_MAJOR 0
+#define GREATEST_VERSION_MINOR 9
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -44,10 +46,6 @@ static void setup_cb(void *data) {
 
 static void teardown_cb(void *data) {
     printf("teardown callback for each test case\n");
-}
-
-static void one_time_teardown_cb(void *data) {
-    printf("teardown callback for a single test case\n");
 }
 
 SUITE(suite) {
@@ -125,9 +123,14 @@ typedef void (greatest_suite_cb)(void);
 typedef void (greatest_setup_cb)(void *udata);
 typedef void (greatest_teardown_cb)(void *udata);
 
+typedef enum {
+    GREATEST_FLAG_VERBOSE = 0x01,
+    GREATEST_FLAG_FIRST_FAIL = 0x02,
+    GREATEST_FLAG_LIST_ONLY = 0x04,
+} GREATEST_FLAG;
+
 typedef struct greatest_run_info {
-    unsigned int verbose;       /* verbose flag */
-    unsigned int list_only;     /* list suite/tests only flag */
+    unsigned int flags;
     unsigned int tests_run;     /* total test count */
 
     /* Overall pass/fail/skip counts. */
@@ -203,7 +206,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         if (greatest_pre_test(#TEST) == 1) {                            \
             int res = TEST(__VA_ARGS__);                                \
             greatest_post_test(#TEST, res);                             \
-        } else if (greatest_info.list_only) {                           \
+        } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
@@ -214,13 +217,15 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         if (greatest_pre_test(#TEST) == 1) {                            \
             int res = TEST();                                           \
             greatest_post_test(#TEST, res);                             \
-        } else if (greatest_info.list_only) {                           \
+        } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 
 /* Check if the test runner is in verbose mode. */
-#define GREATEST_IS_VERBOSE() (greatest_info.verbose)
+#define GREATEST_IS_VERBOSE() (greatest_info.flags & GREATEST_FLAG_VERBOSE)
+#define GREATEST_LIST_ONLY() (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
+#define GREATEST_FIRST_FAIL() (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
 
 /* Message-less forms. */
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
@@ -315,7 +320,8 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
 int greatest_pre_test(const char *name) {                               \
-    if (!greatest_info.list_only                                        \
+    if (!GREATEST_LIST_ONLY()                                           \
+        && (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)  \
         && (greatest_info.test_filter == NULL ||                        \
             0 == strcmp(name, greatest_info.test_filter))) {            \
         GREATEST_SET_TIME(greatest_info.suite.pre_test);                \
@@ -344,7 +350,7 @@ void greatest_post_test(const char *name, int res) {                    \
     }                                                                   \
     greatest_info.suite.tests_run++;                                    \
     greatest_info.col++;                                                \
-    if (greatest_info.verbose) {                                        \
+    if (GREATEST_IS_VERBOSE()) {                                        \
         GREATEST_CLOCK_DIFF(greatest_info.suite.pre_test,               \
             greatest_info.suite.post_test);                             \
         fprintf(GREATEST_STDOUT, "\n");                                 \
@@ -360,6 +366,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
     if (greatest_info.suite_filter &&                                   \
         0 != strcmp(suite_name, greatest_info.suite_filter))            \
         return;                                                         \
+    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) return;      \
     greatest_info.suite.tests_run = 0;                                  \
     greatest_info.suite.failed = 0;                                     \
     greatest_info.suite.passed = 0;                                     \
@@ -395,7 +402,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
 }                                                                       \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
-    if (greatest_info.verbose) {                                        \
+    if (GREATEST_IS_VERBOSE()) {                                        \
         fprintf(GREATEST_STDOUT, "PASS %s: %s",                         \
             name, greatest_info.msg ? greatest_info.msg : "");          \
     } else {                                                            \
@@ -405,7 +412,7 @@ void greatest_do_pass(const char *name) {                               \
 }                                                                       \
                                                                         \
 void greatest_do_fail(const char *name) {                               \
-    if (greatest_info.verbose) {                                        \
+    if (GREATEST_IS_VERBOSE()) {                                        \
         fprintf(GREATEST_STDOUT,                                        \
             "FAIL %s: %s (%s:%u)",                                      \
             name, greatest_info.msg ? greatest_info.msg : "",           \
@@ -425,7 +432,7 @@ void greatest_do_fail(const char *name) {                               \
 }                                                                       \
                                                                         \
 void greatest_do_skip(const char *name) {                               \
-    if (greatest_info.verbose) {                                        \
+    if (GREATEST_IS_VERBOSE()) {                                        \
         fprintf(GREATEST_STDOUT, "SKIP %s: %s",                         \
             name,                                                       \
             greatest_info.msg ?                                         \
@@ -441,6 +448,7 @@ void greatest_usage(const char *name) {                                 \
         "Usage: %s [-hlv] [-s SUITE] [-t TEST]\n"                       \
         "  -h        print this Help\n"                                 \
         "  -l        List suites and their tests, then exit\n"          \
+        "  -f        Stop runner after first failure\n"                 \
         "  -v        Verbose output\n"                                  \
         "  -s SUITE  only run suite named SUITE\n"                      \
         "  -t TEST   only run test named TEST\n",                       \
@@ -458,7 +466,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-    greatest_run_info greatest_info = {0, 0, 0,                         \
+    greatest_run_info greatest_info = {0, 0,                            \
                                        0, 0, 0,                         \
                                        {0, 0, 0, 0,                     \
                                         0, 0, 0, 0},                    \
@@ -488,10 +496,12 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
                 }                                                       \
                 greatest_info.suite_filter = argv[i+1];                 \
                 i++;                                                    \
+            } else if (0 == strcmp("-f", argv[i])) {                    \
+                greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;        \
             } else if (0 == strcmp("-v", argv[i])) {                    \
-                greatest_info.verbose = 1;                              \
+                greatest_info.flags |= GREATEST_FLAG_VERBOSE;           \
             } else if (0 == strcmp("-l", argv[i])) {                    \
-                greatest_info.list_only = 1;                            \
+                greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;         \
             } else if (0 == strcmp("-h", argv[i])) {                    \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_SUCCESS);                                     \
@@ -507,7 +517,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
 
 #define GREATEST_MAIN_END()                                             \
     do {                                                                \
-        if (!greatest_info.list_only) {                                 \
+        if (!GREATEST_LIST_ONLY()) {                                    \
             GREATEST_SET_TIME(greatest_info.end);                       \
             fprintf(GREATEST_STDOUT,                                    \
                 "\nTotal: %u tests", greatest_info.tests_run);          \
