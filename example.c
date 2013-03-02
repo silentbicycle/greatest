@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "greatest.h"
 
@@ -32,32 +33,19 @@ TEST expect_str_equal() {
 
 static int teardown_was_called = 0;
 
-static void teardown_cb(void *udata) {
-    int *flag = (int *) udata;
-    (*flag) = 1;
-}
-
 TEST teardown_example_PASS() {
     teardown_was_called = 0;
-    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
     PASS();
 }
 
 TEST teardown_example_FAIL() {
     teardown_was_called = 0;
-    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
-    FAILm("Failing to trigger teardown callback");
+    FAILm("Using FAIL to trigger teardown callback");
 }
 
 TEST teardown_example_SKIP() {
     teardown_was_called = 0;
-    GREATEST_SET_TEARDOWN_CB(teardown_cb, &teardown_was_called);
-    SKIPm("Skipping to trigger teardown callback");
-}
-
-TEST check_if_teardown_was_called() {
-    ASSERT_EQ(1, teardown_was_called);
-    PASSm("teardown_was_called");
+    SKIPm("Using SKIP to trigger teardown callback");
 }
 
 /* If using C99, greatest can also do parametric tests. */
@@ -69,36 +57,44 @@ TEST parametric_example(int arg) {
 #endif
 
 static void trace_setup() {
-    printf("-- in suite setup callback\n");
+    printf("-- in setup callback\n");
+    teardown_was_called = 0;
 }
 
 static void trace_teardown() {
-    printf("-- in suite teardown callback\n");
+    printf("-- in teardown callback\n");
+    teardown_was_called = 1;
 }
 
 SUITE(suite) {
+    printf("\nThis should have some failures:\n");
     int i=0;
-    for (i=0; i<200; i++)
+    for (i=0; i<200; i++) {
         RUN_TEST(example_test_case);
+    }
     RUN_TEST(expect_equal);
+    printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
 
     /* Add setup/teardown for each test case. */
-    GREATEST_SET_SUITE_SETUP_CB(trace_setup, NULL);
-    GREATEST_SET_SUITE_TEARDOWN_CB(trace_teardown, NULL);
+    GREATEST_SET_SETUP_CB(trace_setup, NULL);
+    GREATEST_SET_TEARDOWN_CB(trace_teardown, NULL);
 
     /* Check that the test-specific teardown hook is called. */
     RUN_TEST(teardown_example_PASS);
-    RUN_TEST(check_if_teardown_was_called);
+    assert(teardown_was_called);
 
+    printf("\nThis should fail:\n");
     RUN_TEST(teardown_example_FAIL);
-    RUN_TEST(check_if_teardown_was_called);
+    assert(teardown_was_called);
 
+    printf("This should be skipped:\n");
     RUN_TEST(teardown_example_SKIP);
-    RUN_TEST(check_if_teardown_was_called);
+    assert(teardown_was_called);
 
     /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
+    printf("\nThis should fail:\n");
     RUN_TESTp(parametric_example, 10);
     RUN_TESTp(parametric_example, 11);
 #endif
