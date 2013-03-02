@@ -6,7 +6,45 @@ To use, just include greatest.h in your project. Note that there are
 some compile time options, and additional functionality (parametric
 testing) is available if compiled with -std=c99.
 
-For usage examples, look at example.c and example-suite.c.
+# Basic Usage
+
+    $ cat simple.c
+    #include "greatest.h"
+    
+    TEST x_should_equal_1() {
+        int x = 1;
+        ASSERT_EQ(1, x);                              /* default message */
+        ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
+        PASS();
+    }
+    
+    SUITE(the_suite) {
+        RUN_TEST(x_should_equal_1);
+    }
+    
+    /* Add definitions that need to be in the test runner's main file. */
+    GREATEST_MAIN_DEFS();
+    
+    int main(int argc, char **argv) {
+        GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+        RUN_SUITE(the_suite);
+        GREATEST_MAIN_END();        /* display results */
+    }
+    $ make simple && ./simple
+    cc -g -Wall -Werror -pedantic    simple.c   -o simple
+    
+    * Suite the_suite:
+    .
+    1 tests - 1 pass, 0 fail, 0 skipped (5 ticks, 0.000 sec)
+    
+    Total: 1 tests (47 ticks, 0.000 sec)
+    Pass: 1, fail: 0, skip: 0.
+
+(For more examples, look at example.c and example-suite.c.)
+
+# Command Line Options
+
+Test runners build with the following command line options:
 
     Usage: (test_runner) [-hlfv] [-s SUITE] [-t TEST]
       -h        print this Help
@@ -15,3 +53,6 @@ For usage examples, look at example.c and example-suite.c.
       -v        Verbose output
       -s SUITE  only run suite named SUITE
       -t TEST   only run test named TEST
+
+If you want to run multiple test suites in parallel, look at
+[parade](https://github.com/silentbicycle/parade).
