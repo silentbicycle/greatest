@@ -8,7 +8,7 @@ testing) is available if compiled with -std=c99.
 
 For usage examples, look at example.c and example-suite.c.
 
-    Usage: (test_runner) [-hlv] [-s SUITE] [-t TEST]
+    Usage: (test_runner) [-hlfv] [-s SUITE] [-t TEST]
       -h        print this Help
       -l        List suites and their tests, then exit
       -f        Stop runner after first failure

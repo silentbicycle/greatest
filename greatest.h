@@ -445,7 +445,7 @@ void greatest_do_skip(const char *name) {                               \
                                                                         \
 void greatest_usage(const char *name) {                                 \
     fprintf(GREATEST_STDOUT,                                            \
-        "Usage: %s [-hlv] [-s SUITE] [-t TEST]\n"                       \
+        "Usage: %s [-hlfv] [-s SUITE] [-t TEST]\n"                      \
         "  -h        print this Help\n"                                 \
         "  -l        List suites and their tests, then exit\n"          \
         "  -f        Stop runner after first failure\n"                 \
