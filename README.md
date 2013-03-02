@@ -11,6 +11,7 @@ For usage examples, look at example.c and example-suite.c.
     Usage: (test_runner) [-hlv] [-s SUITE] [-t TEST]
       -h        print this Help
       -l        List suites and their tests, then exit
+      -f        Stop runner after first failure
       -v        Verbose output
       -s SUITE  only run suite named SUITE
       -t TEST   only run test named TEST
