@@ -19,7 +19,7 @@
 
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 9
-#define GREATEST_VERSION_PATCH 0
+#define GREATEST_VERSION_PATCH 1
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -126,7 +126,7 @@ typedef void (greatest_teardown_cb)(void *udata);
 typedef enum {
     GREATEST_FLAG_VERBOSE = 0x01,
     GREATEST_FLAG_FIRST_FAIL = 0x02,
-    GREATEST_FLAG_LIST_ONLY = 0x04,
+    GREATEST_FLAG_LIST_ONLY = 0x04
 } GREATEST_FLAG;
 
 typedef struct greatest_run_info {

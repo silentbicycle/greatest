@@ -67,8 +67,8 @@ static void trace_teardown() {
 }
 
 SUITE(suite) {
-    printf("\nThis should have some failures:\n");
     int i=0;
+    printf("\nThis should have some failures:\n");
     for (i=0; i<200; i++) {
         RUN_TEST(example_test_case);
     }
