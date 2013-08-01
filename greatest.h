@@ -142,9 +142,9 @@ typedef struct greatest_run_info {
     greatest_suite_info suite;
 
     /* info to print about the most recent failure */
-    char *fail_file;
+    const char *fail_file;
     unsigned int fail_line;
-    char *msg;
+    const char *msg;
 
     /* current setup/teardown hooks and userdata */
     greatest_setup_cb *setup;
@@ -269,8 +269,8 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
-        char *exp_s = (EXP);                                            \
-        char *got_s = (GOT);                                            \
+        const char *exp_s = (EXP);                                      \
+        const char *got_s = (GOT);                                      \
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
@@ -315,7 +315,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
         (long unsigned int) (C2) - (C1),                                \
-        ((C2) - (C1))/ (1.0 * CLOCKS_PER_SEC))                          \
+        (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
@@ -362,7 +362,7 @@ void greatest_post_test(const char *name, int res) {                    \
 }                                                                       \
                                                                         \
 static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
-                               char *suite_name) {                      \
+                               const char *suite_name) {                \
     if (greatest_info.suite_filter &&                                   \
         0 != strcmp(suite_name, greatest_info.suite_filter))            \
         return;                                                         \
