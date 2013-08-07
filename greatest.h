@@ -477,21 +477,15 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-    greatest_run_info greatest_info = {0, 0,                            \
-                                       0, 0, 0,                         \
-                                       {0, 0, 0, 0,                     \
-                                        0, 0, 0, 0},                    \
-                                       NULL, 0, NULL,                   \
-                                       NULL, NULL,                      \
-                                       NULL, NULL,                      \
-                                       0, GREATEST_DEFAULT_WIDTH,       \
-                                       NULL, NULL,                      \
-                                       0, 0}
+greatest_run_info greatest_info = {0}
 
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
         int i = 0;                                                      \
+        if (greatest_info.width == 0) {                                 \
+            greatest_info.width = GREATEST_DEFAULT_WIDTH;               \
+        }                                                               \
         for (i = 1; i < argc; i++) {                                    \
             if (0 == strcmp("-t", argv[i])) {                           \
                 if (argc <= i + 1) {                                    \
