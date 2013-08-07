@@ -48,9 +48,16 @@ TEST teardown_example_SKIP() {
     SKIPm("Using SKIP to trigger teardown callback");
 }
 
-/* If using C99, greatest can also do parametric tests. */
+TEST parametric_example_c89(void *closure) {
+    int arg = *(int *) closure;
+    ASSERT(arg > 10);
+    PASS();
+}
+
+/* If using C99, greatest can also do parametric tests without
+ * needing to manually manage a closure. */
 #if __STDC_VERSION__ >= 19901L
-TEST parametric_example(int arg) {
+TEST parametric_example_c99(int arg) {
     ASSERT(arg > 10);
     PASS();
 }
@@ -96,11 +103,19 @@ SUITE(suite) {
     RUN_TEST(teardown_example_SKIP);
     assert(teardown_was_called);
 
+    /* Run a test with one void* argument (which can point to a
+     * struct with multiple arguments). */
+    printf("\nThis should fail:\n");
+    i = 10;
+    RUN_TEST1(parametric_example_c89, &i);
+    i = 11;
+    RUN_TEST1(parametric_example_c89, &i);
+
     /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
     printf("\nThis should fail:\n");
-    RUN_TESTp(parametric_example, 10);
-    RUN_TESTp(parametric_example, 11);
+    RUN_TESTp(parametric_example_c99, 10);
+    RUN_TESTp(parametric_example_c99, 11);
 #endif
 }
 

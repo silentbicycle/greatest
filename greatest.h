@@ -23,10 +23,7 @@
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
- * beyond ANSI C89.
- *
- * If C99 is available, then suites can pass arguments to tests for
- * parametric testing. */
+ * beyond ANSI C89. */
 
 
 /*********************************************************************
@@ -198,8 +195,31 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 /* Run a suite. */
 #define GREATEST_RUN_SUITE(S_NAME) greatest_run_suite(S_NAME, #S_NAME)
 
-/* Run a test in the current suite.
- * If __VA_ARGS__ (C99) is supported, allow parametric testing. */
+/* Run a test in the current suite. */
+#define GREATEST_RUN_TEST(TEST)                                         \
+    do {                                                                \
+        if (greatest_pre_test(#TEST) == 1) {                            \
+            int res = TEST();                                           \
+            greatest_post_test(#TEST, res);                             \
+        } else if (GREATEST_LIST_ONLY()) {                              \
+            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+        }                                                               \
+    } while (0)
+
+/* Run a test in the current suite with one void* argument,
+ * which can be a pointer to a struct with multiple arguments. */
+#define GREATEST_RUN_TEST1(TEST, ENV)                                   \
+    do {                                                                \
+        if (greatest_pre_test(#TEST) == 1) {                            \
+            int res = TEST(ENV);                                        \
+            greatest_post_test(#TEST, res);                             \
+        } else if (GREATEST_LIST_ONLY()) {                              \
+            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+        }                                                               \
+    } while (0)
+
+/* If __VA_ARGS__ (C99) is supported, allow parametric testing
+ * without needing to manually manage the argument struct. */
 #if __STDC_VERSION__ >= 19901L
 #define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
@@ -212,15 +232,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
     } while (0)
 #endif
 
-#define GREATEST_RUN_TEST(TEST)                                         \
-    do {                                                                \
-        if (greatest_pre_test(#TEST) == 1) {                            \
-            int res = TEST();                                           \
-            greatest_post_test(#TEST, res);                             \
-        } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
-        }                                                               \
-    } while (0)
 
 /* Check if the test runner is in verbose mode. */
 #define GREATEST_IS_VERBOSE() (greatest_info.flags & GREATEST_FLAG_VERBOSE)
@@ -539,6 +550,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
 #define TEST           GREATEST_TEST
 #define SUITE          GREATEST_SUITE
 #define RUN_TEST       GREATEST_RUN_TEST
+#define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
 #define ASSERT         GREATEST_ASSERT
 #define ASSERTm        GREATEST_ASSERTm

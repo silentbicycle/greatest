@@ -1,6 +1,6 @@
 CFLAGS += -g -Wall -Werror -pedantic
 
-# Uncomment to demo parametric testing.
+# Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
 
 all: example

@@ -2,9 +2,11 @@ A unit testing system for C, contained in 1 file. It doesn't use dynamic
 allocation or depend on anything beyond ANSI C89, and the test scaffolding
 should build without warnings under `-Wall -pedantic`.
 
-To use, just include greatest.h in your project. Note that there are
-some compile time options, and additional functionality (parametric
-testing) is available if compiled with -std=c99.
+To use, just `#include` greatest.h in your project. 
+
+Note that there are some compile time options, and slightly nicer syntax
+for parametric testing (running tests with arguments) is available if
+compiled with -std=c99.
 
 # Basic Usage
 
