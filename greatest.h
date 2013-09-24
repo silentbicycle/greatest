@@ -477,12 +477,13 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-greatest_run_info greatest_info = {0}
+greatest_run_info greatest_info
 
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
         int i = 0;                                                      \
+        memset(&greatest_info, 0, sizeof(greatest_info));               \
         if (greatest_info.width == 0) {                                 \
             greatest_info.width = GREATEST_DEFAULT_WIDTH;               \
         }                                                               \
