@@ -53,8 +53,8 @@ Test runners build with the following command line options:
       -l        List suites and their tests, then exit
       -f        Stop runner after first failure
       -v        Verbose output
-      -s SUITE  only run suite named SUITE
-      -t TEST   only run test named TEST
+      -s SUITE  only run suite w/ name containing SUITE substring
+      -t TEST   only run test w/ name containing TEST substring
 
 If you want to run multiple test suites in parallel, look at
 [parade](https://github.com/silentbicycle/parade).

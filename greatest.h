@@ -19,7 +19,7 @@
 
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 9
-#define GREATEST_VERSION_PATCH 2
+#define GREATEST_VERSION_PATCH 3
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -330,11 +330,29 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
+                                                                        \
+/* Is FILTER a subset of NAME? */                                       \
+static int greatest_name_match(const char *name,                        \
+    const char *filter) {                                               \
+    size_t offset = 0;                                                  \
+    size_t filter_len = strlen(filter);                                 \
+    while (name[offset] != '\0') {                                      \
+        if (name[offset] == filter[0]) {                                \
+            if (0 == strncmp(&name[offset], filter, filter_len)) {      \
+                return 1;                                               \
+            }                                                           \
+        }                                                               \
+        offset++;                                                       \
+    }                                                                   \
+                                                                        \
+    return 0;                                                           \
+}                                                                       \
+                                                                        \
 int greatest_pre_test(const char *name) {                               \
     if (!GREATEST_LIST_ONLY()                                           \
         && (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)  \
         && (greatest_info.test_filter == NULL ||                        \
-            0 == strcmp(name, greatest_info.test_filter))) {            \
+            greatest_name_match(name, greatest_info.test_filter))) {    \
         GREATEST_SET_TIME(greatest_info.suite.pre_test);                \
         if (greatest_info.setup) {                                      \
             greatest_info.setup(greatest_info.setup_udata);             \
@@ -375,7 +393,7 @@ void greatest_post_test(const char *name, int res) {                    \
 static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                const char *suite_name) {                \
     if (greatest_info.suite_filter &&                                   \
-        0 != strcmp(suite_name, greatest_info.suite_filter))            \
+        !greatest_name_match(suite_name, greatest_info.suite_filter))   \
         return;                                                         \
     if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) return;      \
     greatest_info.suite.tests_run = 0;                                  \
