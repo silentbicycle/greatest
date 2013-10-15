@@ -237,6 +237,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_IS_VERBOSE() (greatest_info.flags & GREATEST_FLAG_VERBOSE)
 #define GREATEST_LIST_ONLY() (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
 #define GREATEST_FIRST_FAIL() (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
+#define GREATEST_FAILURE_ABORT() (greatest_info.suite.failed > 0 && GREATEST_FIRST_FAIL())
 
 /* Message-less forms. */
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
