@@ -186,7 +186,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
  **********/
 
 /* Define a suite. */
-#define GREATEST_SUITE(NAME) void NAME()
+#define GREATEST_SUITE(NAME) void NAME(void)
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */

@@ -1,4 +1,7 @@
-CFLAGS += -g -Wall -Werror -pedantic
+CFLAGS += -Wall -Werror -Wextra -pedantic
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wmissing-declarations
 
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99

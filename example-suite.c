@@ -3,6 +3,9 @@
 
 #include "greatest.h"
 
+/* Declare a local suite. */
+SUITE(other_suite);
+
 TEST blah() {
     PASS();
 }

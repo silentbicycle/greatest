@@ -7,6 +7,9 @@
 /* Define a suite, compiled seperately. */
 extern SUITE(other_suite);
 
+/* Declare a local suite. */
+SUITE(suite);
+
 /* Just test against the output of random, to show a
  * variety of results. */
 TEST example_test_case() {
@@ -26,7 +29,7 @@ TEST expect_equal() {
 }
 
 TEST expect_str_equal() {
-    char *foo = "foo";
+    const char *foo = "foo";
     ASSERT_STR_EQ("bar", foo);
     PASS();
 }
