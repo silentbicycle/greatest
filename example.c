@@ -12,7 +12,7 @@ SUITE(suite);
 
 /* Just test against the output of random, to show a
  * variety of results. */
-TEST example_test_case() {
+TEST example_test_case(void) {
     int r = 0;
     ASSERT(1 == 1);
 
@@ -22,13 +22,13 @@ TEST example_test_case() {
     PASS();
 }
 
-TEST expect_equal() {
+TEST expect_equal(void) {
     int i = 9;
     ASSERT_EQ(10, i);
     PASS();
 }
 
-TEST expect_str_equal() {
+TEST expect_str_equal(void) {
     const char *foo = "foo";
     ASSERT_STR_EQ("bar", foo);
     PASS();
@@ -36,17 +36,17 @@ TEST expect_str_equal() {
 
 static int teardown_was_called = 0;
 
-TEST teardown_example_PASS() {
+TEST teardown_example_PASS(void) {
     teardown_was_called = 0;
     PASS();
 }
 
-TEST teardown_example_FAIL() {
+TEST teardown_example_FAIL(void) {
     teardown_was_called = 0;
     FAILm("Using FAIL to trigger teardown callback");
 }
 
-TEST teardown_example_SKIP() {
+TEST teardown_example_SKIP(void) {
     teardown_was_called = 0;
     SKIPm("Using SKIP to trigger teardown callback");
 }
@@ -66,14 +66,16 @@ TEST parametric_example_c99(int arg) {
 }
 #endif
 
-static void trace_setup() {
+static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
+    (void)arg;
 }
 
-static void trace_teardown() {
+static void trace_teardown(void *arg) {
     printf("-- in teardown callback\n");
     teardown_was_called = 1;
+    (void)arg;
 }
 
 SUITE(suite) {
