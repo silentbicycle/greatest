@@ -247,6 +247,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_MEM_EQ(EXP, GOT, LEN) GREATEST_ASSERT_MEM_EQm(#EXP " != " #GOT, EXP, GOT, LEN)
 
 /* The following forms take an additional message argument first,
  * to be displayed by the test runner. */
@@ -287,6 +288,23 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         if (0 != strcmp(exp_s, got_s)) {                                \
+            fprintf(GREATEST_STDOUT,                                    \
+                "Expected:\n####\n%s\n####\n", exp_s);                  \
+            fprintf(GREATEST_STDOUT,                                    \
+                "Got:\n####\n%s\n####\n", got_s);                       \
+            return -1;                                                  \
+        }                                                               \
+        greatest_info.msg = NULL;                                       \
+    } while (0)
+
+#define GREATEST_ASSERT_MEM_EQm(MSG, EXP, GOT, LEN)                     \
+    do {                                                                \
+        const char *exp_s = (EXP);                                      \
+        const char *got_s = (GOT);                                      \
+        greatest_info.msg = MSG;                                        \
+        greatest_info.fail_file = __FILE__;                             \
+        greatest_info.fail_line = __LINE__;                             \
+        if (0 != memcmp(exp_s, got_s, LEN)) {                           \
             fprintf(GREATEST_STDOUT,                                    \
                 "Expected:\n####\n%s\n####\n", exp_s);                  \
             fprintf(GREATEST_STDOUT,                                    \
@@ -571,9 +589,11 @@ greatest_run_info greatest_info
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
+#define ASSERT_MEM_EQ  GREATEST_ASSERT_MEM_EQ    
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
+#define ASSERT_MEM_EQm GREATEST_ASSERT_MEM_EQm    
 #define PASS           GREATEST_PASS
 #define FAIL           GREATEST_FAIL
 #define SKIP           GREATEST_SKIP

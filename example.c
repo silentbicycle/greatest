@@ -34,6 +34,12 @@ TEST expect_str_equal(void) {
     PASS();
 }
 
+TEST expect_mem_equal() {
+    const char *foo = "foo\0\0\0\0";
+    ASSERT_MEM_EQ("foo\0abc", foo, 8);
+    PASS();
+}
+
 static int teardown_was_called = 0;
 
 TEST teardown_example_PASS(void) {
@@ -87,6 +93,7 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
+    RUN_TEST(expect_mem_equal);    
 
     /* Set so asserts below won't fail if running in list-only or
      * first-fail modes. (setup() won't be called and clear it.) */
