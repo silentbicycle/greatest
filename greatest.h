@@ -93,6 +93,16 @@ int main(int argc, char **argv) {
 #define GREATEST_USE_ABBREVS 1
 #endif
 
+/* Colorize the passed/failed results */
+#ifndef COLOR_FAIL
+#define COLOR_FAIL  "\033[22;31;1m"
+#endif
+#ifndef COLOR_PASS
+#define COLOR_PASS  "\033[22;32m"
+#endif
+#define COLOR_RESET "\033[22;0m"
+#define COLOR_NONE ""
+
 
 /*********
  * Types *
@@ -156,6 +166,11 @@ typedef struct greatest_run_info {
     /* only run a specific suite or test */
     char *suite_filter;
     char *test_filter;
+
+    /* color information */
+    char *color_pass;
+    char *color_fail;
+    char *color_reset;
 
     /* overall timers */
     clock_t begin;
@@ -412,10 +427,16 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
     GREATEST_SET_TIME(greatest_info.suite.post_suite);                  \
     if (greatest_info.suite.tests_run > 0) {                            \
         fprintf(GREATEST_STDOUT,                                        \
-            "\n%u tests - %u pass, %u fail, %u skipped",                \
+            "\n%u tests - %u %spass%s, %u %sfail%s, %u skipped",        \
             greatest_info.suite.tests_run,                              \
             greatest_info.suite.passed,                                 \
+            (!greatest_info.suite.failed)                               \
+                ? greatest_info.color_pass : greatest_info.color_reset ,\
+            greatest_info.color_reset,                                  \
             greatest_info.suite.failed,                                 \
+            (greatest_info.suite.failed)                                \
+                ? greatest_info.color_fail : greatest_info.color_reset, \
+            greatest_info.color_reset,                                  \
             greatest_info.suite.skipped);                               \
         GREATEST_CLOCK_DIFF(greatest_info.suite.pre_suite,              \
             greatest_info.suite.post_suite);                            \
@@ -433,8 +454,10 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        fprintf(GREATEST_STDOUT, "PASS %s: %s",                         \
-            name, greatest_info.msg ? greatest_info.msg : "");          \
+        fprintf(GREATEST_STDOUT, "%sPASS%s %s: %s",                     \
+                greatest_info.color_pass,                               \
+                greatest_info.color_reset, name,                        \
+                greatest_info.msg ? greatest_info.msg : "");            \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, ".");                                  \
     }                                                                   \
@@ -444,7 +467,8 @@ void greatest_do_pass(const char *name) {                               \
 void greatest_do_fail(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
         fprintf(GREATEST_STDOUT,                                        \
-            "FAIL %s: %s (%s:%u)",                                      \
+            "%sFAIL%s %s: %s (%s:%u)",                                  \
+            greatest_info.color_fail, greatest_info.color_reset,        \
             name, greatest_info.msg ? greatest_info.msg : "",           \
             greatest_info.fail_file, greatest_info.fail_line);          \
     } else {                                                            \
@@ -453,8 +477,9 @@ void greatest_do_fail(const char *name) {                               \
         if (greatest_info.col % greatest_info.width != 0)               \
             fprintf(GREATEST_STDOUT, "\n");                             \
         greatest_info.col = 0;                                          \
-        fprintf(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",               \
-            name,                                                       \
+        fprintf(GREATEST_STDOUT,                                        \
+            "%sFAIL%s %s: %s (%s:%u)\n",                                \
+            greatest_info.color_fail, greatest_info.color_reset, name,  \
             greatest_info.msg ? greatest_info.msg : "",                 \
             greatest_info.fail_file, greatest_info.fail_line);          \
     }                                                                   \
@@ -479,6 +504,7 @@ void greatest_usage(const char *name) {                                 \
         "  -h        print this Help\n"                                 \
         "  -l        List suites and their tests, then exit\n"          \
         "  -f        Stop runner after first failure\n"                 \
+        "  -c        Colorize the output\n"                             \
         "  -v        Verbose output\n"                                  \
         "  -s SUITE  only run suite named SUITE\n"                      \
         "  -t TEST   only run test named TEST\n",                       \
@@ -503,6 +529,9 @@ greatest_run_info greatest_info
     do {                                                                \
         int i = 0;                                                      \
         memset(&greatest_info, 0, sizeof(greatest_info));               \
+        greatest_info.color_pass  = (char*)COLOR_NONE;                  \
+        greatest_info.color_fail  = (char*)COLOR_NONE;                  \
+        greatest_info.color_reset = (char*)COLOR_NONE;                  \
         if (greatest_info.width == 0) {                                 \
             greatest_info.width = GREATEST_DEFAULT_WIDTH;               \
         }                                                               \
@@ -527,6 +556,10 @@ greatest_run_info greatest_info
                 greatest_info.flags |= GREATEST_FLAG_VERBOSE;           \
             } else if (0 == strcmp("-l", argv[i])) {                    \
                 greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;         \
+            } else if (0 == strcmp("-c", argv[i])) {                    \
+                greatest_info.color_pass  = (char*)COLOR_PASS;          \
+                greatest_info.color_fail  = (char*)COLOR_FAIL;          \
+                greatest_info.color_reset = (char*)COLOR_RESET;         \
             } else if (0 == strcmp("-h", argv[i])) {                    \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_SUCCESS);                                     \
@@ -550,9 +583,15 @@ greatest_run_info greatest_info
                 greatest_info.end);                                     \
             fprintf(GREATEST_STDOUT, "\n");                             \
             fprintf(GREATEST_STDOUT,                                    \
-                "Pass: %u, fail: %u, skip: %u.\n",                      \
+                "%sPass: %u, fail: %u, "                                \
+                "skip: %u.%s\n",                                        \
+                (greatest_info.failed)                                  \
+                     ? greatest_info.color_fail                         \
+                     : greatest_info.color_pass,                        \
                 greatest_info.passed,                                   \
-                greatest_info.failed, greatest_info.skipped);           \
+                greatest_info.failed,                                   \
+                greatest_info.skipped,                                  \
+                greatest_info.color_reset);                             \
         }                                                               \
         return (greatest_info.failed > 0                                \
             ? EXIT_FAILURE : EXIT_SUCCESS);                             \
