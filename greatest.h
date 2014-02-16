@@ -94,6 +94,10 @@ int main(int argc, char **argv) {
 #endif
 
 /* Colorize the passed/failed results */
+<<<<<<< HEAD
+=======
+#if (GREATEST_STDOUT == stdout) || (GREATEST_STDOUT == stderr)
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
 #ifndef COLOR_FAIL
 #define COLOR_FAIL  "\033[22;31;1m"
 #endif
@@ -101,7 +105,11 @@ int main(int argc, char **argv) {
 #define COLOR_PASS  "\033[22;32m"
 #endif
 #define COLOR_RESET "\033[22;0m"
+<<<<<<< HEAD
 #define COLOR_NONE ""
+=======
+#endif
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
 
 
 /*********
@@ -430,6 +438,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
             "\n%u tests - %u %spass%s, %u %sfail%s, %u skipped",        \
             greatest_info.suite.tests_run,                              \
             greatest_info.suite.passed,                                 \
+<<<<<<< HEAD
             (!greatest_info.suite.failed)                               \
                 ? greatest_info.color_pass : greatest_info.color_reset ,\
             greatest_info.color_reset,                                  \
@@ -437,6 +446,13 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
             (greatest_info.suite.failed)                                \
                 ? greatest_info.color_fail : greatest_info.color_reset, \
             greatest_info.color_reset,                                  \
+=======
+            (!greatest_info.suite.failed) ? COLOR_PASS : COLOR_RESET,   \
+            COLOR_RESET,                                                \
+            greatest_info.suite.failed,                                 \
+            (greatest_info.suite.failed) ? COLOR_FAIL : COLOR_RESET,    \
+            COLOR_RESET,                                                \
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
             greatest_info.suite.skipped);                               \
         GREATEST_CLOCK_DIFF(greatest_info.suite.pre_suite,              \
             greatest_info.suite.post_suite);                            \
@@ -454,9 +470,14 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
+<<<<<<< HEAD
         fprintf(GREATEST_STDOUT, "%sPASS%s %s: %s",                     \
                 greatest_info.color_pass,                               \
                 greatest_info.color_reset, name,                        \
+=======
+        fprintf(GREATEST_STDOUT, COLOR_PASS "PASS" COLOR_RESET          \
+        		" %s: %s", name,                                        \
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
                 greatest_info.msg ? greatest_info.msg : "");            \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, ".");                                  \
@@ -467,8 +488,12 @@ void greatest_do_pass(const char *name) {                               \
 void greatest_do_fail(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
         fprintf(GREATEST_STDOUT,                                        \
+<<<<<<< HEAD
             "%sFAIL%s %s: %s (%s:%u)",                                  \
             greatest_info.color_fail, greatest_info.color_reset,        \
+=======
+            COLOR_FAIL "FAIL" COLOR_RESET " %s: %s (%s:%u)",            \
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
             name, greatest_info.msg ? greatest_info.msg : "",           \
             greatest_info.fail_file, greatest_info.fail_line);          \
     } else {                                                            \
@@ -478,8 +503,13 @@ void greatest_do_fail(const char *name) {                               \
             fprintf(GREATEST_STDOUT, "\n");                             \
         greatest_info.col = 0;                                          \
         fprintf(GREATEST_STDOUT,                                        \
+<<<<<<< HEAD
             "%sFAIL%s %s: %s (%s:%u)\n",                                \
             greatest_info.color_fail, greatest_info.color_reset, name,  \
+=======
+            COLOR_FAIL "FAIL" COLOR_RESET " %s: %s (%s:%u)\n",          \
+            name,                                                       \
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
             greatest_info.msg ? greatest_info.msg : "",                 \
             greatest_info.fail_file, greatest_info.fail_line);          \
     }                                                                   \
@@ -585,6 +615,7 @@ greatest_run_info greatest_info
             fprintf(GREATEST_STDOUT,                                    \
                 "%sPass: %u, fail: %u, "                                \
                 "skip: %u.%s\n",                                        \
+<<<<<<< HEAD
                 (greatest_info.failed)                                  \
                      ? greatest_info.color_fail                         \
                      : greatest_info.color_pass,                        \
@@ -592,6 +623,13 @@ greatest_run_info greatest_info
                 greatest_info.failed,                                   \
                 greatest_info.skipped,                                  \
                 greatest_info.color_reset);                             \
+=======
+                (greatest_info.failed) ? COLOR_FAIL : COLOR_PASS  ,     \
+                greatest_info.passed,                                   \
+                greatest_info.failed,                                   \
+                greatest_info.skipped,                                  \
+                COLOR_RESET);                                           \
+>>>>>>> 9a4580ced368edbcbba1e2c69a7c3076361f7e82
         }                                                               \
         return (greatest_info.failed > 0                                \
             ? EXIT_FAILURE : EXIT_SUCCESS);                             \
