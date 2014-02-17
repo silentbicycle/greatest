@@ -16,7 +16,7 @@ TEST example_test_case(void) {
     int r = 0;
     ASSERT(1 == 1);
 
-    r = random() % 10;
+    r = rand() % 10;
     if (r == 1) SKIP();
     ASSERT(r >= 1);
     PASS();
