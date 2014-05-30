@@ -257,7 +257,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if (!(COND)) return -1;                                         \
+        if (!(COND)) { return -1; }                                     \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -266,7 +266,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((COND)) return -1;                                          \
+        if ((COND)) { return -1; }                                      \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -275,7 +275,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
-        if ((EXP) != (GOT)) return -1;                                  \
+        if ((EXP) != (GOT)) { return -1; }                              \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -394,9 +394,10 @@ void greatest_post_test(const char *name, int res) {                    \
 static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                const char *suite_name) {                \
     if (greatest_info.suite_filter &&                                   \
-        !greatest_name_match(suite_name, greatest_info.suite_filter))   \
+        !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
         return;                                                         \
-    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) return;      \
+    }                                                                   \
+    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
     greatest_info.suite.tests_run = 0;                                  \
     greatest_info.suite.failed = 0;                                     \
     greatest_info.suite.passed = 0;                                     \
@@ -449,10 +450,12 @@ void greatest_do_fail(const char *name) {                               \
             greatest_info.fail_file, greatest_info.fail_line);          \
     } else {                                                            \
         fprintf(GREATEST_STDOUT, "F");                                  \
+        greatest_info.col++;                                            \
         /* add linebreak if in line of '.'s */                          \
-        if (greatest_info.col % greatest_info.width != 0)               \
+        if (greatest_info.col != 0) {                                   \
             fprintf(GREATEST_STDOUT, "\n");                             \
-        greatest_info.col = 0;                                          \
+            greatest_info.col = 0;                                      \
+        }                                                               \
         fprintf(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",               \
             name,                                                       \
             greatest_info.msg ? greatest_info.msg : "",                 \
