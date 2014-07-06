@@ -1,3 +1,5 @@
+# greatest
+
 A unit testing system for C, contained in 1 file. It doesn't use dynamic
 allocation or depend on anything beyond ANSI C89, and the test scaffolding
 should build without warnings under `-Wall -pedantic`.
@@ -12,8 +14,30 @@ Also, I wrote a [blog post][1] with more information.
 
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 
+## Available Assertions
 
-# Basic Usage
++ `ASSERT(COND)`/`ASSERTm(MSG, COND)`
+
+    Assert that `COND` evaluates to a true value.
+
++ `ASSERT_FALSE(COND)`/`ASSERT_FAILm(MSG, COND)`
+
+    Assert that `COND` evaluates to a false value.
+
++ `ASSERT_EQ(EXPECTED, ACTUAL)`/`ASSERT_EQm(MSG, EXPECTED)`
+
+    Assert that `EXPECTED == ACTUAL`. (To compare structures, use `ASSERT`
+    with your own function to compare the structures' members.
+
++ `ASSERT_STR_EQ(EXPECTED, ACTUAL)`/`ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
+
+    Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
+
+In all cases, the `m` version allows you to pass in a customized failure
+message. If an assertion without a custom message fails, `greatest` uses C
+preprocessor stringification to simply print the assertion's parameters.
+
+## Basic Usage
 
     $ cat simple.c
     #include "greatest.h"
@@ -49,7 +73,7 @@ Also, I wrote a [blog post][1] with more information.
 
 (For more examples, look at example.c and example-suite.c.)
 
-# Command Line Options
+## Command Line Options
 
 Test runners build with the following command line options:
 
