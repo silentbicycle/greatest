@@ -1,3 +1,5 @@
+# greatest
+
 A unit testing system for C, contained in 1 file. It doesn't use dynamic
 allocation or depend on anything beyond ANSI C89, and the test scaffolding
 should build without warnings under `-Wall -pedantic`.
@@ -13,7 +15,7 @@ Also, I wrote a [blog post][1] with more information.
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 
 
-# Basic Usage
+## Basic Usage
 
     $ cat simple.c
     #include "greatest.h"
@@ -49,7 +51,7 @@ Also, I wrote a [blog post][1] with more information.
 
 (For more examples, look at example.c and example-suite.c.)
 
-# Command Line Options
+## Command Line Options
 
 Test runners build with the following command line options:
 
