@@ -14,6 +14,28 @@ Also, I wrote a [blog post][1] with more information.
 
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 
+## Available Assertions
+
++ `ASSERT(COND)`/`ASSERTm(MSG, COND)`
+
+    Assert that `COND` evaluates to a true value.
+
++ `ASSERT_FALSE(COND)`/`ASSERT_FAILm(MSG, COND)`
+
+    Assert that `COND` evaluates to a false value.
+
++ `ASSERT_EQ(EXPECTED, ACTUAL)`/`ASSERT_EQm(MSG, EXPECTED)`
+
+    Assert that `EXPECTED == ACTUAL`. (To compare structures, use `ASSERT`
+    with your own function to compare the structures' members.
+
++ `ASSERT_STR_EQ(EXPECTED, ACTUAL)`/`ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
+
+    Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
+
+In all cases, the `m` version allows you to pass in a customized failure
+message. If an assertion without a custom message fails, `greatest` uses C
+preprocessor stringification to simply print the assertion's parameters.
 
 ## Basic Usage
 
