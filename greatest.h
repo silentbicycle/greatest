@@ -326,7 +326,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
-        (long unsigned int) (C2) - (C1),                                \
+        (long unsigned int) (C2) - (long unsigned int)(C1),             \
         (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
 
 /* Include several function definitions in the main test file. */
