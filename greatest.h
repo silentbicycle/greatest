@@ -134,6 +134,7 @@ typedef struct greatest_run_info {
     unsigned int passed;
     unsigned int failed;
     unsigned int skipped;
+    unsigned int assertions;
 
     /* currently running test suite */
     greatest_suite_info suite;
@@ -257,6 +258,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
+        greatest_info.assertions++;                                     \
         if (!(COND)) { return -1; }                                     \
         greatest_info.msg = NULL;                                       \
     } while (0)
@@ -266,6 +268,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
+        greatest_info.assertions++;                                     \
         if ((COND)) { return -1; }                                      \
         greatest_info.msg = NULL;                                       \
     } while (0)
@@ -275,10 +278,21 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
+        greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) { return -1; }                              \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
+#define GREATEST_ASSERT_EQ_CB(A, B, CMP_CB, PRINT_CB)                   \
+    do {                                                                \
+        if (0 != CMP_CB(A, B)) {                                        \
+            if (GREATEST_IS_VERBOSE()) {                                \
+                PRINT_CB(GREATEST_STDOUT, A, B);                        \
+            }                                                           \
+            FAILm(#A " != " #B);                                        \
+        }                                                               \
+    } while (0)                                                         \
+        
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
         const char *exp_s = (EXP);                                      \
@@ -286,6 +300,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
+        greatest_info.assertions++;                                     \
         if (0 != strcmp(exp_s, got_s)) {                                \
             fprintf(GREATEST_STDOUT,                                    \
                 "Expected:\n####\n%s\n####\n", exp_s);                  \
@@ -551,7 +566,8 @@ greatest_run_info greatest_info
                 "\nTotal: %u tests", greatest_info.tests_run);          \
             GREATEST_CLOCK_DIFF(greatest_info.begin,                    \
                 greatest_info.end);                                     \
-            fprintf(GREATEST_STDOUT, "\n");                             \
+            fprintf(GREATEST_STDOUT, ", %u assertions\n",               \
+                greatest_info.assertions);                              \
             fprintf(GREATEST_STDOUT,                                    \
                 "Pass: %u, fail: %u, skip: %u.\n",                      \
                 greatest_info.passed,                                   \
