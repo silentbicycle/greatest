@@ -76,7 +76,7 @@ cc -g -Wall -Werror -pedantic    simple.c   -o simple
 
 Total: 1 tests (47 ticks, 0.000 sec)
 Pass: 1, fail: 0, skip: 0.
-```sh
+```
 
 
 (For more examples, look at example.c and example-suite.c.)
@@ -95,3 +95,19 @@ Test runners build with the following command line options:
 
 If you want to run multiple test suites in parallel, look at
 [parade](https://github.com/silentbicycle/parade).
+
+
+## Aliases
+
+All the Macros exist with the unprefixed notation and with the prefixed notation, for example:
+
+
+`SUITE` is the same as `GREATEST_SUITE` 
+
+Checkout the [source][1]! for the entire list.
+
+
+
+[1]: https://github.com/silentbicycle/greatest/blob/87530d9ce56b98e2efc6105689dc411e9863190a/greatest.h#L582-L603
+
+
