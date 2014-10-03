@@ -78,6 +78,10 @@ Total: 1 tests (47 ticks, 0.000 sec)
 Pass: 1, fail: 0, skip: 0.
 ```
 
+Test cases should call assertions and then end in PASS(), SKIP(),
+FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
+
+Tests and suites are just functions, so normal C scoping rules apply.
 
 (For more examples, look at example.c and example-suite.c.)
 
