@@ -104,10 +104,18 @@ All the Macros exist with the unprefixed notation and with the prefixed notation
 
 `SUITE` is the same as `GREATEST_SUITE` 
 
-Checkout the [source][1]! for the entire list.
-
-
+Checkout the [source][1] for the entire list.
 
 [1]: https://github.com/silentbicycle/greatest/blob/87530d9ce56b98e2efc6105689dc411e9863190a/greatest.h#L582-L603
 
 
+## Color Output
+
+If you want color output (`PASS` in green, `FAIL` in red, etc.), you can
+pipe the output through the included `greenest` script:
+
+```sh
+$ ./example -v | greenest
+```
+
+greatest itself doesn't have built-in coloring to stay small and portable.
