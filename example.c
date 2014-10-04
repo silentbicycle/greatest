@@ -39,14 +39,14 @@ typedef struct {
     int i;
 } boxed_int;
 
-static int boxed_int_equal_cb(void *exp, void *got, void *udata) {
+static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
     boxed_int *ei = (boxed_int *)exp;
     boxed_int *gi = (boxed_int *)got;
     (void)udata;
     return (ei->i == gi->i);
 }
 
-static int boxed_int_printf_cb(void *t, void *udata) {
+static int boxed_int_printf_cb(const void *t, void *udata) {
     boxed_int *bi = (boxed_int *)t;
     (void)udata;
     return printf("{%d}", bi->i);

@@ -123,12 +123,12 @@ typedef void (greatest_teardown_cb)(void *udata);
 /* Type for an equality comparison between two pointers of the same type.
  * Should return non-0 if equal, otherwise 0.
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
-typedef int greatest_equal_cb(void *exp, void *got, void *udata);
+typedef int greatest_equal_cb(const void *exp, const void *got, void *udata);
 
 /* Type for a callback that prints a value pointed to by T.
  * Return value has the same meaning as printf's. 
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
-typedef int greatest_printf_cb(void *t, void *udata);
+typedef int greatest_printf_cb(const void *t, void *udata);
 
 /* Callbacks for an arbitrary type; needed for type-specific
  * comparisons via GREATEST_ASSERT_EQUAL_T[m].*/
@@ -198,6 +198,8 @@ void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
+int greatest_do_assert_equal_t(const void *exp, const void *got,
+    greatest_type_info *type_info, void *udata);
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
@@ -295,38 +297,21 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
-        const char *exp_s = (EXP);                                      \
-        const char *got_s = (GOT);                                      \
-        GREATEST_ASSERT_EQUAL_Tm(MSG, exp_s, got_s,                     \
+        GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT,                         \
             &greatest_type_info_string, NULL);                          \
     } while (0)                                                         \
 
 #define GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT, TYPE_INFO, UDATA)       \
     do {                                                                \
-        void *exp = (void *)(EXP);                                      \
-        void *got = (void *)(GOT);                                      \
-        void *udata = (UDATA);                                          \
+        greatest_type_info *type_info = (TYPE_INFO);                    \
         greatest_info.assertions++;                                     \
-        greatest_type_info *ti = TYPE_INFO;                             \
-        if (ti->equal == NULL) {                                        \
-            greatest_info.msg = "type_info->equal callback missing!";   \
-            return -1;                                                  \
-        }                                                               \
-        int eq = ti->equal(exp, got, udata);                            \
-        if (!eq) {                                                      \
-            if (ti->print != NULL) {                                    \
-                fprintf(GREATEST_STDOUT, "Expected: ");                 \
-                (void)ti->print(exp, udata);                            \
-                fprintf(GREATEST_STDOUT, "\nGot: ");                    \
-                (void)ti->print(got, udata);                            \
-                fprintf(GREATEST_STDOUT, "\n");                         \
+        if (!greatest_do_assert_equal_t(EXP, GOT,                       \
+                type_info, UDATA)) {                                    \
+            if (type_info == NULL || type_info->equal == NULL) {        \
+                FAILm("type_info->equal callback missing!");            \
             } else {                                                    \
-                fprintf(GREATEST_STDOUT,                                \
-                    "GREATEST_ASSERT_EQUAL_T failure at %s:%d\n",       \
-                    greatest_info.fail_file,                            \
-                    greatest_info.fail_line);                           \
+                FAILm(MSG);                                             \
             }                                                           \
-            FAILm(MSG);                                                 \
         }                                                               \
     } while (0)                                                         \
 
@@ -503,6 +488,29 @@ void greatest_do_skip(const char *name) {                               \
     greatest_info.suite.skipped++;                                      \
 }                                                                       \
                                                                         \
+int greatest_do_assert_equal_t(const void *exp, const void *got,        \
+        greatest_type_info *type_info, void *udata) {                   \
+    if (type_info == NULL || type_info->equal == NULL) {                \
+        return 0;                                                       \
+    }                                                                   \
+    int eq = type_info->equal(exp, got, udata);                         \
+    if (!eq) {                                                          \
+        if (type_info->print != NULL) {                                 \
+            fprintf(GREATEST_STDOUT, "Expected: ");                     \
+            (void)type_info->print(exp, udata);                         \
+            fprintf(GREATEST_STDOUT, "\nGot: ");                        \
+            (void)type_info->print(got, udata);                         \
+            fprintf(GREATEST_STDOUT, "\n");                             \
+        } else {                                                        \
+            fprintf(GREATEST_STDOUT,                                    \
+                "GREATEST_ASSERT_EQUAL_T failure at %s:%dn",            \
+                greatest_info.fail_file,                                \
+                greatest_info.fail_line);                               \
+        }                                                               \
+    }                                                                   \
+    return eq;                                                          \
+}                                                                       \
+                                                                        \
 void greatest_usage(const char *name) {                                 \
     fprintf(GREATEST_STDOUT,                                            \
         "Usage: %s [-hlfv] [-s SUITE] [-t TEST]\n"                      \
@@ -526,13 +534,13 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-static int greatest_string_equal_cb(void *exp, void *got,               \
+static int greatest_string_equal_cb(const void *exp, const void *got,   \
     void *udata) {                                                      \
     (void)udata;                                                        \
     return (0 == strcmp((const char *)exp, (const char *)got));         \
 }                                                                       \
                                                                         \
-static int greatest_string_printf_cb(void *t, void *udata) {            \
+static int greatest_string_printf_cb(const void *t, void *udata) {      \
     (void)udata;                                                        \
     return fprintf(GREATEST_STDOUT, "%s", (const char *)t);             \
 }                                                                       \
