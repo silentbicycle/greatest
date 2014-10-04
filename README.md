@@ -16,22 +16,30 @@ Also, I wrote a [blog post][1] with more information.
 
 ## Available Assertions
 
-+ `ASSERT(COND)`/`ASSERTm(MSG, COND)`
++ `ASSERT(COND)` and `ASSERTm(MSG, COND)`
 
-    Assert that `COND` evaluates to a true value.
+Assert that `COND` evaluates to a true value.
 
-+ `ASSERT_FALSE(COND)`/`ASSERT_FAILm(MSG, COND)`
++ `ASSERT_FALSE(COND)` and `ASSERT_FAILm(MSG, COND)`
 
-    Assert that `COND` evaluates to a false value.
+Assert that `COND` evaluates to a false value.
 
-+ `ASSERT_EQ(EXPECTED, ACTUAL)`/`ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
++ `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
 
-    Assert that `EXPECTED == ACTUAL`. (To compare structures, use `ASSERT`
-    with your own function to compare the structures' members.)
+Assert that `EXPECTED == ACTUAL`. (To compare structures, use `ASSERT`
+with your own function to compare the structures' members.)
 
-+ `ASSERT_STR_EQ(EXPECTED, ACTUAL)`/`ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
++ `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
-    Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
+Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
+
++ `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)` and `ASSERT_EQUAL_Tm(MSG, EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
+
+Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`
+function pointed to by `TYPE_INFO->equal` to compare them. The
+function's UDATA argument can be used to pass in arbitrary user data (or
+NULL). If the values are not equal and the `TYPE_INFO->print` function
+is defined, it will be used to print an "Expected: X, Got: Y" message.
 
 In all cases, the `m` version allows you to pass in a customized failure
 message. If an assertion without a custom message fails, `greatest` uses C
