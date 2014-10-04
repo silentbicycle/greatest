@@ -321,6 +321,10 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         void *udata = (UDATA);                                          \
         greatest_info.assertions++;                                     \
         greatest_type_info *ti = TYPE_INFO;                             \
+        if (ti->equal == NULL) {                                        \
+            greatest_info.msg = "type_info->equal callback missing!";   \
+            return -1;                                                  \
+        }                                                               \
         int eq = ti->equal(exp, got, udata);                            \
         if (!eq) {                                                      \
             if (ti->print != NULL) {                                    \
