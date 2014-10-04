@@ -120,6 +120,26 @@ typedef void (greatest_suite_cb)(void);
 typedef void (greatest_setup_cb)(void *udata);
 typedef void (greatest_teardown_cb)(void *udata);
 
+/* Type for an equality comparison between two pointers of the same type.
+ * Should return non-0 if equal, otherwise 0.
+ * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
+typedef int greatest_equal_cb(void *exp, void *got, void *udata);
+
+/* Type for a callback that prints a value pointed to by T.
+ * Return value has the same meaning as printf's. 
+ * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
+typedef int greatest_printf_cb(void *t, void *udata);
+
+/* Callbacks for an arbitrary type; needed for type-specific
+ * comparisons via GREATEST_ASSERT_EQUAL_T[m].*/
+typedef struct greatest_type_info {
+    greatest_equal_cb *equal;
+    greatest_printf_cb *print;
+} greatest_type_info;
+
+/* Callbacks for string type. */
+greatest_type_info greatest_type_info_string;
+
 typedef enum {
     GREATEST_FLAG_VERBOSE = 0x01,
     GREATEST_FLAG_FIRST_FAIL = 0x02,
@@ -247,6 +267,8 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
 #define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)     \
+    GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
 
 /* The following forms take an additional message argument first,
@@ -283,22 +305,40 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
             FAILm(#A " != " #B);                                        \
         }                                                               \
     } while (0)                                                         \
-        
+
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
         const char *exp_s = (EXP);                                      \
         const char *got_s = (GOT);                                      \
+        GREATEST_ASSERT_EQUAL_Tm(MSG, exp_s, got_s,                     \
+            &greatest_type_info_string, NULL);                          \
+    } while (0)                                                         \
+
+#define GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT, TYPE_INFO, UDATA)       \
+    do {                                                                \
+        void *exp = (void *)(EXP);                                      \
+        void *got = (void *)(GOT);                                      \
+        void *udata = (UDATA);                                          \
         greatest_info.assertions++;                                     \
-        if (0 != strcmp(exp_s, got_s)) {                                \
-            fprintf(GREATEST_STDOUT,                                    \
-                "Expected:\n####\n%s\n####\n", exp_s);                  \
-            fprintf(GREATEST_STDOUT,                                    \
-                "Got:\n####\n%s\n####\n", got_s);                       \
+        greatest_type_info *ti = TYPE_INFO;                             \
+        int eq = ti->equal(exp, got, udata);                            \
+        if (!eq) {                                                      \
+            if (ti->print != NULL) {                                    \
+                printf("Expected: ");                                   \
+                (void)ti->print(exp, udata);                            \
+                printf("\nGot: ");                                      \
+                (void)ti->print(got, udata);                            \
+                printf("\n");                                           \
+            } else {                                                    \
+                printf("GREATEST_ASSERT_EQUAL_T failure at %s:%d\n",    \
+                    greatest_info.fail_file,                            \
+                    greatest_info.fail_line);                           \
+            }                                                           \
             FAILm(MSG);                                                 \
         }                                                               \
         greatest_info.msg = NULL;                                       \
-    } while (0)
-        
+    } while (0)                                                         \
+
 #define GREATEST_PASSm(MSG)                                             \
     do {                                                                \
         greatest_info.msg = MSG;                                        \
@@ -495,6 +535,22 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
+static int greatest_string_equal_cb(void *exp, void *got,               \
+    void *udata) {                                                      \
+    (void)udata;                                                        \
+    return (0 == strcmp((const char *)exp, (const char *)got));         \
+}                                                                       \
+                                                                        \
+static int greatest_string_printf_cb(void *t, void *udata) {            \
+    (void)udata;                                                        \
+    return printf("%s", (const char *)t);                               \
+}                                                                       \
+                                                                        \
+greatest_type_info greatest_type_info_string = {                        \
+    greatest_string_equal_cb,                                           \
+    greatest_string_printf_cb,                                          \
+};                                                                      \
+                                                                        \
 greatest_run_info greatest_info
 
 /* Handle command-line arguments, etc. */
@@ -568,9 +624,11 @@ greatest_run_info greatest_info
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
+#define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
+#define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
 #define PASS           GREATEST_PASS
 #define FAIL           GREATEST_FAIL

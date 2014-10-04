@@ -34,6 +34,38 @@ TEST expect_str_equal(void) {
     PASS();
 }
 
+/* A boxed int type, used to show type-specific equality tests. */
+typedef struct {
+    int i;
+} boxed_int;
+
+static int boxed_int_equal_cb(void *exp, void *got, void *udata) {
+    boxed_int *ei = (boxed_int *)exp;
+    boxed_int *gi = (boxed_int *)got;
+    (void)udata;
+    return (ei->i == gi->i);
+}
+
+static int boxed_int_printf_cb(void *t, void *udata) {
+    boxed_int *bi = (boxed_int *)t;
+    (void)udata;
+    return printf("%d", bi->i);
+}
+
+static greatest_type_info boxed_int_type_info = {
+    boxed_int_equal_cb,
+    boxed_int_printf_cb,
+};
+
+TEST expect_boxed_int_equal(void) {
+    boxed_int a = {3};
+    boxed_int b = {3};
+    boxed_int c = {4};
+    ASSERT_EQUAL_T(&a, &b, &boxed_int_type_info, NULL);  /* succeeds */
+    ASSERT_EQUAL_T(&a, &c, &boxed_int_type_info, NULL);  /* fails */
+    PASS();
+}
+
 static int teardown_was_called = 0;
 
 TEST teardown_example_PASS(void) {
@@ -87,6 +119,8 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_boxed_int_equal);
 
     /* Set so asserts below won't fail if running in list-only or
      * first-fail modes. (setup() won't be called and clear it.) */
