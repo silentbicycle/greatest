@@ -255,31 +255,22 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 /* Fail if a condition is not true, with message. */
 #define GREATEST_ASSERTm(MSG, COND)                                     \
     do {                                                                \
-        greatest_info.msg = MSG;                                        \
-        greatest_info.fail_file = __FILE__;                             \
-        greatest_info.fail_line = __LINE__;                             \
         greatest_info.assertions++;                                     \
-        if (!(COND)) { return -1; }                                     \
+        if (!(COND)) { FAILm(MSG); }                                    \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
 #define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
-        greatest_info.msg = MSG;                                        \
-        greatest_info.fail_file = __FILE__;                             \
-        greatest_info.fail_line = __LINE__;                             \
         greatest_info.assertions++;                                     \
-        if ((COND)) { return -1; }                                      \
+        if ((COND)) { FAILm(MSG); }                                     \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
 #define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
-        greatest_info.msg = MSG;                                        \
-        greatest_info.fail_file = __FILE__;                             \
-        greatest_info.fail_line = __LINE__;                             \
         greatest_info.assertions++;                                     \
-        if ((EXP) != (GOT)) { return -1; }                              \
+        if ((EXP) != (GOT)) { FAILm(MSG); }                             \
         greatest_info.msg = NULL;                                       \
     } while (0)
 
@@ -297,16 +288,13 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
     do {                                                                \
         const char *exp_s = (EXP);                                      \
         const char *got_s = (GOT);                                      \
-        greatest_info.msg = MSG;                                        \
-        greatest_info.fail_file = __FILE__;                             \
-        greatest_info.fail_line = __LINE__;                             \
         greatest_info.assertions++;                                     \
         if (0 != strcmp(exp_s, got_s)) {                                \
             fprintf(GREATEST_STDOUT,                                    \
                 "Expected:\n####\n%s\n####\n", exp_s);                  \
             fprintf(GREATEST_STDOUT,                                    \
                 "Got:\n####\n%s\n####\n", got_s);                       \
-            return -1;                                                  \
+            FAILm(MSG);                                                 \
         }                                                               \
         greatest_info.msg = NULL;                                       \
     } while (0)
