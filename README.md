@@ -16,24 +16,24 @@ Also, I wrote a [blog post][1] with more information.
 
 ## Available Assertions
 
-+ `ASSERT(COND)` and `ASSERTm(MSG, COND)`
+### `ASSERT(COND)` and `ASSERTm(MSG, COND)`
 
 Assert that `COND` evaluates to a true value.
 
-+ `ASSERT_FALSE(COND)` and `ASSERT_FAILm(MSG, COND)`
+### `ASSERT_FALSE(COND)` and `ASSERT_FAILm(MSG, COND)`
 
 Assert that `COND` evaluates to a false value.
 
-+ `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
+### `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
 
 Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
 function, use `ASSERT_EQUAL_T` instead.
 
-+ `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
+### `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
 Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
 
-+ `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)` and `ASSERT_EQUAL_Tm(MSG, EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
+### `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)` and `ASSERT_EQUAL_Tm(MSG, EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
 
 Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`
 function pointed to by `TYPE_INFO->equal` to compare them. The
