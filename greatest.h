@@ -328,13 +328,14 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         int eq = ti->equal(exp, got, udata);                            \
         if (!eq) {                                                      \
             if (ti->print != NULL) {                                    \
-                printf("Expected: ");                                   \
+                fprintf(GREATEST_STDOUT, "Expected: ");                 \
                 (void)ti->print(exp, udata);                            \
-                printf("\nGot: ");                                      \
+                fprintf(GREATEST_STDOUT, "\nGot: ");                    \
                 (void)ti->print(got, udata);                            \
-                printf("\n");                                           \
+                fprintf(GREATEST_STDOUT, "\n");                         \
             } else {                                                    \
-                printf("GREATEST_ASSERT_EQUAL_T failure at %s:%d\n",    \
+                fprintf(GREATEST_STDOUT,                                \
+                    "GREATEST_ASSERT_EQUAL_T failure at %s:%d\n",       \
                     greatest_info.fail_file,                            \
                     greatest_info.fail_line);                           \
             }                                                           \
@@ -547,7 +548,7 @@ static int greatest_string_equal_cb(void *exp, void *got,               \
                                                                         \
 static int greatest_string_printf_cb(void *t, void *udata) {            \
     (void)udata;                                                        \
-    return printf("%s", (const char *)t);                               \
+    return fprintf(GREATEST_STDOUT, "%s", (const char *)t);             \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_string = {                        \
