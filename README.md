@@ -26,8 +26,8 @@ Assert that `COND` evaluates to a false value.
 
 + `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
 
-Assert that `EXPECTED == ACTUAL`. (To compare structures, use `ASSERT`
-with your own function to compare the structures' members.)
+Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
+function, use `ASSERT_EQUAL_T` instead.
 
 + `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
