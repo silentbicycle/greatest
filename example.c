@@ -49,7 +49,7 @@ static int boxed_int_equal_cb(void *exp, void *got, void *udata) {
 static int boxed_int_printf_cb(void *t, void *udata) {
     boxed_int *bi = (boxed_int *)t;
     (void)udata;
-    return printf("%d", bi->i);
+    return printf("{%d}", bi->i);
 }
 
 static greatest_type_info boxed_int_type_info = {
