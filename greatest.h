@@ -279,21 +279,18 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
     do {                                                                \
         greatest_info.assertions++;                                     \
         if (!(COND)) { FAILm(MSG); }                                    \
-        greatest_info.msg = NULL;                                       \
     } while (0)
 
 #define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((COND)) { FAILm(MSG); }                                     \
-        greatest_info.msg = NULL;                                       \
     } while (0)
 
 #define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) { FAILm(MSG); }                             \
-        greatest_info.msg = NULL;                                       \
     } while (0)
 
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
@@ -331,7 +328,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
             }                                                           \
             FAILm(MSG);                                                 \
         }                                                               \
-        greatest_info.msg = NULL;                                       \
     } while (0)                                                         \
 
 #define GREATEST_PASSm(MSG)                                             \
