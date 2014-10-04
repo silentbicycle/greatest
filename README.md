@@ -113,10 +113,11 @@ If you want to run multiple test suites in parallel, look at
 
 All the Macros exist with the unprefixed notation and with the prefixed notation, for example:
 
-
 `SUITE` is the same as `GREATEST_SUITE` 
 
 Checkout the [source][1] for the entire list.
+
+These aliases can be disabled by `#define`-ing `GREATEST_USE_ABBREVS` to 0.
 
 [1]: https://github.com/silentbicycle/greatest/blob/87530d9ce56b98e2efc6105689dc411e9863190a/greatest.h#L582-L603
 
