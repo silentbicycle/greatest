@@ -401,14 +401,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
         return;                                                         \
     }                                                                   \
     if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
-    greatest_info.suite.tests_run = 0;                                  \
-    greatest_info.suite.failed = 0;                                     \
-    greatest_info.suite.passed = 0;                                     \
-    greatest_info.suite.skipped = 0;                                    \
-    greatest_info.suite.pre_suite = 0;                                  \
-    greatest_info.suite.post_suite = 0;                                 \
-    greatest_info.suite.pre_test = 0;                                   \
-    greatest_info.suite.post_test = 0;                                  \
+    memset(&greatest_info.suite, 0, sizeof(greatest_info.suite));       \
     greatest_info.col = 0;                                              \
     fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
@@ -509,9 +502,7 @@ greatest_run_info greatest_info
     do {                                                                \
         int i = 0;                                                      \
         memset(&greatest_info, 0, sizeof(greatest_info));               \
-        if (greatest_info.width == 0) {                                 \
-            greatest_info.width = GREATEST_DEFAULT_WIDTH;               \
-        }                                                               \
+        greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
         for (i = 1; i < argc; i++) {                                    \
             if (0 == strcmp("-t", argv[i])) {                           \
                 if (argc <= i + 1) {                                    \
