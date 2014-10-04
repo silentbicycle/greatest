@@ -296,16 +296,6 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = NULL;                                       \
     } while (0)
 
-#define GREATEST_ASSERT_EQ_CB(A, B, CMP_CB, PRINT_CB)                   \
-    do {                                                                \
-        if (0 != CMP_CB(A, B)) {                                        \
-            if (GREATEST_IS_VERBOSE()) {                                \
-                PRINT_CB(GREATEST_STDOUT, A, B);                        \
-            }                                                           \
-            FAILm(#A " != " #B);                                        \
-        }                                                               \
-    } while (0)                                                         \
-
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
         const char *exp_s = (EXP);                                      \
