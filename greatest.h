@@ -126,7 +126,7 @@ typedef void (greatest_teardown_cb)(void *udata);
 typedef int greatest_equal_cb(const void *exp, const void *got, void *udata);
 
 /* Type for a callback that prints a value pointed to by T.
- * Return value has the same meaning as printf's. 
+ * Return value has the same meaning as printf's.
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
 typedef int greatest_printf_cb(const void *t, void *udata);
 
@@ -320,7 +320,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.msg = MSG;                                        \
         return 0;                                                       \
     } while (0)
-        
+
 #define GREATEST_FAILm(MSG)                                             \
     do {                                                                \
         greatest_info.fail_file = __FILE__;                             \
