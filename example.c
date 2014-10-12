@@ -10,8 +10,7 @@ extern SUITE(other_suite);
 /* Declare a local suite. */
 SUITE(suite);
 
-/* Just test against the output of random, to show a
- * variety of results. */
+/* Just test against random ints, to show a variety of results. */
 TEST example_test_case(void) {
     int r = 0;
     ASSERT(1 == 1);
@@ -39,19 +38,27 @@ typedef struct {
     int i;
 } boxed_int;
 
+/* Callback used to check whether two boxed_ints are equal. */
 static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
     boxed_int *ei = (boxed_int *)exp;
     boxed_int *gi = (boxed_int *)got;
+
+    /* udata is not used here, but could be used to specify a comparison
+     * resolution, a string encoding, or any other state that should be
+     * passed along to the equal and print callbacks. */
     (void)udata;
     return (ei->i == gi->i);
 }
 
+/* Callback to print a boxed_int, used to produce an
+ * "Exected X, got Y" failure message. */
 static int boxed_int_printf_cb(const void *t, void *udata) {
     boxed_int *bi = (boxed_int *)t;
     (void)udata;
     return printf("{%d}", bi->i);
 }
 
+/* The struct that stores the previous two functions' pointers. */
 static greatest_type_info boxed_int_type_info = {
     boxed_int_equal_cb,
     boxed_int_printf_cb,
@@ -66,6 +73,7 @@ TEST expect_boxed_int_equal(void) {
     PASS();
 }
 
+/* Flag, used to confirm that teardown hook is being called. */
 static int teardown_was_called = 0;
 
 TEST teardown_example_PASS(void) {
@@ -83,6 +91,9 @@ TEST teardown_example_SKIP(void) {
     SKIPm("Using SKIP to trigger teardown callback");
 }
 
+/* Example of an ANSI C compatible way to do test cases with
+ * arguments: they are passed one argument, a pointer which
+ * should be cast back to a struct with the other data. */
 TEST parametric_example_c89(void *closure) {
     int arg = *(int *) closure;
     ASSERT(arg > 10);
@@ -110,6 +121,7 @@ static void trace_teardown(void *arg) {
     (void)arg;
 }
 
+/* Primary test suite. */
 SUITE(suite) {
     int i=0;
     printf("\nThis should have some failures:\n");
