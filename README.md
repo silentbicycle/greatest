@@ -6,13 +6,17 @@ should build without warnings under `-Wall -pedantic`.
 
 To use, just `#include` greatest.h in your project. 
 
-Note that there are some compile time options, and slightly nicer syntax
-for parametric testing (running tests with arguments) is available if
+There are some compile time options, and slightly nicer syntax for
+parametric testing (running tests with arguments) is available if
 compiled with -std=c99.
 
 Also, I wrote a [blog post][1] with more information.
 
+[theft][], a related project, adds [property-based testing][pbt].
+
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
+[theft]: https://github.com/silentbicycle/theft
+[pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
 
 ## Available Assertions
 
@@ -88,6 +92,9 @@ Pass: 1, fail: 0, skip: 0.
 
 Test cases should call assertions and then end in PASS(), SKIP(),
 FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
+If there are any test failures, the test runner will return 1,
+otherwise it will return 0. (Skips do not cause a test runner to
+report failure.)
 
 Tests and suites are just functions, so normal C scoping rules apply.
 
