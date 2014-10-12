@@ -146,11 +146,12 @@ typedef enum {
     GREATEST_FLAG_LIST_ONLY = 0x04
 } GREATEST_FLAG;
 
+/* Struct containing all test runner state. */
 typedef struct greatest_run_info {
     unsigned int flags;
     unsigned int tests_run;     /* total test count */
 
-    /* Overall pass/fail/skip counts. */
+    /* overall pass/fail/skip counts */
     unsigned int passed;
     unsigned int failed;
     unsigned int skipped;
@@ -192,6 +193,7 @@ extern greatest_run_info greatest_info;
  * Exported functions *
  **********************/
 
+/* These are used internally by greatest. */
 void greatest_do_pass(const char *name);
 void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
@@ -200,6 +202,8 @@ void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
     greatest_type_info *type_info, void *udata);
+
+/* These are part of the public greatest API. */
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
@@ -262,7 +266,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_FIRST_FAIL() (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
 #define GREATEST_FAILURE_ABORT() (greatest_info.suite.failed > 0 && GREATEST_FIRST_FAIL())
 
-/* Message-less forms. */
+/* Message-less forms of tests defined below. */
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
 #define GREATEST_FAIL() GREATEST_FAILm(NULL)
 #define GREATEST_SKIP() GREATEST_SKIPm(NULL)
@@ -283,24 +287,30 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         if (!(COND)) { FAILm(MSG); }                                    \
     } while (0)
 
+/* Fail if a condition is not false, with message. */
 #define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((COND)) { FAILm(MSG); }                                     \
     } while (0)
 
+/* Fail if EXP != GOT (equality comparison by ==). */
 #define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) { FAILm(MSG); }                             \
     } while (0)
 
+/* Fail if EXP is not equal to GOT, according to strcmp. */
 #define GREATEST_ASSERT_STR_EQm(MSG, EXP, GOT)                          \
     do {                                                                \
         GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT,                         \
             &greatest_type_info_string, NULL);                          \
     } while (0)                                                         \
 
+/* Fail if EXP is not equal to GOT, according to a comparison
+ * callback in TYPE_INFO. If they are not equal, optionally use a
+ * print callback in TYPE_INFO to print them. */
 #define GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT, TYPE_INFO, UDATA)       \
     do {                                                                \
         greatest_type_info *type_info = (TYPE_INFO);                    \
@@ -315,12 +325,14 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         }                                                               \
     } while (0)                                                         \
 
+/* Pass. */
 #define GREATEST_PASSm(MSG)                                             \
     do {                                                                \
         greatest_info.msg = MSG;                                        \
         return 0;                                                       \
     } while (0)
 
+/* Fail. */
 #define GREATEST_FAILm(MSG)                                             \
     do {                                                                \
         greatest_info.fail_file = __FILE__;                             \
@@ -329,6 +341,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         return -1;                                                      \
     } while (0)
 
+/* Skip the current test. */
 #define GREATEST_SKIPm(MSG)                                             \
     do {                                                                \
         greatest_info.msg = MSG;                                        \
@@ -592,6 +605,8 @@ greatest_run_info greatest_info
     } while (0);                                                        \
     GREATEST_SET_TIME(greatest_info.begin)
 
+/* Report passes, failures, skipped tests, the number of
+ * assertions, and the overall run time. */
 #define GREATEST_MAIN_END()                                             \
     do {                                                                \
         if (!GREATEST_LIST_ONLY()) {                                    \
