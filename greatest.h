@@ -18,8 +18,8 @@
 #define GREATEST_H
 
 #define GREATEST_VERSION_MAJOR 0
-#define GREATEST_VERSION_MINOR 9
-#define GREATEST_VERSION_PATCH 4
+#define GREATEST_VERSION_MINOR 10
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
