@@ -10,7 +10,9 @@ There are some compile time options, and slightly nicer syntax for
 parametric testing (running tests with arguments) is available if
 compiled with -std=c99.
 
-Also, I wrote a [blog post][1] with more information.
+Also, I wrote a
+[blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
+with more information.
 
 [theft][], a related project, adds [property-based testing][pbt].
 
