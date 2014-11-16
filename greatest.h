@@ -19,7 +19,7 @@
 
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 10
-#define GREATEST_VERSION_PATCH 0
+#define GREATEST_VERSION_PATCH 1
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -138,7 +138,7 @@ typedef struct greatest_type_info {
 } greatest_type_info;
 
 /* Callbacks for string type. */
-greatest_type_info greatest_type_info_string;
+extern greatest_type_info greatest_type_info_string;
 
 typedef enum {
     GREATEST_FLAG_VERBOSE = 0x01,
