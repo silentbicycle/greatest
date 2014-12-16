@@ -240,7 +240,7 @@ int greatest_all_passed(void);
  **********/
 
 /* Define a suite. */
-#define GREATEST_SUITE(NAME) void NAME(void)
+#define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
