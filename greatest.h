@@ -72,6 +72,7 @@ int main(int argc, char **argv) {
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <setjmp.h>
 
 
 /***********
@@ -182,6 +183,8 @@ typedef struct greatest_run_info {
     /* overall timers */
     clock_t begin;
     clock_t end;
+
+    jmp_buf jump_dest;
 } greatest_run_info;
 
 /* Global var for the current testing context.
@@ -226,7 +229,9 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            int res = TEST();                                           \
+            int res = setjmp(greatest_info.jump_dest);                  \
+            if (0 == res)                                               \
+                res = TEST();                                           \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
@@ -271,6 +276,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_FAIL() GREATEST_FAILm(NULL)
 #define GREATEST_SKIP() GREATEST_SKIPm(NULL)
 #define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
+#define GREATEST_ASSERT_LONG(COND) GREATEST_ASSERT_LONGm(#COND, COND)
 #define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)     \
@@ -285,6 +291,12 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
     do {                                                                \
         greatest_info.assertions++;                                     \
         if (!(COND)) { FAILm(MSG); }                                    \
+    } while (0)
+
+#define GREATEST_ASSERT_LONGm(MSG, COND)                                \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if (!(COND)) { GREATEST_FAIL_LONGm(MSG); }                      \
     } while (0)
 
 /* Fail if a condition is not false, with message. */
@@ -339,6 +351,14 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.fail_line = __LINE__;                             \
         greatest_info.msg = MSG;                                        \
         return -1;                                                      \
+    } while (0)
+
+#define GREATEST_FAIL_LONGm(MSG)                                        \
+    do {                                                                \
+        greatest_info.fail_file = __FILE__;                             \
+        greatest_info.fail_line = __LINE__;                             \
+        greatest_info.msg = MSG;                                        \
+        longjmp(greatest_info.jump_dest, -1);                           \
     } while (0)
 
 /* Skip the current test. */
@@ -635,6 +655,7 @@ greatest_run_info greatest_info
 #define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
 #define ASSERT         GREATEST_ASSERT
+#define ASSERT_LONG    GREATEST_ASSERT_LONG
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
