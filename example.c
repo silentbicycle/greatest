@@ -121,6 +121,30 @@ TEST parametric_example_c99(int arg) {
 }
 #endif
 
+#if GREATEST_USE_LONGJMP
+static greatest_test_res subfunction_with_FAIL_WITH_LONGJMP(int arg) {
+    if (arg == 0) {
+        FAIL_WITH_LONGJMPm("zero argument (expected failure)");
+    }
+    PASS();
+}
+
+static greatest_test_res subfunction_with_ASSERT_OR_LONGJMP(int arg) {
+    ASSERT_OR_LONGJMPm("zero argument (expected failure)", arg != 0);
+    PASS();
+}
+
+TEST fail_via_FAIL_WITH_LONGJMP(void) {
+    subfunction_with_FAIL_WITH_LONGJMP(0);
+    PASS();
+}
+
+TEST fail_via_ASSERT_OR_LONGJMP(void) {
+    subfunction_with_ASSERT_OR_LONGJMP(0);
+    PASS();
+}
+#endif
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -182,6 +206,11 @@ SUITE(suite) {
     printf("\nThis should fail:\n");
     RUN_TESTp(parametric_example_c99, 10);
     RUN_TESTp(parametric_example_c99, 11);
+#endif
+
+#if GREATEST_USE_LONGJMP
+    RUN_TEST(fail_via_FAIL_WITH_LONGJMP);
+    RUN_TEST(fail_via_ASSERT_OR_LONGJMP);
 #endif
 }
 

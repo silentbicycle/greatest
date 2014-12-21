@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL] */
+/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL, +FAIL_WITH_LONGJMP] */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 10
 #define GREATEST_VERSION_PATCH 1
@@ -93,6 +93,11 @@ int main(int argc, char **argv) {
 /* Remove GREATEST_ prefix from most commonly used symbols? */
 #ifndef GREATEST_USE_ABBREVS
 #define GREATEST_USE_ABBREVS 1
+#endif
+
+/* Set to 0 to disable all use of setjmp/longjmp. */
+#ifndef GREATEST_USE_LONGJMP
+#define GREATEST_USE_LONGJMP 1
 #endif
 
 
@@ -185,7 +190,9 @@ typedef struct greatest_run_info {
     clock_t begin;
     clock_t end;
 
+#if GREATEST_USE_LONGJMP
     jmp_buf jump_dest;
+#endif
 } greatest_run_info;
 
 /* Global var for the current testing context.
@@ -202,6 +209,7 @@ void greatest_do_pass(const char *name);
 void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
+int greatest_save_context(void);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
@@ -237,9 +245,10 @@ typedef enum {
 #define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            int res = setjmp(greatest_info.jump_dest);                  \
-            if (0 == res)                                               \
+            greatest_test_res res = greatest_save_context();            \
+            if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST();                                           \
+            }                                                           \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
@@ -283,9 +292,12 @@ typedef enum {
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
 #define GREATEST_FAIL() GREATEST_FAILm(NULL)
 #define GREATEST_SKIP() GREATEST_SKIPm(NULL)
-#define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
-#define GREATEST_ASSERT_LONG(COND) GREATEST_ASSERT_LONGm(#COND, COND)
-#define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
+#define GREATEST_ASSERT(COND)                                           \
+    GREATEST_ASSERTm(#COND, COND)
+#define GREATEST_ASSERT_OR_LONGJMP(COND)                                \
+    GREATEST_ASSERT_OR_LONGJMPm(#COND, COND)
+#define GREATEST_ASSERT_FALSE(COND)                                     \
+    GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT)                                    \
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
@@ -303,10 +315,10 @@ typedef enum {
         if (!(COND)) { FAILm(MSG); }                                    \
     } while (0)
 
-#define GREATEST_ASSERT_LONGm(MSG, COND)                                \
+#define GREATEST_ASSERT_OR_LONGJMPm(MSG, COND)                          \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if (!(COND)) { GREATEST_FAIL_LONGm(MSG); }                      \
+        if (!(COND)) { GREATEST_FAIL_WITH_LONGJMPm(MSG); }              \
     } while (0)
 
 /* Fail if a condition is not false, with message. */
@@ -363,13 +375,17 @@ typedef enum {
         return GREATEST_TEST_RES_FAIL;                                  \
     } while (0)
 
-#define GREATEST_FAIL_LONGm(MSG)                                        \
+/* Optional GREATEST_FAILm variant that longjmps. */
+#if GREATEST_USE_LONGJMP
+#define GREATEST_FAIL_WITH_LONGJMP() GREATEST_FAIL_WITH_LONGJMPm(NULL)
+#define GREATEST_FAIL_WITH_LONGJMPm(MSG)                                \
     do {                                                                \
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         greatest_info.msg = MSG;                                        \
-        longjmp(greatest_info.jump_dest, -1);                           \
+        longjmp(greatest_info.jump_dest, GREATEST_TEST_RES_FAIL);       \
     } while (0)
+#endif
 
 /* Skip the current test. */
 #define GREATEST_SKIPm(MSG)                                             \
@@ -399,6 +415,21 @@ typedef enum {
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
         (long unsigned int) (C2) - (long unsigned int)(C1),             \
         (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
+
+#if GREATEST_USE_LONGJMP
+#define GREATEST_MAIN_DEFS_SAVE_CONTEXT()                               \
+    greatest_test_res greatest_save_context(void) {                     \
+        /* setjmp returns 0 (GREATEST_TEST_RES_PASS) on first call */   \
+        /* so the test runs, then RES_FAIL from FAIL_WITH_LONGJMP. */   \
+        return (greatest_test_res)(setjmp(greatest_info.jump_dest));    \
+    }
+#else
+#define GREATEST_MAIN_DEFS_SAVE_CONTEXT()                               \
+    greatest_test_res greatest_save_context(void) {                     \
+        /*a no-op, since setjmp/longjmp aren't being used */            \
+        return GREATEST_TEST_RES_PASS;                                  \
+    }
+#endif
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
@@ -434,6 +465,8 @@ int greatest_pre_test(const char *name) {                               \
         return 0;               /* skipped */                           \
     }                                                                   \
 }                                                                       \
+                                                                        \
+GREATEST_MAIN_DEFS_SAVE_CONTEXT()                                       \
                                                                         \
 void greatest_post_test(const char *name, int res) {                    \
     GREATEST_SET_TIME(greatest_info.suite.post_test);                   \
@@ -674,7 +707,6 @@ greatest_run_info greatest_info
 #define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
 #define ASSERT         GREATEST_ASSERT
-#define ASSERT_LONG    GREATEST_ASSERT_LONG
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
@@ -695,8 +727,16 @@ greatest_run_info greatest_info
 #define CHECK_CALL     GREATEST_CHECK_CALL
 
 #if __STDC_VERSION__ >= 19901L
-#endif /* C99 */
 #define RUN_TESTp      GREATEST_RUN_TESTp
+#endif /* C99 */
+
+#if GREATEST_USE_LONGJMP
+#define ASSERT_OR_LONGJMP  GREATEST_ASSERT_OR_LONGJMP
+#define ASSERT_OR_LONGJMPm GREATEST_ASSERT_OR_LONGJMPm
+#define FAIL_WITH_LONGJMP  GREATEST_FAIL_WITH_LONGJMP
+#define FAIL_WITH_LONGJMPm GREATEST_FAIL_WITH_LONGJMPm
+#endif
+
 #endif /* USE_ABBREVS */
 
 #endif
