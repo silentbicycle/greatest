@@ -73,8 +73,6 @@ int main(int argc, char **argv) {
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <setjmp.h>
-
 
 /***********
  * Options *
@@ -98,6 +96,10 @@ int main(int argc, char **argv) {
 /* Set to 0 to disable all use of setjmp/longjmp. */
 #ifndef GREATEST_USE_LONGJMP
 #define GREATEST_USE_LONGJMP 1
+#endif
+
+#if GREATEST_USE_LONGJMP
+#include <setjmp.h>
 #endif
 
 
