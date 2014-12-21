@@ -47,12 +47,19 @@ function's UDATA argument can be used to pass in arbitrary user data (or
 NULL). If the values are not equal and the `TYPE_INFO->print` function
 is defined, it will be used to print an "Expected: X, Got: Y" message.
 
+### `ASSERT_OR_LONGJMP(COND)` and `ASSERT_OR_LONGJMPm(MSG, COND)`
+
+Assert that `COND` evaluates to a true value. If not, then use
+longjmp(3) to immediately return from the test case and any intermediate
+function calls. (If built with `GREATEST_USE_LONGJMP` set to 0, then all
+setjmp/longjmp-related functionality will be compiled out.)
+
+
 In all cases, the `m` version allows you to pass in a customized failure
 message. If an assertion without a custom message fails, `greatest` uses C
 preprocessor stringification to simply print the assertion's parameters.
 
 ## Basic Usage
-
 
 ```c
 #include "greatest.h"
@@ -101,6 +108,21 @@ report failure.)
 Tests and suites are just functions, so normal C scoping rules apply.
 
 (For more examples, look at example.c and example-suite.c.)
+
+
+## Sub-Functions
+
+Because of how `PASS()`, `ASSERT()`, `FAIL()`, etc. are implemented
+(returning a test result enum value), calls to functions that use them
+directly from test functions must be wrapped in `CHECK_CALL`:
+
+    TEST example_using_subfunctions(void) {
+        CHECK_CALL(less_than_three(5));
+        PASS();
+    }
+
+This is only necessary if the called function can cause test failures.
+
 
 ## Command Line Options
 
