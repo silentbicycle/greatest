@@ -17,6 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
+/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL] */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 10
 #define GREATEST_VERSION_PATCH 1
@@ -220,7 +221,14 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
-#define GREATEST_TEST static int
+#define GREATEST_TEST static greatest_test_res
+
+/* PASS/FAIL/SKIP result from a test. Used internally. */
+typedef enum {
+    GREATEST_TEST_RES_PASS = 0,
+    GREATEST_TEST_RES_FAIL = -1,
+    GREATEST_TEST_RES_SKIP = 1,
+} greatest_test_res;
 
 /* Run a suite. */
 #define GREATEST_RUN_SUITE(S_NAME) greatest_run_suite(S_NAME, #S_NAME)
@@ -341,7 +349,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_PASSm(MSG)                                             \
     do {                                                                \
         greatest_info.msg = MSG;                                        \
-        return 0;                                                       \
+        return GREATEST_TEST_RES_PASS;                                  \
     } while (0)
 
 /* Fail. */
@@ -350,7 +358,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         greatest_info.msg = MSG;                                        \
-        return -1;                                                      \
+        return GREATEST_TEST_RES_FAIL;                                  \
     } while (0)
 
 #define GREATEST_FAIL_LONGm(MSG)                                        \
@@ -365,8 +373,17 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 #define GREATEST_SKIPm(MSG)                                             \
     do {                                                                \
         greatest_info.msg = MSG;                                        \
-        return 1;                                                       \
+        return GREATEST_TEST_RES_SKIP;                                  \
     } while (0)
+
+/* Check the result of a subfunction using ASSERT, etc. */
+#define GREATEST_CHECK_CALL(RES)                                        \
+    do {                                                                \
+        int _check_call_res = RES;                                      \
+        if (_check_call_res != GREATEST_TEST_RES_PASS) {                \
+            return _check_call_res;                                     \
+        }                                                               \
+    } while (0)                                                         \
 
 #define GREATEST_SET_TIME(NAME)                                         \
     NAME = clock();                                                     \
@@ -423,11 +440,11 @@ void greatest_post_test(const char *name, int res) {                    \
         greatest_info.teardown(udata);                                  \
     }                                                                   \
                                                                         \
-    if (res < 0) {                                                      \
+    if (res <= GREATEST_TEST_RES_FAIL) {                                \
         greatest_do_fail(name);                                         \
-    } else if (res > 0) {                                               \
+    } else if (res >= GREATEST_TEST_RES_SKIP) {                         \
         greatest_do_skip(name);                                         \
-    } else if (res == 0) {                                              \
+    } else if (res == GREATEST_TEST_RES_PASS) {                         \
         greatest_do_pass(name);                                         \
     }                                                                   \
     greatest_info.suite.tests_run++;                                    \
@@ -673,6 +690,7 @@ greatest_run_info greatest_info
 #define SKIPm          GREATEST_SKIPm
 #define SET_SETUP      GREATEST_SET_SETUP_CB
 #define SET_TEARDOWN   GREATEST_SET_TEARDOWN_CB
+#define CHECK_CALL     GREATEST_CHECK_CALL
 
 #if __STDC_VERSION__ >= 19901L
 #endif /* C99 */

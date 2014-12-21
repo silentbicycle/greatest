@@ -91,6 +91,18 @@ TEST teardown_example_SKIP(void) {
     SKIPm("Using SKIP to trigger teardown callback");
 }
 
+/* Example of a test case that calls another function which uses ASSERT. */
+static greatest_test_res less_than_three(int arg) {
+    ASSERT(arg <3);
+    PASS();
+}
+
+TEST example_using_subfunctions(void) {
+    CHECK_CALL(less_than_three(1)); /* <3 */
+    CHECK_CALL(less_than_three(5)); /* </3 */
+    PASS();
+}
+
 /* Example of an ANSI C compatible way to do test cases with
  * arguments: they are passed one argument, a pointer which
  * should be cast back to a struct with the other data. */
@@ -153,6 +165,9 @@ SUITE(suite) {
     printf("This should be skipped:\n");
     RUN_TEST(teardown_example_SKIP);
     assert(teardown_was_called);
+
+    printf("This should fail, but note the subfunction that failed.\n");
+    RUN_TEST(example_using_subfunctions);
 
     /* Run a test with one void* argument (which can point to a
      * struct with multiple arguments). */
