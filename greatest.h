@@ -246,7 +246,7 @@ typedef enum {
         }                                                               \
     } while (0)
 
-/* Run a test in the current suite with one void* argument,
+/* Run a test in the current suite with one void * argument,
  * which can be a pointer to a struct with multiple arguments. */
 #define GREATEST_RUN_TEST1(TEST, ENV)                                   \
     do {                                                                \
@@ -286,10 +286,12 @@ typedef enum {
 #define GREATEST_ASSERT(COND) GREATEST_ASSERTm(#COND, COND)
 #define GREATEST_ASSERT_LONG(COND) GREATEST_ASSERT_LONGm(#COND, COND)
 #define GREATEST_ASSERT_FALSE(COND) GREATEST_ASSERT_FALSEm(#COND, COND)
-#define GREATEST_ASSERT_EQ(EXP, GOT) GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
-#define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)     \
+#define GREATEST_ASSERT_EQ(EXP, GOT)                                    \
+    GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
     GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
-#define GREATEST_ASSERT_STR_EQ(EXP, GOT) GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_STR_EQ(EXP, GOT)                                \
+    GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
 
 /* The following forms take an additional message argument first,
  * to be displayed by the test runner. */
