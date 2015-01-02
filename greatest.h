@@ -17,10 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL, +FAIL_WITH_LONGJMP, +NO_CLI] */
+/* 0.11.0  */
 #define GREATEST_VERSION_MAJOR 0
-#define GREATEST_VERSION_MINOR 10
-#define GREATEST_VERSION_PATCH 1
+#define GREATEST_VERSION_MINOR 11
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
