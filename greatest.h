@@ -591,10 +591,11 @@ void greatest_do_skip(const char *name) {                               \
                                                                         \
 int greatest_do_assert_equal_t(const void *exp, const void *got,        \
         greatest_type_info *type_info, void *udata) {                   \
+    int eq = 0;                                                         \
     if (type_info == NULL || type_info->equal == NULL) {                \
         return 0;                                                       \
     }                                                                   \
-    int eq = type_info->equal(exp, got, udata);                         \
+    eq = type_info->equal(exp, got, udata);                             \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
             fprintf(GREATEST_STDOUT, "Expected: ");                     \
@@ -666,8 +667,8 @@ greatest_run_info greatest_info
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
-        GREATEST_INIT();                                                \
         int i = 0;                                                      \
+        GREATEST_INIT();                                                \
         for (i = 1; i < argc; i++) {                                    \
             if (0 == strcmp("-t", argv[i])) {                           \
                 if (argc <= i + 1) {                                    \
