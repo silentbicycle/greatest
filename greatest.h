@@ -237,7 +237,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 typedef enum {
     GREATEST_TEST_RES_PASS = 0,
     GREATEST_TEST_RES_FAIL = -1,
-    GREATEST_TEST_RES_SKIP = 1,
+    GREATEST_TEST_RES_SKIP = 1
 } greatest_test_res;
 
 /* Run a suite. */
