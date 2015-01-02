@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL, +FAIL_WITH_LONGJMP] */
+/* 0.10.1 dev, merge as 0.11.0 [+CHECK_CALL, +FAIL_WITH_LONGJMP, +NO_CLI] */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 10
 #define GREATEST_VERSION_PATCH 1
@@ -56,11 +56,23 @@ SUITE(suite) {
     RUN_TEST(foo_should_foo);
 }
 
-/* Add all the definitions that need to be in the test runner's main file. */
+/* Add definitions that need to be in the test runner's main file. */
 GREATEST_MAIN_DEFS();
 
+/* Set up, run suite(s) of tests, report pass/fail/skip stats. */
+int run_tests(void) {
+    GREATEST_INIT();            /* init. greatest internals */
+    /* List of suites to run. */
+    RUN_SUITE(suite);
+    GREATEST_REPORT();          /* display results */
+    return greatest_all_passed();
+}
+
+/* main(), for a standalone command-line test runner.
+ * This replaces run_tests above, and adds command line option
+ * handling and exiting with a pass/fail status. */
 int main(int argc, char **argv) {
-    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+    GREATEST_MAIN_BEGIN();      /* init & parse command-line args */
     RUN_SUITE(suite);
     GREATEST_MAIN_END();        /* display results */
 }
@@ -220,6 +232,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,
 /* These are part of the public greatest API. */
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
+int greatest_all_passed(void);
 
 
 /**********
@@ -317,6 +330,7 @@ typedef enum {
         if (!(COND)) { FAILm(MSG); }                                    \
     } while (0)
 
+/* Fail if a condition is not true, longjmping out of test. */
 #define GREATEST_ASSERT_OR_LONGJMPm(MSG, COND)                          \
     do {                                                                \
         greatest_info.assertions++;                                     \
@@ -610,6 +624,8 @@ void greatest_usage(const char *name) {                                 \
         name);                                                          \
 }                                                                       \
                                                                         \
+int greatest_all_passed() { return (greatest_info.failed == 0); }       \
+                                                                        \
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup = cb;                                           \
     greatest_info.setup_udata = udata;                                  \
@@ -639,12 +655,19 @@ greatest_type_info greatest_type_info_string = {                        \
                                                                         \
 greatest_run_info greatest_info
 
+/* Init internals. */
+#define GREATEST_INIT()                                                 \
+    do {                                                                \
+        memset(&greatest_info, 0, sizeof(greatest_info));               \
+        greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
+        GREATEST_SET_TIME(greatest_info.begin);                         \
+    } while (0)                                                         \
+
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
+        GREATEST_INIT();                                                \
         int i = 0;                                                      \
-        memset(&greatest_info, 0, sizeof(greatest_info));               \
-        greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
         for (i = 1; i < argc; i++) {                                    \
             if (0 == strcmp("-t", argv[i])) {                           \
                 if (argc <= i + 1) {                                    \
@@ -676,12 +699,11 @@ greatest_run_info greatest_info
                 exit(EXIT_FAILURE);                                     \
             }                                                           \
         }                                                               \
-    } while (0);                                                        \
-    GREATEST_SET_TIME(greatest_info.begin)
+    } while (0)
 
 /* Report passes, failures, skipped tests, the number of
  * assertions, and the overall run time. */
-#define GREATEST_MAIN_END()                                             \
+#define GREATEST_REPORT()                                               \
     do {                                                                \
         if (!GREATEST_LIST_ONLY()) {                                    \
             GREATEST_SET_TIME(greatest_info.end);                       \
@@ -696,8 +718,13 @@ greatest_run_info greatest_info
                 greatest_info.passed,                                   \
                 greatest_info.failed, greatest_info.skipped);           \
         }                                                               \
-        return (greatest_info.failed > 0                                \
-            ? EXIT_FAILURE : EXIT_SUCCESS);                             \
+    } while (0)
+
+/* Report results, exit with exit status based on results. */
+#define GREATEST_MAIN_END()                                             \
+    do {                                                                \
+        GREATEST_REPORT();                                              \
+        return (greatest_all_passed() ? EXIT_SUCCESS : EXIT_FAILURE);   \
     } while (0)
 
 /* Make abbreviations without the GREATEST_ prefix for the
