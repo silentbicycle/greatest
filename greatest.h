@@ -327,7 +327,7 @@ typedef enum {
 #define GREATEST_ASSERTm(MSG, COND)                                     \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if (!(COND)) { FAILm(MSG); }                                    \
+        if (!(COND)) { GREATEST_FAILm(MSG); }                                    \
     } while (0)
 
 /* Fail if a condition is not true, longjmping out of test. */
@@ -341,14 +341,14 @@ typedef enum {
 #define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if ((COND)) { FAILm(MSG); }                                     \
+        if ((COND)) { GREATEST_FAILm(MSG); }                                     \
     } while (0)
 
 /* Fail if EXP != GOT (equality comparison by ==). */
 #define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if ((EXP) != (GOT)) { FAILm(MSG); }                             \
+        if ((EXP) != (GOT)) { GREATEST_FAILm(MSG); }                             \
     } while (0)
 
 /* Fail if EXP is not equal to GOT, according to strcmp. */
@@ -368,9 +368,9 @@ typedef enum {
         if (!greatest_do_assert_equal_t(EXP, GOT,                       \
                 type_info, UDATA)) {                                    \
             if (type_info == NULL || type_info->equal == NULL) {        \
-                FAILm("type_info->equal callback missing!");            \
+                GREATEST_FAILm("type_info->equal callback missing!");            \
             } else {                                                    \
-                FAILm(MSG);                                             \
+                GREATEST_FAILm(MSG);                                             \
             }                                                           \
         }                                                               \
     } while (0)                                                         \
