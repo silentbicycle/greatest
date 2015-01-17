@@ -209,13 +209,6 @@ typedef struct greatest_run_info {
 #endif
 } greatest_run_info;
 
-/* PASS/FAIL/SKIP result from a test. Used internally. */
-typedef enum {
-    GREATEST_TEST_RES_PASS = 0,
-    GREATEST_TEST_RES_FAIL = -1,
-    GREATEST_TEST_RES_SKIP = 1
-} greatest_test_res;
-
 /* Global var for the current testing context.
  * Initialized by GREATEST_MAIN_DEFS(). */
 extern greatest_run_info greatest_info;
@@ -230,7 +223,7 @@ void greatest_do_pass(const char *name);
 void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
-greatest_test_res greatest_save_context(void);
+int greatest_save_context(void);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
@@ -253,6 +246,12 @@ int greatest_all_passed(void);
  * The arguments are not included, to allow parametric testing. */
 #define GREATEST_TEST static greatest_test_res
 
+/* PASS/FAIL/SKIP result from a test. Used internally. */
+typedef enum {
+    GREATEST_TEST_RES_PASS = 0,
+    GREATEST_TEST_RES_FAIL = -1,
+    GREATEST_TEST_RES_SKIP = 1
+} greatest_test_res;
 
 /* Run a suite. */
 #define GREATEST_RUN_SUITE(S_NAME) greatest_run_suite(S_NAME, #S_NAME)
