@@ -223,7 +223,6 @@ void greatest_do_pass(const char *name);
 void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
 int greatest_pre_test(const char *name);
-int greatest_save_context(void);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
@@ -260,7 +259,7 @@ typedef enum {
 #define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            greatest_test_res res = greatest_save_context();            \
+            greatest_test_res res = GREATEST_SAVE_CONTEXT();            \
             if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST();                                           \
             }                                                           \
@@ -433,18 +432,14 @@ typedef enum {
         (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
 
 #if GREATEST_USE_LONGJMP
-#define GREATEST_MAIN_DEFS_SAVE_CONTEXT()                               \
-    greatest_test_res greatest_save_context(void) {                     \
+#define GREATEST_SAVE_CONTEXT()                                         \
         /* setjmp returns 0 (GREATEST_TEST_RES_PASS) on first call */   \
         /* so the test runs, then RES_FAIL from FAIL_WITH_LONGJMP. */   \
-        return (greatest_test_res)(setjmp(greatest_info.jump_dest));    \
-    }
+        ((greatest_test_res)(setjmp(greatest_info.jump_dest)))
 #else
-#define GREATEST_MAIN_DEFS_SAVE_CONTEXT()                               \
-    greatest_test_res greatest_save_context(void) {                     \
-        /*a no-op, since setjmp/longjmp aren't being used */            \
-        return GREATEST_TEST_RES_PASS;                                  \
-    }
+#define GREATEST_SAVE_CONTEXT()                                         \
+    /*a no-op, since setjmp/longjmp aren't being used */                \
+    GREATEST_TEST_RES_PASS
 #endif
 
 /* Include several function definitions in the main test file. */
@@ -481,8 +476,6 @@ int greatest_pre_test(const char *name) {                               \
         return 0;               /* skipped */                           \
     }                                                                   \
 }                                                                       \
-                                                                        \
-GREATEST_MAIN_DEFS_SAVE_CONTEXT()                                       \
                                                                         \
 void greatest_post_test(const char *name, int res) {                    \
     GREATEST_SET_TIME(greatest_info.suite.post_test);                   \
