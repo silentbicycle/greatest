@@ -234,6 +234,17 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 int greatest_all_passed(void);
 
 
+/********************
+* Language Support *
+********************/
+
+/* If __VA_ARGS__ (C99) is supported, allow parametric testing
+* without needing to manually manage the argument struct. */
+#if __STDC_VERSION__ >= 19901L || _MSC_VER >= 1800
+#define GREATEST_VA_ARGS
+#endif
+
+
 /**********
  * Macros *
  **********/
@@ -281,9 +292,7 @@ typedef enum {
         }                                                               \
     } while (0)
 
-/* If __VA_ARGS__ (C99) is supported, allow parametric testing
- * without needing to manually manage the argument struct. */
-#if __STDC_VERSION__ >= 19901L
+#ifdef GREATEST_VA_ARGS
 #define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
@@ -749,9 +758,9 @@ greatest_run_info greatest_info
 #define SET_TEARDOWN   GREATEST_SET_TEARDOWN_CB
 #define CHECK_CALL     GREATEST_CHECK_CALL
 
-#if __STDC_VERSION__ >= 19901L
+#ifdef GREATEST_VA_ARGS
 #define RUN_TESTp      GREATEST_RUN_TESTp
-#endif /* C99 */
+#endif
 
 #if GREATEST_USE_LONGJMP
 #define ASSERT_OR_LONGJMP  GREATEST_ASSERT_OR_LONGJMP
