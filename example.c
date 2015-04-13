@@ -73,6 +73,13 @@ TEST expect_boxed_int_equal(void) {
     PASS();
 }
 
+TEST expect_int_equal_printing_hex(void) {
+    int a = 0xba5eba11;
+    int b = 0xf005ba11;
+    ASSERT_EQ_FMT(a, b, "0x%08x");
+    PASS();
+}
+
 /* Flag, used to confirm that teardown hook is being called. */
 static int teardown_was_called = 0;
 
@@ -169,6 +176,9 @@ SUITE(suite) {
     RUN_TEST(expect_str_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
+
+    printf("\nThis should fail, printing the mismatched values in hex.\n");
+    RUN_TEST(expect_int_equal_printing_hex);
 
     /* Set so asserts below won't fail if running in list-only or
      * first-fail modes. (setup() won't be called and clear it.) */

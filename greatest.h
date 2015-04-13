@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.11.1 */
+/* 0.11.1 + (GREATEST_ASSERT_EQ_FMT) */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 11
 #define GREATEST_VERSION_PATCH 1
@@ -314,6 +314,8 @@ typedef enum {
     GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT)                                    \
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
+    GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
     GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT)                                \
@@ -348,6 +350,21 @@ typedef enum {
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) { GREATEST_FAILm(MSG); }                             \
+    } while (0)
+
+/* Fail if EXP != GOT (equality comparison by ==). */
+#define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        const char *fmt = ( FMT );                                      \
+        if ((EXP) != (GOT)) {                                           \
+            fprintf(GREATEST_STDOUT, "Expected: ");                     \
+            fprintf(GREATEST_STDOUT, fmt, EXP);                         \
+            fprintf(GREATEST_STDOUT, "\nGot: ");                        \
+            fprintf(GREATEST_STDOUT, fmt, GOT);                         \
+            fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FAILm(MSG);                                        \
+        }                                                               \
     } while (0)
 
 /* Fail if EXP is not equal to GOT, according to strcmp. */
@@ -733,10 +750,12 @@ greatest_run_info greatest_info
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
+#define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
+#define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
 #define PASS           GREATEST_PASS
