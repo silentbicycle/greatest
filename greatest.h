@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.11.1 + (GREATEST_ASSERT_EQ_FMT) */
+/* 0.11.1 + (GREATEST_ASSERT_EQ_FMT, GREATEST_ASSERT_IN_RANGEm) */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 11
 #define GREATEST_VERSION_PATCH 1
@@ -114,6 +114,11 @@ int main(int argc, char **argv) {
 #include <setjmp.h>
 #endif
 
+/* Floating point type, for ASSERT_IN_RANGE. */
+#ifndef GREATEST_FLOAT
+#define GREATEST_FLOAT double
+#define GREATEST_FLOAT_FMT "%g"
+#endif
 
 /*********
  * Types *
@@ -316,6 +321,8 @@ typedef enum {
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
     GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
+#define GREATEST_ASSERT_IN_RANGE(EXP, GOT, TOL)                         \
+    GREATEST_ASSERT_IN_RANGEm(#EXP " != " #GOT " +/- " #TOL, EXP, GOT, TOL)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
     GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT)                                \
@@ -358,11 +365,29 @@ typedef enum {
         greatest_info.assertions++;                                     \
         const char *fmt = ( FMT );                                      \
         if ((EXP) != (GOT)) {                                           \
-            fprintf(GREATEST_STDOUT, "Expected: ");                     \
+            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             fprintf(GREATEST_STDOUT, fmt, EXP);                         \
             fprintf(GREATEST_STDOUT, "\nGot: ");                        \
             fprintf(GREATEST_STDOUT, fmt, GOT);                         \
             fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FAILm(MSG);                                        \
+        }                                                               \
+    } while (0)
+
+/* Fail if GOT not in range of EXP +|- TOL. */
+#define GREATEST_ASSERT_IN_RANGEm(MSG, EXP, GOT, TOL)                   \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        GREATEST_FLOAT exp = (EXP);                                     \
+        GREATEST_FLOAT got = (GOT);                                     \
+        GREATEST_FLOAT tol = (TOL);                                     \
+        if ((exp > got && exp - got > tol) ||                           \
+            (exp < got && got - exp > tol)) {                           \
+            fprintf(GREATEST_STDOUT,                                    \
+                "\nExpected: " GREATEST_FLOAT_FMT                       \
+                " +/- " GREATEST_FLOAT_FMT "\n"                         \
+                "Got: " GREATEST_FLOAT_FMT "\n",                        \
+                exp, tol, got);                                         \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)
@@ -608,7 +633,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
     eq = type_info->equal(exp, got, udata);                             \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
-            fprintf(GREATEST_STDOUT, "Expected: ");                     \
+            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             (void)type_info->print(exp, udata);                         \
             fprintf(GREATEST_STDOUT, "\nGot: ");                        \
             (void)type_info->print(got, udata);                         \
@@ -751,11 +776,13 @@ greatest_run_info greatest_info
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
 #define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
+#define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
 #define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
+#define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
 #define PASS           GREATEST_PASS

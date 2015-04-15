@@ -35,6 +35,17 @@ Assert that `COND` evaluates to a false value.
 Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
 function, use `ASSERT_EQUAL_T` instead.
 
+### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)` and `ASSERT_EQ_FMTm(MSG, EXPECTED, ACTUAL, FORMAT)`
+
+Assert that `EXPECTED == ACTUAL`. If they are not equal, print their values using
+FORMAT as the `printf` format string.
+
+For example: `ASSERT_EQ_FMT(123, result, "%d");`
+
+### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)` and `ASSERT_IN_RANGEm(MSG, EXPECTED, ACTUAL, TOLERANCE)`
+
+Assert that ACTUAL is within EXPECTED +/- TOLERANCE, using a floating point comparison.
+
 ### `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
 Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
