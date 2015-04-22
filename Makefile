@@ -6,6 +6,9 @@ CFLAGS += -Wmissing-declarations
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
 
+# Uncomment to disable setjmp()/longjmp().
+#CFLAGS += -DGREATEST_USE_LONGJMP=0
+
 all: example
 
 example: example.c greatest.h example-suite.o
