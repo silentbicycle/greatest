@@ -9,6 +9,9 @@ CFLAGS += -Wmissing-declarations
 # Uncomment to disable setjmp()/longjmp().
 #CFLAGS += -DGREATEST_USE_LONGJMP=0
 
+# Uncomment to disable clock() / time.h.
+#CFLAGS += -DGREATEST_USE_TIME=0
+
 all: example
 
 example: example.c greatest.h example-suite.o

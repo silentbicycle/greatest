@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.11.1 + (GREATEST_ASSERT_EQ_FMT, GREATEST_ASSERT_IN_RANGEm) */
+/* 0.11.1 + (ASSERT_EQ_FMT, ASSERT_IN_RANGEm, USE_CLOCK) */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 11
 #define GREATEST_VERSION_PATCH 1
@@ -84,7 +84,6 @@ int main(int argc, char **argv) {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 /***********
  * Options *
@@ -114,6 +113,15 @@ int main(int argc, char **argv) {
 #include <setjmp.h>
 #endif
 
+/* Set to 0 to disable all use of time.h / clock(). */
+#ifndef GREATEST_USE_TIME
+#define GREATEST_USE_TIME 1
+#endif
+
+#if GREATEST_USE_TIME
+#include <time.h>
+#endif
+
 /* Floating point type, for ASSERT_IN_RANGE. */
 #ifndef GREATEST_FLOAT
 #define GREATEST_FLOAT double
@@ -131,11 +139,13 @@ typedef struct greatest_suite_info {
     unsigned int failed;
     unsigned int skipped;
 
+#if GREATEST_USE_TIME
     /* timers, pre/post running suite and individual tests */
     clock_t pre_suite;
     clock_t post_suite;
     clock_t pre_test;
     clock_t post_test;
+#endif
 } greatest_suite_info;
 
 /* Type for a suite function. */
@@ -205,9 +215,11 @@ typedef struct greatest_run_info {
     char *suite_filter;
     char *test_filter;
 
+#if GREATEST_USE_TIME
     /* overall timers */
     clock_t begin;
     clock_t end;
+#endif
 
 #if GREATEST_USE_LONGJMP
     jmp_buf jump_dest;
@@ -460,6 +472,7 @@ typedef enum {
         }                                                               \
     } while (0)                                                         \
 
+#if GREATEST_USE_TIME
 #define GREATEST_SET_TIME(NAME)                                         \
     NAME = clock();                                                     \
     if (NAME == (clock_t) -1) {                                         \
@@ -471,7 +484,11 @@ typedef enum {
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
         (long unsigned int) (C2) - (long unsigned int)(C1),             \
-        (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
+        (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))
+#else
+#define GREATEST_SET_TIME(UNUSED)
+#define GREATEST_CLOCK_DIFF(UNUSED1, UNUSED2)
+#endif
 
 #if GREATEST_USE_LONGJMP
 #define GREATEST_SAVE_CONTEXT()                                         \
