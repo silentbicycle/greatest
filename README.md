@@ -26,7 +26,7 @@ with more information.
 
 Assert that `COND` evaluates to a true value.
 
-### `ASSERT_FALSE(COND)` and `ASSERT_FAILm(MSG, COND)`
+### `ASSERT_FALSE(COND)` and `ASSERT_FALSEm(MSG, COND)`
 
 Assert that `COND` evaluates to a false value.
 
