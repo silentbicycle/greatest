@@ -33,7 +33,21 @@ Assert that `COND` evaluates to a false value.
 ### `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
 
 Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
-function, use `ASSERT_EQUAL_T` instead.
+function, use `ASSERT_EQUAL_T` instead. To print the values if they
+differ, use `ASSERT_EQ_FMT`.
+
+### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)` and `ASSERT_EQ_FMTm(MSG, EXPECTED, ACTUAL, FORMAT)`
+
+Assert that `EXPECTED == ACTUAL`. If they are not equal, print their values using
+FORMAT as the `printf` format string.
+
+For example: `ASSERT_EQ_FMT(123, result, "%d");`
+
+### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)` and `ASSERT_IN_RANGEm(MSG, EXPECTED, ACTUAL, TOLERANCE)`
+
+Assert that ACTUAL is within EXPECTED +/- TOLERANCE, once the values
+have been converted to a configurable floating point type
+(`GREATEST_FLOAT`).
 
 ### `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
@@ -68,6 +82,8 @@ TEST x_should_equal_1() {
     int x = 1;
     ASSERT_EQ(1, x);                              /* default message */
     ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
+    /* printf expected and actual values as "%d" if they differ */
+    ASSERT_EQ_FMT(1, x, "%d");
     PASS();
 }
 
@@ -95,7 +111,7 @@ cc -g -Wall -Werror -pedantic    simple.c   -o simple
 .
 1 tests - 1 pass, 0 fail, 0 skipped (5 ticks, 0.000 sec)
 
-Total: 1 tests (47 ticks, 0.000 sec)
+Total: 1 tests (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 

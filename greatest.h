@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.11.1 */
+/* 0.11.1 + (ASSERT_EQ_FMT, ASSERT_IN_RANGEm, USE_CLOCK, VS2013) */
 #define GREATEST_VERSION_MAJOR 0
 #define GREATEST_VERSION_MINOR 11
 #define GREATEST_VERSION_PATCH 1
@@ -84,7 +84,6 @@ int main(int argc, char **argv) {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 /***********
  * Options *
@@ -114,6 +113,20 @@ int main(int argc, char **argv) {
 #include <setjmp.h>
 #endif
 
+/* Set to 0 to disable all use of time.h / clock(). */
+#ifndef GREATEST_USE_TIME
+#define GREATEST_USE_TIME 1
+#endif
+
+#if GREATEST_USE_TIME
+#include <time.h>
+#endif
+
+/* Floating point type, for ASSERT_IN_RANGE. */
+#ifndef GREATEST_FLOAT
+#define GREATEST_FLOAT double
+#define GREATEST_FLOAT_FMT "%g"
+#endif
 
 /*********
  * Types *
@@ -126,11 +139,13 @@ typedef struct greatest_suite_info {
     unsigned int failed;
     unsigned int skipped;
 
+#if GREATEST_USE_TIME
     /* timers, pre/post running suite and individual tests */
     clock_t pre_suite;
     clock_t post_suite;
     clock_t pre_test;
     clock_t post_test;
+#endif
 } greatest_suite_info;
 
 /* Type for a suite function. */
@@ -200,9 +215,11 @@ typedef struct greatest_run_info {
     char *suite_filter;
     char *test_filter;
 
+#if GREATEST_USE_TIME
     /* overall timers */
     clock_t begin;
     clock_t end;
+#endif
 
 #if GREATEST_USE_LONGJMP
     jmp_buf jump_dest;
@@ -232,6 +249,17 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 int greatest_all_passed(void);
+
+
+/********************
+* Language Support *
+********************/
+
+/* If __VA_ARGS__ (C99) is supported, allow parametric testing
+* without needing to manually manage the argument struct. */
+#if __STDC_VERSION__ >= 19901L || _MSC_VER >= 1800
+#define GREATEST_VA_ARGS
+#endif
 
 
 /**********
@@ -281,9 +309,7 @@ typedef enum {
         }                                                               \
     } while (0)
 
-/* If __VA_ARGS__ (C99) is supported, allow parametric testing
- * without needing to manually manage the argument struct. */
-#if __STDC_VERSION__ >= 19901L
+#ifdef GREATEST_VA_ARGS
 #define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
@@ -314,6 +340,10 @@ typedef enum {
     GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT)                                    \
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
+    GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
+#define GREATEST_ASSERT_IN_RANGE(EXP, GOT, TOL)                         \
+    GREATEST_ASSERT_IN_RANGEm(#EXP " != " #GOT " +/- " #TOL, EXP, GOT, TOL)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
     GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT)                                \
@@ -326,7 +356,7 @@ typedef enum {
 #define GREATEST_ASSERTm(MSG, COND)                                     \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if (!(COND)) { GREATEST_FAILm(MSG); }                                    \
+        if (!(COND)) { GREATEST_FAILm(MSG); }                           \
     } while (0)
 
 /* Fail if a condition is not true, longjmping out of test. */
@@ -340,14 +370,47 @@ typedef enum {
 #define GREATEST_ASSERT_FALSEm(MSG, COND)                               \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if ((COND)) { GREATEST_FAILm(MSG); }                                     \
+        if ((COND)) { GREATEST_FAILm(MSG); }                            \
     } while (0)
 
 /* Fail if EXP != GOT (equality comparison by ==). */
 #define GREATEST_ASSERT_EQm(MSG, EXP, GOT)                              \
     do {                                                                \
         greatest_info.assertions++;                                     \
-        if ((EXP) != (GOT)) { GREATEST_FAILm(MSG); }                             \
+        if ((EXP) != (GOT)) { GREATEST_FAILm(MSG); }                    \
+    } while (0)
+
+/* Fail if EXP != GOT (equality comparison by ==). */
+#define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        const char *fmt = ( FMT );                                      \
+        if ((EXP) != (GOT)) {                                           \
+            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
+            fprintf(GREATEST_STDOUT, fmt, EXP);                         \
+            fprintf(GREATEST_STDOUT, "\nGot: ");                        \
+            fprintf(GREATEST_STDOUT, fmt, GOT);                         \
+            fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FAILm(MSG);                                        \
+        }                                                               \
+    } while (0)
+
+/* Fail if GOT not in range of EXP +|- TOL. */
+#define GREATEST_ASSERT_IN_RANGEm(MSG, EXP, GOT, TOL)                   \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        GREATEST_FLOAT exp = (EXP);                                     \
+        GREATEST_FLOAT got = (GOT);                                     \
+        GREATEST_FLOAT tol = (TOL);                                     \
+        if ((exp > got && exp - got > tol) ||                           \
+            (exp < got && got - exp > tol)) {                           \
+            fprintf(GREATEST_STDOUT,                                    \
+                "\nExpected: " GREATEST_FLOAT_FMT                       \
+                " +/- " GREATEST_FLOAT_FMT "\n"                         \
+                "Got: " GREATEST_FLOAT_FMT "\n",                        \
+                exp, tol, got);                                         \
+            GREATEST_FAILm(MSG);                                        \
+        }                                                               \
     } while (0)
 
 /* Fail if EXP is not equal to GOT, according to strcmp. */
@@ -367,9 +430,9 @@ typedef enum {
         if (!greatest_do_assert_equal_t(EXP, GOT,                       \
                 type_info, UDATA)) {                                    \
             if (type_info == NULL || type_info->equal == NULL) {        \
-                GREATEST_FAILm("type_info->equal callback missing!");            \
+                GREATEST_FAILm("type_info->equal callback missing!");   \
             } else {                                                    \
-                GREATEST_FAILm(MSG);                                             \
+                GREATEST_FAILm(MSG);                                    \
             }                                                           \
         }                                                               \
     } while (0)                                                         \
@@ -418,6 +481,7 @@ typedef enum {
         }                                                               \
     } while (0)                                                         \
 
+#if GREATEST_USE_TIME
 #define GREATEST_SET_TIME(NAME)                                         \
     NAME = clock();                                                     \
     if (NAME == (clock_t) -1) {                                         \
@@ -429,7 +493,11 @@ typedef enum {
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
     fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
         (long unsigned int) (C2) - (long unsigned int)(C1),             \
-        (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))         \
+        (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))
+#else
+#define GREATEST_SET_TIME(UNUSED)
+#define GREATEST_CLOCK_DIFF(UNUSED1, UNUSED2)
+#endif
 
 #if GREATEST_USE_LONGJMP
 #define GREATEST_SAVE_CONTEXT()                                         \
@@ -591,7 +659,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
     eq = type_info->equal(exp, got, udata);                             \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
-            fprintf(GREATEST_STDOUT, "Expected: ");                     \
+            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             (void)type_info->print(exp, udata);                         \
             fprintf(GREATEST_STDOUT, "\nGot: ");                        \
             (void)type_info->print(got, udata);                         \
@@ -733,10 +801,14 @@ greatest_run_info greatest_info
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
+#define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
+#define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
+#define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
+#define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
 #define PASS           GREATEST_PASS
@@ -749,9 +821,9 @@ greatest_run_info greatest_info
 #define SET_TEARDOWN   GREATEST_SET_TEARDOWN_CB
 #define CHECK_CALL     GREATEST_CHECK_CALL
 
-#if __STDC_VERSION__ >= 19901L
+#ifdef GREATEST_VA_ARGS
 #define RUN_TESTp      GREATEST_RUN_TESTp
-#endif /* C99 */
+#endif
 
 #if GREATEST_USE_LONGJMP
 #define ASSERT_OR_LONGJMP  GREATEST_ASSERT_OR_LONGJMP
