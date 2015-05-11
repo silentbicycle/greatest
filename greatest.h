@@ -17,10 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 0.11.1 + (ASSERT_EQ_FMT, ASSERT_IN_RANGEm, USE_CLOCK, VS2013) */
-#define GREATEST_VERSION_MAJOR 0
-#define GREATEST_VERSION_MINOR 11
-#define GREATEST_VERSION_PATCH 1
+/* 1.0.0 */
+#define GREATEST_VERSION_MAJOR 1
+#define GREATEST_VERSION_MINOR 0
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
