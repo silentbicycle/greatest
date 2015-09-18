@@ -268,6 +268,7 @@ int greatest_all_passed(void);
 
 /* Define a suite. */
 #define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
+#define GREATEST_SUITE_DECL(NAME) void NAME(void)
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
@@ -686,7 +687,7 @@ void greatest_usage(const char *name) {                                 \
         name);                                                          \
 }                                                                       \
                                                                         \
-int greatest_all_passed() { return (greatest_info.failed == 0); }       \
+int greatest_all_passed(void) { return (greatest_info.failed == 0); }   \
                                                                         \
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup = cb;                                           \
@@ -796,6 +797,7 @@ greatest_run_info greatest_info
 #if GREATEST_USE_ABBREVS
 #define TEST           GREATEST_TEST
 #define SUITE          GREATEST_SUITE
+#define SUITE_DECL     GREATEST_SUITE_DECL
 #define RUN_TEST       GREATEST_RUN_TEST
 #define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
