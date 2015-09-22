@@ -268,7 +268,7 @@ int greatest_all_passed(void);
 
 /* Define a suite. */
 #define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
-#define GREATEST_SUITE_DECL(NAME) void NAME(void)
+#define GREATEST_SUITE_EXTERN(NAME) void NAME(void)
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
@@ -795,7 +795,7 @@ greatest_run_info greatest_info
 #if GREATEST_USE_ABBREVS
 #define TEST           GREATEST_TEST
 #define SUITE          GREATEST_SUITE
-#define SUITE_DECL     GREATEST_SUITE_DECL
+#define SUITE_EXTERN   GREATEST_SUITE_EXTERN
 #define RUN_TEST       GREATEST_RUN_TEST
 #define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
