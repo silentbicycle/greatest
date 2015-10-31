@@ -666,7 +666,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
             fprintf(GREATEST_STDOUT, "\n");                             \
         } else {                                                        \
             fprintf(GREATEST_STDOUT,                                    \
-                "GREATEST_ASSERT_EQUAL_T failure at %s:%dn",            \
+                "GREATEST_ASSERT_EQUAL_T failure at %s:%u\n",           \
                 greatest_info.fail_file,                                \
                 greatest_info.fail_line);                               \
         }                                                               \
