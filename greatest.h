@@ -754,6 +754,8 @@ greatest_run_info greatest_info
             } else if (0 == strcmp("-h", argv[i])) {                    \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_SUCCESS);                                     \
+            } else if (0 == strcmp("--", argv[i])) {                    \
+                break;                                                  \
             } else {                                                    \
                 fprintf(GREATEST_STDOUT,                                \
                     "Unknown argument '%s'\n", argv[i]);                \
