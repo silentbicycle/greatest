@@ -268,6 +268,7 @@ int greatest_all_passed(void);
 
 /* Define a suite. */
 #define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
+#define GREATEST_SUITE_EXTERN(NAME) void NAME(void)
 
 /* Declare a suite, provided by another compilation unit. */
 #define GREATEST_SUITE_EXTERN(NAME) void NAME(void)
