@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.0 */
+/* 1.0.0 + stop_CLI_args_on_--- */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 0
