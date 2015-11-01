@@ -233,6 +233,10 @@ SUITE(suite) {
     RUN_TEST(fail_via_FAIL_WITH_LONGJMP);
     RUN_TEST(fail_via_ASSERT_OR_LONGJMP);
 #endif
+
+    if (GREATEST_IS_VERBOSE()) {
+        printf("greatest was run with verbosity level: %u\n", GREATEST_VERBOSITY());
+    }
 }
 
 /* Add all the definitions that need to be in the test runner's main file. */

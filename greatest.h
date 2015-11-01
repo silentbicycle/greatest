@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN */
+/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 1
@@ -177,14 +177,14 @@ typedef struct greatest_type_info {
 extern greatest_type_info greatest_type_info_string;
 
 typedef enum {
-    GREATEST_FLAG_VERBOSE = 0x01,
-    GREATEST_FLAG_FIRST_FAIL = 0x02,
-    GREATEST_FLAG_LIST_ONLY = 0x04
+    GREATEST_FLAG_FIRST_FAIL = 0x01,
+    GREATEST_FLAG_LIST_ONLY = 0x02
 } GREATEST_FLAG;
 
 /* Struct containing all test runner state. */
 typedef struct greatest_run_info {
-    unsigned int flags;
+    unsigned char flags;
+    unsigned char verbosity;
     unsigned int tests_run;     /* total test count */
 
     /* overall pass/fail/skip counts */
@@ -326,10 +326,14 @@ typedef enum {
 
 
 /* Check if the test runner is in verbose mode. */
-#define GREATEST_IS_VERBOSE() (greatest_info.flags & GREATEST_FLAG_VERBOSE)
-#define GREATEST_LIST_ONLY() (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
-#define GREATEST_FIRST_FAIL() (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
-#define GREATEST_FAILURE_ABORT() (greatest_info.suite.failed > 0 && GREATEST_FIRST_FAIL())
+#define GREATEST_IS_VERBOSE() ((greatest_info.verbosity) > 0)
+#define GREATEST_VERBOSITY() (greatest_info.verbosity)
+#define GREATEST_LIST_ONLY()                                            \
+    (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
+#define GREATEST_FIRST_FAIL()                                           \
+    (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
+#define GREATEST_FAILURE_ABORT()                                        \
+    (greatest_info.suite.failed > 0 && GREATEST_FIRST_FAIL())
 
 /* Message-less forms of tests defined below. */
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
@@ -751,7 +755,7 @@ greatest_run_info greatest_info
             } else if (0 == strcmp("-f", argv[i])) {                    \
                 greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;        \
             } else if (0 == strcmp("-v", argv[i])) {                    \
-                greatest_info.flags |= GREATEST_FLAG_VERBOSE;           \
+                greatest_info.verbosity++;                              \
             } else if (0 == strcmp("-l", argv[i])) {                    \
                 greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;         \
             } else if (0 == strcmp("-h", argv[i])) {                    \
