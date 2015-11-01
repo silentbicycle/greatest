@@ -17,10 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.0 + stop_CLI_args_on_--- */
+/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
-#define GREATEST_VERSION_PATCH 0
+#define GREATEST_VERSION_PATCH 1
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -268,6 +268,8 @@ int greatest_all_passed(void);
 
 /* Define a suite. */
 #define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
+
+/* Declare a suite, provided by another compilation unit. */
 #define GREATEST_SUITE_EXTERN(NAME) void NAME(void)
 
 /* Start defining a test function.
