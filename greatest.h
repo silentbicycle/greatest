@@ -386,8 +386,8 @@ typedef enum {
 /* Fail if EXP != GOT (equality comparison by ==). */
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
-        greatest_info.assertions++;                                     \
         const char *fmt = ( FMT );                                      \
+        greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) {                                           \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             fprintf(GREATEST_STDOUT, fmt, EXP);                         \
@@ -401,10 +401,10 @@ typedef enum {
 /* Fail if GOT not in range of EXP +|- TOL. */
 #define GREATEST_ASSERT_IN_RANGEm(MSG, EXP, GOT, TOL)                   \
     do {                                                                \
-        greatest_info.assertions++;                                     \
         GREATEST_FLOAT exp = (EXP);                                     \
         GREATEST_FLOAT got = (GOT);                                     \
         GREATEST_FLOAT tol = (TOL);                                     \
+        greatest_info.assertions++;                                     \
         if ((exp > got && exp - got > tol) ||                           \
             (exp < got && got - exp > tol)) {                           \
             fprintf(GREATEST_STDOUT,                                    \
