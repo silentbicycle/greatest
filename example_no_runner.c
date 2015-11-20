@@ -20,8 +20,20 @@ int main(int argc, char **argv) {
 
     RUN_TEST(standalone_pass);
 
-    /* Report, but do not exit. */
-    GREATEST_REPORT();
+    /* Print report, but do not exit. */
+    printf("\nStandard report, as printed by greatest:\n");
+    GREATEST_PRINT_REPORT();
     
+    struct greatest_report_t report;
+    greatest_get_report(&report);
+
+    printf("\nCustom report:\n");
+    printf("pass %u, fail %u, skip %u, assertions %u\n",
+        report.passed, report.failed, report.skipped, report.assertions);
+
+    if (report.failed > 0) {
+        return 1;
+    }
+
     return 0;
 }

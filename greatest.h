@@ -18,7 +18,7 @@
 #define GREATEST_H
 
 /* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone,
- *         set_filters */
+ *         set_filters, get_report, set_verbosity, set_flag */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 1
@@ -69,7 +69,7 @@ int run_tests(void) {
     /* Tests can also be run directly, without using test suites. */
     RUN_TEST(foo_should_foo);
 
-    GREATEST_REPORT();          /* display results */
+    GREATEST_PRINT_REPORT();          /* display results */
     return greatest_all_passed();
 }
 
@@ -184,7 +184,7 @@ extern greatest_type_info greatest_type_info_string;
 typedef enum {
     GREATEST_FLAG_FIRST_FAIL = 0x01,
     GREATEST_FLAG_LIST_ONLY = 0x02
-} GREATEST_FLAG;
+} greatest_flag_t;
 
 /* Struct containing all test runner state. */
 typedef struct greatest_run_info {
@@ -231,6 +231,14 @@ typedef struct greatest_run_info {
 #endif
 } greatest_run_info;
 
+struct greatest_report_t {
+    /* overall pass/fail/skip counts */
+    unsigned int passed;
+    unsigned int failed;
+    unsigned int skipped;
+    unsigned int assertions;
+};
+
 /* Global var for the current testing context.
  * Initialized by GREATEST_MAIN_DEFS(). */
 extern greatest_run_info greatest_info;
@@ -256,6 +264,10 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 int greatest_all_passed(void);
 void greatest_set_test_filter(const char *name);
 void greatest_set_suite_filter(const char *name);
+void greatest_get_report(struct greatest_report_t *report);
+void greatest_set_verbosity(unsigned int verbosity);
+void greatest_set_flag(greatest_flag_t flag);
+
 
 /********************
 * Language Support *
@@ -756,6 +768,23 @@ void greatest_set_suite_filter(const char *name) {                      \
     greatest_info.suite_filter = name;                                  \
 }                                                                       \
                                                                         \
+void greatest_get_report(struct greatest_report_t *report) {            \
+    if (report) {                                                       \
+        report->passed = greatest_info.passed;                          \
+        report->failed = greatest_info.failed;                          \
+        report->skipped = greatest_info.skipped;                        \
+        report->assertions = greatest_info.assertions;                  \
+    }                                                                   \
+}                                                                       \
+                                                                        \
+void greatest_set_verbosity(unsigned int verbosity) {                   \
+    greatest_info.verbosity = (unsigned char)verbosity;                 \
+}                                                                       \
+                                                                        \
+void greatest_set_flag(greatest_flag_t flag) {                          \
+    greatest_info.flags |= flag;                                        \
+}                                                                       \
+                                                                        \
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup = cb;                                           \
     greatest_info.setup_udata = udata;                                  \
@@ -806,10 +835,10 @@ greatest_run_info greatest_info
 
 /* Report passes, failures, skipped tests, the number of
  * assertions, and the overall run time. */
-#define GREATEST_REPORT()                                               \
+#define GREATEST_PRINT_REPORT()                                         \
     do {                                                                \
         if (!GREATEST_LIST_ONLY()) {                                    \
-            accumulate_and_clear_suite();                               \
+            update_counts_and_reset_suite();                            \
             GREATEST_SET_TIME(greatest_info.end);                       \
             fprintf(GREATEST_STDOUT,                                    \
                 "\nTotal: %u tests", greatest_info.tests_run);          \
@@ -827,7 +856,7 @@ greatest_run_info greatest_info
 /* Report results, exit with exit status based on results. */
 #define GREATEST_MAIN_END()                                             \
     do {                                                                \
-        GREATEST_REPORT();                                              \
+        GREATEST_PRINT_REPORT();                                        \
         return (greatest_all_passed() ? EXIT_SUCCESS : EXIT_FAILURE);   \
     } while (0)
 
