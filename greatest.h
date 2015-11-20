@@ -788,6 +788,10 @@ greatest_run_info greatest_info
 /* Init internals. */
 #define GREATEST_INIT()                                                 \
     do {                                                                \
+        /* Suppress unused function warning if features aren't used */  \
+        (void)greatest_run_suite;                                       \
+        (void)greatest_parse_args;                                      \
+                                                                        \
         memset(&greatest_info, 0, sizeof(greatest_info));               \
         greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
         GREATEST_SET_TIME(greatest_info.begin);                         \
@@ -796,41 +800,8 @@ greatest_run_info greatest_info
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
-        int i = 0;                                                      \
         GREATEST_INIT();                                                \
-        for (i = 1; i < argc; i++) {                                    \
-            if (0 == strcmp("-t", argv[i])) {                           \
-                if (argc <= i + 1) {                                    \
-                    greatest_usage(argv[0]);                            \
-                    exit(EXIT_FAILURE);                                 \
-                }                                                       \
-                greatest_info.test_filter = argv[i+1];                  \
-                i++;                                                    \
-            } else if (0 == strcmp("-s", argv[i])) {                    \
-                if (argc <= i + 1) {                                    \
-                    greatest_usage(argv[0]);                            \
-                    exit(EXIT_FAILURE);                                 \
-                }                                                       \
-                greatest_info.suite_filter = argv[i+1];                 \
-                i++;                                                    \
-            } else if (0 == strcmp("-f", argv[i])) {                    \
-                greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;        \
-            } else if (0 == strcmp("-v", argv[i])) {                    \
-                greatest_info.verbosity++;                              \
-            } else if (0 == strcmp("-l", argv[i])) {                    \
-                greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;         \
-            } else if (0 == strcmp("-h", argv[i])) {                    \
-                greatest_usage(argv[0]);                                \
-                exit(EXIT_SUCCESS);                                     \
-            } else if (0 == strcmp("--", argv[i])) {                    \
-                break;                                                  \
-            } else {                                                    \
-                fprintf(GREATEST_STDOUT,                                \
-                    "Unknown argument '%s'\n", argv[i]);                \
-                greatest_usage(argv[0]);                                \
-                exit(EXIT_FAILURE);                                     \
-            }                                                           \
-        }                                                               \
+        greatest_parse_args(argc, argv);                                \
     } while (0)
 
 /* Report passes, failures, skipped tests, the number of
