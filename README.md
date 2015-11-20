@@ -6,15 +6,18 @@ A testing system for C, contained in 1 file.
 ## Key Features
 
 - **Small, portable, lightweight**
+
     greatest doesn't depend on anything beyond ANSI C89, and the test
     scaffolding should build without warnings under `-Wall -pedantic`.
     It is under 1,000 LOC, and does no dynamic allocation.
 
 - **Easy to set up**
+
     To use, just `#include` greatest.h in your project. There is
     very little boilerplate. Most features are optional.
 
 - **Un-opinionated**
+
     When a command-line test runner is useful, greatest can provide one,
     but it can also run as part of other programs. It doesn't depend on
     a particular build system, and it should accommodate a variety of
@@ -22,18 +25,20 @@ A testing system for C, contained in 1 file.
     choices on code under test.
 
 - **Modular**
+
     Tests can be run individually, or grouped into suites. Suites can
     share common setup, and can be contained in their own compilation
     units.
 
 - **Rapid iteration**
+
     Specific tests or suites can be run by name, for focused and rapid
     iteration during development.
 
 
 There are some compile time options, and slightly nicer syntax for
 parametric testing (running tests with arguments) is available if
-compiled with -std=c99.
+compiled with `-std=c99`.
 
 Also, I wrote a
 [blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
