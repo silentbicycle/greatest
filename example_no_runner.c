@@ -12,6 +12,7 @@ TEST standalone_pass(void) {
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
+    struct greatest_report_t report;
     (void)argc;
     (void)argv;
     
@@ -24,7 +25,6 @@ int main(int argc, char **argv) {
     printf("\nStandard report, as printed by greatest:\n");
     GREATEST_PRINT_REPORT();
     
-    struct greatest_report_t report;
     greatest_get_report(&report);
 
     printf("\nCustom report:\n");
