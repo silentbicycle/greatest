@@ -235,7 +235,8 @@ SUITE(suite) {
 #endif
 
     if (GREATEST_IS_VERBOSE()) {
-        printf("greatest was run with verbosity level: %u\n", GREATEST_VERBOSITY());
+        printf("greatest was run with verbosity level: %u\n",
+            greatest_get_verbosity());
     }
 }
 

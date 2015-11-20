@@ -265,6 +265,7 @@ int greatest_all_passed(void);
 void greatest_set_test_filter(const char *name);
 void greatest_set_suite_filter(const char *name);
 void greatest_get_report(struct greatest_report_t *report);
+unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
 void greatest_set_flag(greatest_flag_t flag);
 
@@ -345,7 +346,6 @@ typedef enum {
 
 /* Check if the test runner is in verbose mode. */
 #define GREATEST_IS_VERBOSE() ((greatest_info.verbosity) > 0)
-#define GREATEST_VERBOSITY() (greatest_info.verbosity)
 #define GREATEST_LIST_ONLY()                                            \
     (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
 #define GREATEST_FIRST_FAIL()                                           \
@@ -775,6 +775,10 @@ void greatest_get_report(struct greatest_report_t *report) {            \
         report->skipped = greatest_info.skipped;                        \
         report->assertions = greatest_info.assertions;                  \
     }                                                                   \
+}                                                                       \
+                                                                        \
+unsigned int greatest_get_verbosity(void) {                             \
+    return greatest_info.verbosity;                                     \
 }                                                                       \
                                                                         \
 void greatest_set_verbosity(unsigned int verbosity) {                   \
