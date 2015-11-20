@@ -17,7 +17,8 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone */
+/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone,
+ *         set_filters */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 1
@@ -253,7 +254,8 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 int greatest_all_passed(void);
-
+void greatest_set_test_filter(const char *name);
+void greatest_set_suite_filter(const char *name);
 
 /********************
 * Language Support *
@@ -707,7 +709,52 @@ void greatest_usage(const char *name) {                                 \
         name);                                                          \
 }                                                                       \
                                                                         \
+static void greatest_parse_args(int argc, char **argv) {                \
+    int i = 0;                                                          \
+    for (i = 1; i < argc; i++) {                                        \
+        if (0 == strncmp("-t", argv[i], 2)) {                           \
+            if (argc <= i + 1) {                                        \
+                greatest_usage(argv[0]);                                \
+                exit(EXIT_FAILURE);                                     \
+            }                                                           \
+            greatest_info.test_filter = argv[i+1];                      \
+            i++;                                                        \
+        } else if (0 == strncmp("-s", argv[i], 2)) {                    \
+            if (argc <= i + 1) {                                        \
+                greatest_usage(argv[0]);                                \
+                exit(EXIT_FAILURE);                                     \
+            }                                                           \
+            greatest_info.suite_filter = argv[i+1];                     \
+            i++;                                                        \
+        } else if (0 == strncmp("-f", argv[i], 2)) {                    \
+            greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;            \
+        } else if (0 == strncmp("-v", argv[i], 2)) {                    \
+            greatest_info.verbosity++;                                  \
+        } else if (0 == strncmp("-l", argv[i], 2)) {                    \
+            greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;             \
+        } else if (0 == strncmp("-h", argv[i], 2)) {                    \
+            greatest_usage(argv[0]);                                    \
+            exit(EXIT_SUCCESS);                                         \
+        } else if (0 == strncmp("--", argv[i], 2)) {                    \
+            break;                                                      \
+        } else {                                                        \
+            fprintf(GREATEST_STDOUT,                                    \
+                "Unknown argument '%s'\n", argv[i]);                    \
+            greatest_usage(argv[0]);                                    \
+            exit(EXIT_FAILURE);                                         \
+        }                                                               \
+    }                                                                   \
+}                                                                       \
+                                                                        \
 int greatest_all_passed(void) { return (greatest_info.failed == 0); }   \
+                                                                        \
+void greatest_set_test_filter(const char *name) {                       \
+    greatest_info.test_filter = name;                                   \
+}                                                                       \
+                                                                        \
+void greatest_set_suite_filter(const char *name) {                      \
+    greatest_info.suite_filter = name;                                  \
+}                                                                       \
                                                                         \
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup = cb;                                           \
