@@ -1,10 +1,35 @@
 # greatest
 
-A unit testing system for C, contained in 1 file. It doesn't use dynamic
-allocation or depend on anything beyond ANSI C89, and the test scaffolding
-should build without warnings under `-Wall -pedantic`.
+A testing system for C, contained in 1 file.
 
-To use, just `#include` greatest.h in your project. 
+
+## Key Features
+
+- **Small, portable, lightweight**
+    greatest doesn't depend on anything beyond ANSI C89, and the test
+    scaffolding should build without warnings under `-Wall -pedantic`.
+    It is under 1,000 LOC, and does no dynamic allocation.
+
+- **Easy to set up**
+    To use, just `#include` greatest.h in your project. There is
+    very little boilerplate. Most features are optional.
+
+- **Un-opinionated**
+    When a command-line test runner is useful, greatest can provide one,
+    but it can also run as part of other programs. It doesn't depend on
+    a particular build system, and it should accommodate a variety of
+    testing approaches. It actively avoids imposing architectural
+    choices on code under test.
+
+- **Modular**
+    Tests can be run individually, or grouped into suites. Suites can
+    share common setup, and can be contained in their own compilation
+    units.
+
+- **Rapid iteration**
+    Specific tests or suites can be run by name, for focused and rapid
+    iteration during development.
+
 
 There are some compile time options, and slightly nicer syntax for
 parametric testing (running tests with arguments) is available if
@@ -19,6 +44,66 @@ with more information.
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 [theft]: https://github.com/silentbicycle/theft
 [pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
+
+
+## Basic Usage
+
+```c
+#include "greatest.h"
+
+TEST x_should_equal_1() {
+    int x = 1;
+    ASSERT_EQ(1, x);                              /* default message */
+    ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
+    /* printf expected and actual values as "%d" if they differ */
+    ASSERT_EQ_FMT(1, x, "%d");
+    PASS();
+}
+
+SUITE(the_suite) {
+    RUN_TEST(x_should_equal_1);
+}
+
+/* Add definitions that need to be in the test runner's main file. */
+GREATEST_MAIN_DEFS();
+
+int main(int argc, char **argv) {
+    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+
+    /* Individual tests can be run directly. */
+    RUN_TEST(x_should_equal_1);
+
+    /* Tests can also be gathered into test suites. */
+    RUN_SUITE(the_suite);
+
+    GREATEST_MAIN_END();        /* display results */
+}
+```
+
+Output:
+
+```sh
+$ make simple && ./simple
+cc -g -Wall -Werror -pedantic    simple.c   -o simple
+
+* Suite the_suite:
+.
+1 tests - 1 pass, 0 fail, 0 skipped (5 ticks, 0.000 sec)
+
+Total: 1 tests (47 ticks, 0.000 sec), 3 assertions
+Pass: 1, fail: 0, skip: 0.
+```
+
+Test cases should call assertions and then end in PASS(), SKIP(),
+FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
+If there are any test failures, the test runner will return 1,
+otherwise it will return 0. (Skips do not cause a test runner to
+report failure.)
+
+Tests and suites are just functions, so normal C scoping rules apply.
+
+(For more examples, look at example.c and example-suite.c.)
+
 
 ## Available Assertions
 
@@ -72,58 +157,6 @@ setjmp/longjmp-related functionality will be compiled out.)
 In all cases, the `m` version allows you to pass in a customized failure
 message. If an assertion without a custom message fails, `greatest` uses C
 preprocessor stringification to simply print the assertion's parameters.
-
-## Basic Usage
-
-```c
-#include "greatest.h"
-
-TEST x_should_equal_1() {
-    int x = 1;
-    ASSERT_EQ(1, x);                              /* default message */
-    ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
-    /* printf expected and actual values as "%d" if they differ */
-    ASSERT_EQ_FMT(1, x, "%d");
-    PASS();
-}
-
-SUITE(the_suite) {
-    RUN_TEST(x_should_equal_1);
-}
-
-/* Add definitions that need to be in the test runner's main file. */
-GREATEST_MAIN_DEFS();
-
-int main(int argc, char **argv) {
-    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
-    RUN_SUITE(the_suite);
-    GREATEST_MAIN_END();        /* display results */
-}
-```
-
-Output:
-
-```sh
-$ make simple && ./simple
-cc -g -Wall -Werror -pedantic    simple.c   -o simple
-
-* Suite the_suite:
-.
-1 tests - 1 pass, 0 fail, 0 skipped (5 ticks, 0.000 sec)
-
-Total: 1 tests (47 ticks, 0.000 sec), 3 assertions
-Pass: 1, fail: 0, skip: 0.
-```
-
-Test cases should call assertions and then end in PASS(), SKIP(),
-FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
-If there are any test failures, the test runner will return 1,
-otherwise it will return 0. (Skips do not cause a test runner to
-report failure.)
-
-Tests and suites are just functions, so normal C scoping rules apply.
-
-(For more examples, look at example.c and example-suite.c.)
 
 
 ## Sub-Functions
