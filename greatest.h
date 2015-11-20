@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY */
+/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 1
@@ -34,7 +34,7 @@
 
 #include "greatest.h"
 
-TEST foo_should_foo() {
+TEST foo_should_foo(void) {
     PASS();
 }
 
@@ -48,8 +48,8 @@ static void teardown_cb(void *data) {
 
 SUITE(suite) {
     /* Optional setup/teardown callbacks which will be run before/after
-     * every test case in the suite.
-     * Cleared when the suite finishes. */
+     * every test case. If using a test suite, they will be cleared when
+     * the suite finishes. */
     SET_SETUP(setup_cb, voidp_to_callback_data);
     SET_TEARDOWN(teardown_cb, voidp_to_callback_data);
 
@@ -62,8 +62,12 @@ GREATEST_MAIN_DEFS();
 /* Set up, run suite(s) of tests, report pass/fail/skip stats. */
 int run_tests(void) {
     GREATEST_INIT();            /* init. greatest internals */
-    /* List of suites to run. */
+    /* List of suites to run (if any). */
     RUN_SUITE(suite);
+
+    /* Tests can also be run directly, without using test suites. */
+    RUN_TEST(foo_should_foo);
+
     GREATEST_REPORT();          /* display results */
     return greatest_all_passed();
 }
@@ -212,8 +216,8 @@ typedef struct greatest_run_info {
     unsigned int width;
 
     /* only run a specific suite or test */
-    char *suite_filter;
-    char *test_filter;
+    const char *suite_filter;
+    const char *test_filter;
 
 #if GREATEST_USE_TIME
     /* overall timers */
@@ -579,19 +583,7 @@ void greatest_post_test(const char *name, int res) {                    \
     if (GREATEST_STDOUT == stdout) fflush(stdout);                      \
 }                                                                       \
                                                                         \
-static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
-                               const char *suite_name) {                \
-    if (greatest_info.suite_filter &&                                   \
-        !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
-        return;                                                         \
-    }                                                                   \
-    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
-    memset(&greatest_info.suite, 0, sizeof(greatest_info.suite));       \
-    greatest_info.col = 0;                                              \
-    fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
-    GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
-    suite_cb();                                                         \
-    GREATEST_SET_TIME(greatest_info.suite.post_suite);                  \
+static void report_suite(void) {                                        \
     if (greatest_info.suite.tests_run > 0) {                            \
         fprintf(GREATEST_STDOUT,                                        \
             "\n%u tests - %u pass, %u fail, %u skipped",                \
@@ -603,6 +595,9 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
             greatest_info.suite.post_suite);                            \
         fprintf(GREATEST_STDOUT, "\n");                                 \
     }                                                                   \
+}                                                                       \
+                                                                        \
+static void update_counts_and_reset_suite(void) {                       \
     greatest_info.setup = NULL;                                         \
     greatest_info.setup_udata = NULL;                                   \
     greatest_info.teardown = NULL;                                      \
@@ -611,6 +606,25 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
     greatest_info.failed += greatest_info.suite.failed;                 \
     greatest_info.skipped += greatest_info.suite.skipped;               \
     greatest_info.tests_run += greatest_info.suite.tests_run;           \
+    memset(&greatest_info.suite, 0, sizeof(greatest_info.suite));       \
+    greatest_info.col = 0;                                              \
+}                                                                       \
+                                                                        \
+static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
+                               const char *suite_name) {                \
+    if (greatest_info.suite_filter &&                                   \
+        !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
+        return;                                                         \
+    }                                                                   \
+    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
+    if (greatest_info.suite.tests_run > 0) { /* tests w/out suite */    \
+        update_counts_and_reset_suite();                                \
+    }                                                                   \
+    fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
+    GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
+    suite_cb();                                                         \
+    GREATEST_SET_TIME(greatest_info.suite.post_suite);                  \
+    report_suite();                                                     \
 }                                                                       \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
@@ -777,6 +791,7 @@ greatest_run_info greatest_info
 #define GREATEST_REPORT()                                               \
     do {                                                                \
         if (!GREATEST_LIST_ONLY()) {                                    \
+            accumulate_and_clear_suite();                               \
             GREATEST_SET_TIME(greatest_info.end);                       \
             fprintf(GREATEST_STDOUT,                                    \
                 "\nTotal: %u tests", greatest_info.tests_run);          \

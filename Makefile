@@ -3,6 +3,8 @@ CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 
+PROGRAMS=	example example_no_suite example_no_runner
+
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
 
@@ -12,12 +14,15 @@ CFLAGS += -Wmissing-declarations
 # Uncomment to disable clock() / time.h.
 #CFLAGS += -DGREATEST_USE_TIME=0
 
-all: example
+all: ${PROGRAMS}
 
 example: example.c greatest.h example-suite.o
 	${CC} -o $@ example.c example-suite.o ${CFLAGS} ${LDFLAGS}
 
+*.o: Makefile
+*.o: greatest.h
+
 clean:
-	rm -f example *.o *.core
+	rm -f ${PROGRAMS} *.o *.core
 
 example-suite.o: example-suite.c

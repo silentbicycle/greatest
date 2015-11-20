@@ -239,12 +239,24 @@ SUITE(suite) {
     }
 }
 
+TEST standalone_test(void) {
+    FAILm("(expected failure)");
+}
+
 /* Add all the definitions that need to be in the test runner's main file. */
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+
+    /* If tests are run outside of a suite, a default suite is used. */
+    RUN_TEST(standalone_test);
+
     RUN_SUITE(suite);
     RUN_SUITE(other_suite);
+
+    /* Standalone tests can appear before or after other suites. */
+    RUN_TEST(standalone_test);
+
     GREATEST_MAIN_END();        /* display results */
 }
