@@ -18,7 +18,7 @@
 #define GREATEST_H
 
 /* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone,
- *         set_filters, get_report, set_verbosity, set_flag */
+ *         set_filters, get_report, set_verbosity, set_flag, fprintf_cb */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 0
 #define GREATEST_VERSION_PATCH 1
@@ -170,16 +170,24 @@ typedef void (greatest_teardown_cb)(void *udata);
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
 typedef int greatest_equal_cb(const void *exp, const void *got, void *udata);
 
-/* Type for a callback that prints a value pointed to by T.
+/* Type for a callback that prints a value pointed to by T on stdout.
+ * Return value has the same meaning as printf's.
+ * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m].
+ *
+ * Deprecated: Use greatest_fprintf_cb in new code. */
+typedef int greatest_printf_cb(const void *t, void *udata);
+
+/* Type for a callback that prints a value pointed to by T on FILE *F.
  * Return value has the same meaning as printf's.
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
-typedef int greatest_printf_cb(const void *t, void *udata);
+typedef int greatest_fprintf_cb(FILE *f, const void *t, void *udata);
 
 /* Callbacks for an arbitrary type; needed for type-specific
  * comparisons via GREATEST_ASSERT_EQUAL_T[m].*/
 typedef struct greatest_type_info {
     greatest_equal_cb *equal;
-    greatest_printf_cb *print;
+    greatest_fprintf_cb *fprint;
+    greatest_printf_cb *print;    /* Deprecated: use .fprintf instead. */
 } greatest_type_info;
 
 /* Callbacks for string type. */
@@ -689,6 +697,16 @@ void greatest_do_skip(const char *name) {                               \
     greatest_info.suite.skipped++;                                      \
 }                                                                       \
                                                                         \
+static void wrap_print_type_cb(FILE *f, greatest_type_info *type_info,  \
+                                   const void *value, void *udata) {    \
+    if (type_info->fprint) {                                            \
+        (void)type_info->fprint(f, value, udata);                       \
+    } else if (type_info->print) {                                      \
+        /* check for deprecated version */                              \
+        (void)type_info->print(value, udata);                           \
+    }                                                                   \
+}                                                                       \
+                                                                        \
 int greatest_do_assert_equal_t(const void *exp, const void *got,        \
         greatest_type_info *type_info, void *udata) {                   \
     int eq = 0;                                                         \
@@ -699,9 +717,9 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
-            (void)type_info->print(exp, udata);                         \
+            wrap_print_type_cb(GREATEST_STDOUT, type_info, exp, udata); \
             fprintf(GREATEST_STDOUT, "\nGot: ");                        \
-            (void)type_info->print(got, udata);                         \
+            wrap_print_type_cb(GREATEST_STDOUT, type_info, got, udata); \
             fprintf(GREATEST_STDOUT, "\n");                             \
         } else {                                                        \
             fprintf(GREATEST_STDOUT,                                    \
@@ -810,14 +828,16 @@ static int greatest_string_equal_cb(const void *exp, const void *got,   \
     return (0 == strcmp((const char *)exp, (const char *)got));         \
 }                                                                       \
                                                                         \
-static int greatest_string_printf_cb(const void *t, void *udata) {      \
+static int greatest_string_fprintf_cb(FILE *f,                          \
+        const void *t, void *udata) {                                   \
     (void)udata;                                                        \
-    return fprintf(GREATEST_STDOUT, "%s", (const char *)t);             \
+    return fprintf(f, "%s", (const char *)t);                           \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_string = {                        \
     greatest_string_equal_cb,                                           \
-    greatest_string_printf_cb,                                          \
+    greatest_string_fprintf_cb,                                         \
+    NULL,                                                               \
 };                                                                      \
                                                                         \
 greatest_run_info greatest_info
