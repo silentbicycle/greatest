@@ -1,3 +1,4 @@
 example
 example_no_suite
+example_no_runner
 *.o
