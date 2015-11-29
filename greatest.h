@@ -17,11 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.0.1, + stop_CLI_args_on_--, SUITE_EXTERN, VERBOSITY, standalone,
- *         set_filters, get_report, set_verbosity, set_flag */
+/* 1.1.0 */
 #define GREATEST_VERSION_MAJOR 1
-#define GREATEST_VERSION_MINOR 0
-#define GREATEST_VERSION_PATCH 1
+#define GREATEST_VERSION_MINOR 1
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
