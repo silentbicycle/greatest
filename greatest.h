@@ -604,8 +604,9 @@ void greatest_post_test(const char *name, int res) {                    \
 static void report_suite(void) {                                        \
     if (greatest_info.suite.tests_run > 0) {                            \
         fprintf(GREATEST_STDOUT,                                        \
-            "\n%u tests - %u pass, %u fail, %u skipped",                \
+            "\n%u test%s - %u pass, %u fail, %u skipped",               \
             greatest_info.suite.tests_run,                              \
+            greatest_info.suite.tests_run == 1 ? "" : "s",              \
             greatest_info.suite.passed,                                 \
             greatest_info.suite.failed,                                 \
             greatest_info.suite.skipped);                               \
@@ -849,11 +850,14 @@ greatest_run_info greatest_info
             update_counts_and_reset_suite();                            \
             GREATEST_SET_TIME(greatest_info.end);                       \
             fprintf(GREATEST_STDOUT,                                    \
-                "\nTotal: %u tests", greatest_info.tests_run);          \
+                "\nTotal: %u test%s",                                   \
+                greatest_info.tests_run,                                \
+                greatest_info.tests_run == 1 ? "" : "s");               \
             GREATEST_CLOCK_DIFF(greatest_info.begin,                    \
                 greatest_info.end);                                     \
-            fprintf(GREATEST_STDOUT, ", %u assertions\n",               \
-                greatest_info.assertions);                              \
+            fprintf(GREATEST_STDOUT, ", %u assertion%s\n",              \
+                greatest_info.assertions,                               \
+                greatest_info.assertions == 1 ? "" : "s");              \
             fprintf(GREATEST_STDOUT,                                    \
                 "Pass: %u, fail: %u, skip: %u.\n",                      \
                 greatest_info.passed,                                   \
