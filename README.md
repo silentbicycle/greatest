@@ -5,42 +5,43 @@ A testing system for C, contained in 1 file.
 
 ## Key Features
 
-- **Small, portable, lightweight**
+- **Small, Portable, Lightweight**
 
     greatest doesn't depend on anything beyond ANSI C89, and the test
     scaffolding should build without warnings under `-Wall -pedantic`.
     It is under 1,000 LOC, and does no dynamic allocation.
 
-- **Easy to set up**
+- **Easy To Set Up**
 
     To use, just `#include` greatest.h in your project. There is
     very little boilerplate. Most features are optional.
 
-- **Un-opinionated**
+- **Un-Opinionated**
 
     When a command-line test runner is useful, greatest can provide one,
     but it can also run as part of other programs. It doesn't depend on
-    a particular build system, and it should accommodate a variety of
-    testing approaches. It actively avoids imposing architectural
-    choices on code under test.
+    a particular build system or other tooling, and should accommodate a
+    variety of testing approaches. It actively avoids imposing
+    architectural choices on code under test.
 
 - **Modular**
 
     Tests can be run individually, or grouped into suites. Suites can
-    share common setup, and can be contained in their own compilation
+    share common setup, and can be in distinct compilation
     units.
 
-- **Rapid iteration**
+- **Low Friction**
 
     Specific tests or suites can be run by name, for focused and rapid
-    iteration during development.
+    iteration during development. greatest adds very little startup
+    latency.
 
 
-There are some compile time options, and slightly nicer syntax for
+There are some compile-time options, and slightly nicer syntax for
 parametric testing (running tests with arguments) is available if
 compiled with `-std=c99`.
 
-Also, I wrote a
+I wrote a
 [blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
 with more information.
 
@@ -56,6 +57,7 @@ with more information.
 ```c
 #include "greatest.h"
 
+/* A test runs various assertions, then calls PASS(), FAIL(), or SKIP(). */
 TEST x_should_equal_1() {
     int x = 1;
     ASSERT_EQ(1, x);                              /* default message */
@@ -65,6 +67,7 @@ TEST x_should_equal_1() {
     PASS();
 }
 
+/* Suites can group multiple tests with common setup. */
 SUITE(the_suite) {
     RUN_TEST(x_should_equal_1);
 }
@@ -76,7 +79,7 @@ int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
 
     /* Individual tests can be run directly. */
-    RUN_TEST(x_should_equal_1);
+    /* RUN_TEST(x_should_equal_1); */
 
     /* Tests can also be gathered into test suites. */
     RUN_SUITE(the_suite);
@@ -93,9 +96,9 @@ cc -g -Wall -Werror -pedantic    simple.c   -o simple
 
 * Suite the_suite:
 .
-1 tests - 1 pass, 0 fail, 0 skipped (5 ticks, 0.000 sec)
+1 test - 1 passed, 0 failed, 0 skipped (5 ticks, 0.000 sec)
 
-Total: 1 tests (47 ticks, 0.000 sec), 3 assertions
+Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
@@ -196,9 +199,8 @@ If you want to run multiple test suites in parallel, look at
 
 ## Aliases
 
-All the Macros exist with the unprefixed notation and with the prefixed notation, for example:
-
-`SUITE` is the same as `GREATEST_SUITE` 
+All the macros have unprefixed and prefixed forms. For example, `SUITE`
+is the same as `GREATEST_SUITE`.
 
 Checkout the [source][1] for the entire list.
 
