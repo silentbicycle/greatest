@@ -721,8 +721,8 @@ void greatest_usage(const char *name) {                                 \
         "  -l        List suites and their tests, then exit\n"          \
         "  -f        Stop runner after first failure\n"                 \
         "  -v        Verbose output\n"                                  \
-        "  -s SUITE  only run suite named SUITE\n"                      \
-        "  -t TEST   only run test named TEST\n",                       \
+        "  -s SUITE  only run suites containing string SUITE\n"         \
+        "  -t TEST   only run tests containing string TEST\n",          \
         name);                                                          \
 }                                                                       \
                                                                         \
