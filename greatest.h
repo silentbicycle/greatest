@@ -604,7 +604,7 @@ void greatest_post_test(const char *name, int res) {                    \
 static void report_suite(void) {                                        \
     if (greatest_info.suite.tests_run > 0) {                            \
         fprintf(GREATEST_STDOUT,                                        \
-            "\n%u test%s - %u pass, %u fail, %u skipped",               \
+            "\n%u test%s - %u passed, %u failed, %u skipped",           \
             greatest_info.suite.tests_run,                              \
             greatest_info.suite.tests_run == 1 ? "" : "s",              \
             greatest_info.suite.passed,                                 \
