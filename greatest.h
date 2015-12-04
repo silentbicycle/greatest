@@ -416,7 +416,7 @@ typedef enum {
         if ((EXP) != (GOT)) {                                           \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             fprintf(GREATEST_STDOUT, fmt, EXP);                         \
-            fprintf(GREATEST_STDOUT, "\nGot: ");                        \
+            fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
             fprintf(GREATEST_STDOUT, fmt, GOT);                         \
             fprintf(GREATEST_STDOUT, "\n");                             \
             GREATEST_FAILm(MSG);                                        \
@@ -434,8 +434,9 @@ typedef enum {
             (exp < got && got - exp > tol)) {                           \
             fprintf(GREATEST_STDOUT,                                    \
                 "\nExpected: " GREATEST_FLOAT_FMT                       \
-                " +/- " GREATEST_FLOAT_FMT "\n"                         \
-                "Got: " GREATEST_FLOAT_FMT "\n",                        \
+                " +/- " GREATEST_FLOAT_FMT                              \
+                "\n     Got: " GREATEST_FLOAT_FMT                       \
+                "\n",                                                   \
                 exp, tol, got);                                         \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
@@ -700,7 +701,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
         if (type_info->print != NULL) {                                 \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
             (void)type_info->print(exp, udata);                         \
-            fprintf(GREATEST_STDOUT, "\nGot: ");                        \
+            fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
             (void)type_info->print(got, udata);                         \
             fprintf(GREATEST_STDOUT, "\n");                             \
         } else {                                                        \
