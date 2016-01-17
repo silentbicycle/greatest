@@ -1,5 +1,13 @@
 # greatest Changes By Release
 
+## v1.2.0 - Not yet released
+
+### API Changes
+
+Added `GREATEST_IGNORE_TEST`, which skips a test without warning
+about the function being unused.
+
+
 ## v1.1.1 - 2016-02-14
 
 ### API Changes

@@ -322,6 +322,9 @@ typedef enum {
         }                                                               \
     } while (0)
 
+/* Ignore a test, don't warn about it being unused. */
+#define GREATEST_IGNORE_TEST(TEST) (void)TEST
+
 /* Run a test in the current suite with one void * argument,
  * which can be a pointer to a struct with multiple arguments. */
 #define GREATEST_RUN_TEST1(TEST, ENV)                                   \
@@ -879,6 +882,7 @@ greatest_run_info greatest_info
 #define RUN_TEST       GREATEST_RUN_TEST
 #define RUN_TEST1      GREATEST_RUN_TEST1
 #define RUN_SUITE      GREATEST_RUN_SUITE
+#define IGNORE_TEST    GREATEST_IGNORE_TEST
 #define ASSERT         GREATEST_ASSERT
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
