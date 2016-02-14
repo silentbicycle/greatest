@@ -13,6 +13,9 @@ Fixed a bug that could lead to test suites running previous suites'
 setup/teardown callbacks. This was a bug in the optional suite support,
 so only v1.1.0 is affected.
 
+Updated the README to note that the `greenest` awk script expects
+a Unix-like environment (i.e., it doesn't work on Windows).
+
 
 ## v1.1.0 - 2015-11-29
 
