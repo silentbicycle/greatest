@@ -1,5 +1,19 @@
 # greatest Changes By Release
 
+## v1.1.1 - 2016-02-14
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Fixed a bug that could lead to test suites running previous suites'
+setup/teardown callbacks. This was a bug in the optional suite support,
+so only v1.1.0 is affected.
+
+
 ## v1.1.0 - 2015-11-29
 
 ### API Changes

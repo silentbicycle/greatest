@@ -635,9 +635,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
         return;                                                         \
     }                                                                   \
     if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
-    if (greatest_info.suite.tests_run > 0) { /* tests w/out suite */    \
-        update_counts_and_reset_suite();                                \
-    }                                                                   \
+    update_counts_and_reset_suite();                                    \
     fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
     suite_cb();                                                         \
