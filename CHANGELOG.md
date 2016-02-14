@@ -4,7 +4,7 @@
 
 ### API Changes
 
-None.
+Align "Expected:"/"Got:" messages, so it's easier to compare values.
 
 
 ### Other Improvements
