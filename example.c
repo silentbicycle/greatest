@@ -28,8 +28,14 @@ TEST expect_equal(void) {
 }
 
 TEST expect_str_equal(void) {
-    const char *foo = "foo";
-    ASSERT_STR_EQ("bar", foo);
+    const char *foo1 = "foo1";
+    ASSERT_STR_EQ("foo2", foo1);
+    PASS();
+}
+
+TEST expect_strn_equal(void) {
+    const char *foo1 = "foo1";
+    ASSERT_STRN_EQ("foo2", foo1, 3);
     PASS();
 }
 
@@ -160,6 +166,23 @@ TEST fail_via_ASSERT_OR_LONGJMP(void) {
 }
 #endif
 
+TEST expect_mem_equal(void) {
+    char got[56];
+    char exp[sizeof(got)];
+    size_t i = 0;
+    for (i = 0; i < sizeof(got); i++) {
+        exp[i] = i;
+        got[i] = i;
+    }
+
+    /* Two bytes differ */
+    got[23] = 'X';
+    got[34] = 'X';
+
+    ASSERT_MEM_EQm("expected matching memory", got, exp, sizeof(got));
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -182,6 +205,8 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
+    printf("\nThis should pass:\n");
+    RUN_TEST(expect_strn_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
 
@@ -238,6 +263,9 @@ SUITE(suite) {
         printf("greatest was run with verbosity level: %u\n",
             greatest_get_verbosity());
     }
+
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_mem_equal);
 }
 
 TEST standalone_test(void) {

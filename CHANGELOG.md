@@ -4,8 +4,17 @@
 
 ### API Changes
 
-Added `GREATEST_IGNORE_TEST`, which skips a test without warning
-about the function being unused.
+Added `GREATEST_IGNORE_TEST`, which skips a test without warning about
+the function being unused.
+
+Added `GREATEST_ASSERT_STRN_EQ`, which does a string comparison with an
+explicit length (using `strncmp`, rather than `strcmp`).
+
+Added `GREATEST_ASSERT_MEM_EQ`, which does a memory comparison with an
+explicit length (using `memcmp`). If the memory differs, it will print a
+hexdump which highlights the lines and individual bytes which differ.
+(The `greenest` script was also updated to colorize the hexdump's
+difference markers.)
 
 
 ### Other Improvements

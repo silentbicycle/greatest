@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.1.2 */
+/* 1.1.2 + hexdump + strn */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 1
 #define GREATEST_VERSION_PATCH 2
@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 /***********
  * Options *
@@ -181,8 +182,15 @@ typedef struct greatest_type_info {
     greatest_printf_cb *print;
 } greatest_type_info;
 
-/* Callbacks for string type. */
+typedef struct greatest_memory_cmp_env {
+    const unsigned char *exp;
+    const unsigned char *got;
+    size_t size;
+} greatest_memory_cmp_env;
+
+/* Callbacks for string and raw memory types. */
 extern greatest_type_info greatest_type_info_string;
+extern greatest_type_info greatest_type_info_memory;
 
 typedef enum {
     GREATEST_FLAG_FIRST_FAIL = 0x01,
@@ -379,6 +387,10 @@ typedef enum {
     GREATEST_ASSERT_EQUAL_Tm(#EXP " != " #GOT, EXP, GOT, TYPE_INFO, UDATA)
 #define GREATEST_ASSERT_STR_EQ(EXP, GOT)                                \
     GREATEST_ASSERT_STR_EQm(#EXP " != " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_STRN_EQ(EXP, GOT, SIZE)                         \
+    GREATEST_ASSERT_STRN_EQm(#EXP " != " #GOT, EXP, GOT, SIZE)
+#define GREATEST_ASSERT_MEM_EQ(EXP, GOT, SIZE)                          \
+    GREATEST_ASSERT_MEM_EQm(#EXP " != " #GOT, EXP, GOT, SIZE)
 
 /* The following forms take an additional message argument first,
  * to be displayed by the test runner. */
@@ -451,6 +463,26 @@ typedef enum {
         GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT,                         \
             &greatest_type_info_string, NULL);                          \
     } while (0)                                                         \
+
+/* Fail if EXP is not equal to GOT, according to strcmp. */
+#define GREATEST_ASSERT_STRN_EQm(MSG, EXP, GOT, SIZE)                   \
+    do {                                                                \
+        size_t size = SIZE;                                             \
+        GREATEST_ASSERT_EQUAL_Tm(MSG, EXP, GOT,                         \
+            &greatest_type_info_string, &size);                         \
+    } while (0)                                                         \
+
+/* Fail if EXP is not equal to GOT, according to memcmp. */
+#define GREATEST_ASSERT_MEM_EQm(MSG, EXP, GOT, SIZE)                    \
+    do {                                                                \
+        greatest_memory_cmp_env env;                                    \
+        env.exp = (const unsigned char *)EXP;                           \
+        env.got = (const unsigned char *)GOT;                           \
+        env.size = SIZE;                                                \
+        GREATEST_ASSERT_EQUAL_Tm(MSG, env.exp, env.got,                 \
+            &greatest_type_info_memory, &env);                          \
+    } while (0)                                                         \
+
 
 /* Fail if EXP is not equal to GOT, according to a comparison
  * callback in TYPE_INFO. If they are not equal, optionally use a
@@ -808,18 +840,62 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
                                                                         \
 static int greatest_string_equal_cb(const void *exp, const void *got,   \
     void *udata) {                                                      \
-    (void)udata;                                                        \
-    return (0 == strcmp((const char *)exp, (const char *)got));         \
+    size_t *size = (size_t *)udata;                                     \
+    return (size != NULL                                                \
+        ? (0 == strncmp((const char *)exp, (const char *)got, *size))   \
+        : (0 == strcmp((const char *)exp, (const char *)got)));         \
 }                                                                       \
                                                                         \
 static int greatest_string_printf_cb(const void *t, void *udata) {      \
-    (void)udata;                                                        \
+    (void)udata; /* note: does not check \0 termination. */             \
     return fprintf(GREATEST_STDOUT, "%s", (const char *)t);             \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_string = {                        \
     greatest_string_equal_cb,                                           \
     greatest_string_printf_cb,                                          \
+};                                                                      \
+                                                                        \
+static int greatest_memory_equal_cb(const void *exp, const void *got,   \
+    void *udata) {                                                      \
+    greatest_memory_cmp_env *env = (greatest_memory_cmp_env *)udata;    \
+    return (0 == memcmp(exp, got, env->size));                          \
+}                                                                       \
+                                                                        \
+static int greatest_memory_printf_cb(const void *t, void *udata) {      \
+    greatest_memory_cmp_env *env = (greatest_memory_cmp_env *)udata;    \
+    unsigned char *buf = (unsigned char *)t, diff_mark = ' ';           \
+    FILE *out = GREATEST_STDOUT;                                        \
+    size_t i, line_i, line_len = 0;                                     \
+    int len = 0;   /* format hexdump with differences highlighted */    \
+    for (i = 0; i < env->size; i+= line_len) {                          \
+        diff_mark = ' ';                                                \
+        line_len = env->size - i;                                       \
+        if (line_len > 16) { line_len = 16; }                           \
+        for (line_i = i; line_i < i + line_len; line_i++) {             \
+            if (env->exp[line_i] != env->got[line_i]) diff_mark = 'X';  \
+        }                                                               \
+        len += fprintf(out, "\n%04x %c ", (unsigned int)i, diff_mark);  \
+        for (line_i = i; line_i < i + line_len; line_i++) {             \
+            int m = env->exp[line_i] == env->got[line_i]; /* match? */  \
+            len += fprintf(out, "%02x%c", buf[line_i], m ? ' ' : '<');  \
+        }                                                               \
+        for (line_i = 0; line_i < 16 - line_len; line_i++) {            \
+            len += fprintf(out, "   ");                                 \
+        }                                                               \
+        fprintf(out, " ");                                              \
+        for (line_i = i; line_i < i + line_len; line_i++) {             \
+            unsigned char c = buf[line_i];                              \
+            len += fprintf(out, "%c", isprint(c) ? c : '.');            \
+        }                                                               \
+    }                                                                   \
+    len += fprintf(out, "\n");                                          \
+    return len;                                                         \
+}                                                                       \
+                                                                        \
+greatest_type_info greatest_type_info_memory = {                        \
+    greatest_memory_equal_cb,                                           \
+    greatest_memory_printf_cb,                                          \
 };                                                                      \
                                                                         \
 greatest_run_info greatest_info
@@ -891,12 +967,16 @@ greatest_run_info greatest_info
 #define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
+#define ASSERT_STRN_EQ GREATEST_ASSERT_STRN_EQ
+#define ASSERT_MEM_EQ  GREATEST_ASSERT_MEM_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
 #define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
 #define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm
+#define ASSERT_STRN_EQm GREATEST_ASSERT_STRN_EQm
+#define ASSERT_MEM_EQm GREATEST_ASSERT_MEM_EQm
 #define PASS           GREATEST_PASS
 #define FAIL           GREATEST_FAIL
 #define SKIP           GREATEST_SKIP
