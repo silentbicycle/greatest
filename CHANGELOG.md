@@ -8,6 +8,13 @@ Added `GREATEST_IGNORE_TEST`, which skips a test without warning
 about the function being unused.
 
 
+### Other Improvements
+
+Fixed a bug that kept the `-f` (stop after first failure) flag from
+stopping the test runner immediately when a failure occured just
+before running a new suite.
+
+
 ## v1.1.1 - 2016-02-14
 
 ### API Changes

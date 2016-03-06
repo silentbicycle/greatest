@@ -17,10 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-/* 1.1.1 */
+/* 1.1.2 */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 1
-#define GREATEST_VERSION_PATCH 1
+#define GREATEST_VERSION_PATCH 2
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -638,8 +638,8 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
         !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
         return;                                                         \
     }                                                                   \
-    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
     update_counts_and_reset_suite();                                    \
+    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
     fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
     suite_cb();                                                         \
