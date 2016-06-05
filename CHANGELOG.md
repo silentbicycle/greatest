@@ -16,6 +16,10 @@ hexdump which highlights the lines and individual bytes which differ.
 (The `greenest` script was also updated to colorize the hexdump's
 difference markers.)
 
+Added `GREATEST_ASSERT_ENUM_EQ`, which compares two values and uses an
+enum-specific function to convert them to strings before printing
+failures.
+
 
 ### Other Improvements
 

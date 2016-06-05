@@ -175,6 +175,16 @@ a hexdump and highlight the lines and individual bytes which
 do not match.
 
 
+### `ASSERT_ENUM_EQ(EXPECTED, ACTUAL, ENUM_STR_FUN)`
+
+Assert that the enum value EXPECTED is equal to ACTUAL. If not, convert
+each enum value to a string using `ENUM_STR_FUN` before printing them.
+
+`ENUM_STR_FUN` should have a type like:
+
+    const char *some_enum_str(enum some_enum x);
+
+
 ### `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
 
 Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`

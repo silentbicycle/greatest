@@ -10,6 +10,9 @@ SUITE_EXTERN(other_suite);
 /* Declare a local suite. */
 SUITE(suite);
 
+enum foo_t { FOO_1, FOO_2, FOO_3 };
+static const char *foo_str(enum foo_t v);
+
 /* Just test against random ints, to show a variety of results. */
 TEST example_test_case(void) {
     int r = 0;
@@ -183,6 +186,20 @@ TEST expect_mem_equal(void) {
     PASS();
 }
 
+static const char *foo_str(enum foo_t v) {
+    switch (v) {
+    case FOO_1: return "FOO_1";
+    case FOO_2: return "FOO_2";
+    case FOO_3: return "FOO_3";
+    default: return "MATCH FAIL";
+    }
+}
+
+TEST expect_enum_equal(void) {
+    ASSERT_ENUM_EQ(FOO_1, FOO_3, foo_str);
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -266,6 +283,9 @@ SUITE(suite) {
 
     printf("\nThis should fail:\n");
     RUN_TEST(expect_mem_equal);
+
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_enum_equal);
 }
 
 TEST standalone_test(void) {
