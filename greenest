@@ -10,4 +10,10 @@ BEGIN {
 /^SKIP/ { sub("SKIP", YELLOW "SKIP" RESET) }
 /^FAIL/ { sub("FAIL", RED "FAIL" RESET) }
 
+# highlight hexdump difference markers
+/^[0-9a-f]/ {
+    sub("X", GREEN "X" RESET, $2)
+    gsub("<", GREEN "<" RESET, $0)
+}
+
 { print($0) }
