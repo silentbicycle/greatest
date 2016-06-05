@@ -9,11 +9,11 @@ A testing system for C, contained in 1 file.
 
     greatest doesn't depend on anything beyond ANSI C89, and the test
     scaffolding should build without warnings under `-Wall -pedantic`.
-    It is under 1,000 LOC, and does no dynamic allocation.
+    It is under 1,000 LOC (SLOCCount), and does no dynamic allocation.
 
 - **Easy To Set Up**
 
-    To use, just `#include` greatest.h in your project. There is
+    To use, just `#include "greatest.h"` in your project. There is
     very little boilerplate. Most features are optional.
 
 - **Un-Opinionated**
@@ -58,7 +58,7 @@ with more information.
 #include "greatest.h"
 
 /* A test runs various assertions, then calls PASS(), FAIL(), or SKIP(). */
-TEST x_should_equal_1() {
+TEST x_should_equal_1(void) {
     int x = 1;
     ASSERT_EQ(1, x);                              /* default message */
     ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
