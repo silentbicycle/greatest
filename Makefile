@@ -1,7 +1,8 @@
 CFLAGS += -Wall -Werror -Wextra -pedantic
+CFLAGS += -Wmissing-declarations
+# These two are not valid for C++:
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
-CFLAGS += -Wmissing-declarations
 
 PROGRAMS=	example example_no_suite example_no_runner
 

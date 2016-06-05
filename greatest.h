@@ -550,7 +550,7 @@ typedef enum {
 /* Check the result of a subfunction using ASSERT, etc. */
 #define GREATEST_CHECK_CALL(RES)                                        \
     do {                                                                \
-        int _check_call_res = RES;                                      \
+        enum greatest_test_res _check_call_res = RES;                   \
         if (_check_call_res != GREATEST_TEST_RES_PASS) {                \
             return _check_call_res;                                     \
         }                                                               \
