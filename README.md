@@ -115,38 +115,67 @@ Tests and suites are just functions, so normal C scoping rules apply.
 
 ## Available Assertions
 
-### `ASSERT(COND)` and `ASSERTm(MSG, COND)`
+Note that all assertions have a "message" form, which takes an
+additional first argument, a custom string to include in the test
+failure message. This form adds an 'm' suffix to the ASSERT name. For
+example, `ASSERT_EQ(foo, bar);` could also be used as
+`ASSERT_EQm("theese should match", foo, bar)`. If the "message" form is
+not used, greatest will attempt to create a reasonable default message.
+
+
+### `ASSERT(COND)`
 
 Assert that `COND` evaluates to a true value.
 
-### `ASSERT_FALSE(COND)` and `ASSERT_FALSEm(MSG, COND)`
+
+### `ASSERT_FALSE(COND)`
 
 Assert that `COND` evaluates to a false value.
 
-### `ASSERT_EQ(EXPECTED, ACTUAL)` and `ASSERT_EQm(MSG, EXPECTED, ACTUAL)`
+
+### `ASSERT_EQ(EXPECTED, ACTUAL)`
 
 Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
 function, use `ASSERT_EQUAL_T` instead. To print the values if they
 differ, use `ASSERT_EQ_FMT`.
 
-### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)` and `ASSERT_EQ_FMTm(MSG, EXPECTED, ACTUAL, FORMAT)`
 
-Assert that `EXPECTED == ACTUAL`. If they are not equal, print their values using
-FORMAT as the `printf` format string.
+### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)`
+
+Assert that `EXPECTED == ACTUAL`. If they are not equal, print their
+values using FORMAT as the `printf` format string.
 
 For example: `ASSERT_EQ_FMT(123, result, "%d");`
 
-### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)` and `ASSERT_IN_RANGEm(MSG, EXPECTED, ACTUAL, TOLERANCE)`
+
+### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)`
 
 Assert that ACTUAL is within EXPECTED +/- TOLERANCE, once the values
 have been converted to a configurable floating point type
 (`GREATEST_FLOAT`).
 
-### `ASSERT_STR_EQ(EXPECTED, ACTUAL)` and `ASSERT_STR_EQm(MSG, EXPECTED, ACTUAL)`
 
-Assert that `strcmp(EXPECTED, ACTUAL) == 0`.
+### `ASSERT_STR_EQ(EXPECTED, ACTUAL)`
 
-### `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)` and `ASSERT_EQUAL_Tm(MSG, EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
+Assert that the strings are equal
+(i.e., `strcmp(EXPECTED, ACTUAL) == 0`).
+
+
+### `ASSERT_STRN_EQ(EXPECTED, ACTUAL, SIZE)`
+
+Assert that the first SIZE bytes of the strings are equal
+(i.e., `strncmp(EXPECTED, ACTUAL, SIZE) == 0`).
+
+
+### `ASSERT_MEM_EQ(EXPECTED, ACTUAL, SIZE)`
+
+Assert that the first SIZE bytes of memory pointed to
+by EXPECTED and ACTUAL are equal. If the memory differs, print
+a hexdump and highlight the lines and individual bytes which
+do not match.
+
+
+### `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
 
 Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`
 function pointed to by `TYPE_INFO->equal` to compare them. The
@@ -154,17 +183,13 @@ function's UDATA argument can be used to pass in arbitrary user data (or
 NULL). If the values are not equal and the `TYPE_INFO->print` function
 is defined, it will be used to print an "Expected: X, Got: Y" message.
 
-### `ASSERT_OR_LONGJMP(COND)` and `ASSERT_OR_LONGJMPm(MSG, COND)`
+
+### `ASSERT_OR_LONGJMP(COND)`
 
 Assert that `COND` evaluates to a true value. If not, then use
 longjmp(3) to immediately return from the test case and any intermediate
 function calls. (If built with `GREATEST_USE_LONGJMP` set to 0, then all
 setjmp/longjmp-related functionality will be compiled out.)
-
-
-In all cases, the `m` version allows you to pass in a customized failure
-message. If an assertion without a custom message fails, `greatest` uses C
-preprocessor stringification to simply print the assertion's parameters.
 
 
 ## Sub-Functions
@@ -195,6 +220,8 @@ Test runners build with the following command line options:
 
 If you want to run multiple test suites in parallel, look at
 [parade](https://github.com/silentbicycle/parade).
+
+These command line options are processed by `GREATEST_MAIN_BEGIN();`.
 
 
 ## Aliases
