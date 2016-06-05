@@ -20,6 +20,8 @@ Added `GREATEST_ASSERT_ENUM_EQ`, which compares two values and uses an
 enum-specific function to convert them to strings before printing
 failures.
 
+The `greenest` script has been moved into `contrib/`.
+
 
 ### Other Improvements
 
