@@ -304,10 +304,10 @@ void greatest_set_flag(greatest_flag_t flag);
 
 /* Start defining a test function.
  * The arguments are not included, to allow parametric testing. */
-#define GREATEST_TEST static greatest_test_res
+#define GREATEST_TEST static enum greatest_test_res
 
 /* PASS/FAIL/SKIP result from a test. Used internally. */
-typedef enum {
+typedef enum greatest_test_res {
     GREATEST_TEST_RES_PASS = 0,
     GREATEST_TEST_RES_FAIL = -1,
     GREATEST_TEST_RES_SKIP = 1
@@ -320,7 +320,7 @@ typedef enum {
 #define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            greatest_test_res res = GREATEST_SAVE_CONTEXT();            \
+            enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
             if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST();                                           \
             }                                                           \
@@ -578,7 +578,7 @@ typedef enum {
 #define GREATEST_SAVE_CONTEXT()                                         \
         /* setjmp returns 0 (GREATEST_TEST_RES_PASS) on first call */   \
         /* so the test runs, then RES_FAIL from FAIL_WITH_LONGJMP. */   \
-        ((greatest_test_res)(setjmp(greatest_info.jump_dest)))
+        ((enum greatest_test_res)(setjmp(greatest_info.jump_dest)))
 #else
 #define GREATEST_SAVE_CONTEXT()                                         \
     /*a no-op, since setjmp/longjmp aren't being used */                \
