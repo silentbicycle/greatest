@@ -22,7 +22,8 @@ A testing system for C, contained in 1 file.
     but it can also run as part of other programs. It doesn't depend on
     a particular build system or other tooling, and should accommodate a
     variety of testing approaches. It actively avoids imposing
-    architectural choices on code under test.
+    architectural choices on code under test. While greatest was
+    designed with C in mind, it attempts to be usable from C++.
 
 - **Modular**
 

@@ -17,6 +17,10 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* 1.1.2 + hexdump + strn + IGNORE_TEST + ENUM */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 1
@@ -1012,5 +1016,9 @@ greatest_run_info greatest_info
 #endif
 
 #endif /* USE_ABBREVS */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

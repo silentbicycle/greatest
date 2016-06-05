@@ -22,6 +22,7 @@ failures.
 
 The `greenest` script has been moved into `contrib/`.
 
+Added `extern "C" { ... }` guards for C++ interop.
 
 ### Other Improvements
 
