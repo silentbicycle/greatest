@@ -110,6 +110,7 @@ otherwise it will return 0. (Skips do not cause a test runner to
 report failure.)
 
 Tests and suites are just functions, so normal C scoping rules apply.
+For example, a test or suite named "main" will have a name collision.
 
 (For more examples, look at example.c and example-suite.c.)
 
