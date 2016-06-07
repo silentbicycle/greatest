@@ -1,6 +1,6 @@
 # greatest Changes By Release
 
-## v1.2.0 - Not yet released
+## v1.2.0 - 2016-06-06
 
 ### API Changes
 
