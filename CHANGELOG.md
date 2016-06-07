@@ -30,6 +30,8 @@ Fixed a bug that kept the `-f` (stop after first failure) flag from
 stopping the test runner immediately when a failure occured just
 before running a new suite.
 
+A file with contribution guidelines (`CONTRIBUTING.md`) was added.
+
 
 ## v1.1.1 - 2016-02-14
 
