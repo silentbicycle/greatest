@@ -251,7 +251,7 @@ These aliases can be disabled by `#define`-ing `GREATEST_USE_ABBREVS` to 0.
 ## Color Output
 
 If you want color output (`PASS` in green, `FAIL` in red, etc.), you can
-pipe the output through the included `greenest` script:
+pipe the output through the included `greenest` script in `contrib/`:
 
 ```sh
 $ ./example -v | greenest
