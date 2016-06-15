@@ -1,5 +1,25 @@
 # greatest Changes By Release
 
+## v1.2.1 - Not yet released
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Accept "--help" as an alternate form of "-h" in command line test
+runners. (Thanks @jibsen).
+
+Avoid redundant evaluation of arguments in `ASSERT_ENUM_EQ`.
+
+Clarify type of `ENUM_STR` argument in `ASSERT_ENUM_EQ`. Use a function
+pointer typedef so the compiler can give better type errors.
+
+Warn about redundant evaluation of arguments in `ASSERT_EQ_FMT`.
+
+
 ## v1.2.0 - 2016-06-06
 
 ### API Changes
