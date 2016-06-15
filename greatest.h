@@ -258,6 +258,8 @@ struct greatest_report_t {
  * Initialized by GREATEST_MAIN_DEFS(). */
 extern greatest_run_info greatest_info;
 
+/* Type for ASSERT_ENUM_EQ's ENUM_STR argument. */
+typedef const char *greatest_enum_str_fun(int value);
 
 /**********************
  * Exported functions *
@@ -447,9 +449,11 @@ typedef enum greatest_test_res {
 /* Fail if EXP is not equal to GOT, printing enum IDs. */
 #define GREATEST_ASSERT_ENUM_EQm(MSG, EXP, GOT, ENUM_STR)               \
     do {                                                                \
-        if (EXP != GOT) {                                               \
-            fprintf(GREATEST_STDOUT, "\nExpected: %s", ENUM_STR(EXP));  \
-            fprintf(GREATEST_STDOUT, "\n     Got: %s\n", ENUM_STR(GOT));\
+        int exp = (int)(EXP); int got = (int)(GOT);                     \
+        greatest_enum_str_fun *enum_str = ENUM_STR;                     \
+        if (exp != got) {                                               \
+            fprintf(GREATEST_STDOUT, "\nExpected: %s", enum_str(exp));  \
+            fprintf(GREATEST_STDOUT, "\n     Got: %s\n", enum_str(got));\
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)                                                         \

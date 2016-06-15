@@ -11,7 +11,7 @@ SUITE_EXTERN(other_suite);
 SUITE(suite);
 
 enum foo_t { FOO_1, FOO_2, FOO_3 };
-static const char *foo_str(enum foo_t v);
+static greatest_enum_str_fun foo_str;
 
 /* Just test against random ints, to show a variety of results. */
 TEST example_test_case(void) {
@@ -186,8 +186,8 @@ TEST expect_mem_equal(void) {
     PASS();
 }
 
-static const char *foo_str(enum foo_t v) {
-    switch (v) {
+static const char *foo_str(int v) {
+    switch ((enum foo_t)v) {
     case FOO_1: return "FOO_1";
     case FOO_2: return "FOO_2";
     case FOO_3: return "FOO_3";
@@ -195,8 +195,23 @@ static const char *foo_str(enum foo_t v) {
     }
 }
 
+static int side_effect = 0;
+
+static enum foo_t foo_2_with_side_effect(void) {
+    side_effect++;
+    return FOO_2;
+}
+
 TEST expect_enum_equal(void) {
-    ASSERT_ENUM_EQ(FOO_1, FOO_3, foo_str);
+    ASSERT_ENUM_EQ(FOO_1, foo_2_with_side_effect(), foo_str);
+    PASS();
+}
+
+TEST expect_enum_equal_only_evaluates_args_once(void) {
+    /* If the failure case for ASSERT_ENUM_EQ evaluates GOT more
+     * than once, `side_effect` will be != 1 here. */
+    ASSERT_EQ_FMTm("ASSERT_ENUM_EQ should only evaluate arguments once",
+        1, side_effect, "%d");
     PASS();
 }
 
@@ -253,6 +268,10 @@ SUITE(suite) {
     RUN_TEST(teardown_example_SKIP);
     assert(teardown_was_called);
 
+    /* clear setup and teardown */
+    GREATEST_SET_SETUP_CB(NULL, NULL);
+    GREATEST_SET_TEARDOWN_CB(NULL, NULL);
+
     printf("This should fail, but note the subfunction that failed.\n");
     RUN_TEST(example_using_subfunctions);
 
@@ -286,6 +305,9 @@ SUITE(suite) {
 
     printf("\nThis should fail:\n");
     RUN_TEST(expect_enum_equal);
+
+    printf("\nThis should NOT fail:\n");
+    RUN_TEST(expect_enum_equal_only_evaluates_args_once);
 }
 
 TEST standalone_test(void) {
