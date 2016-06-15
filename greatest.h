@@ -765,12 +765,12 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
 void greatest_usage(const char *name) {                                 \
     fprintf(GREATEST_STDOUT,                                            \
         "Usage: %s [-hlfv] [-s SUITE] [-t TEST]\n"                      \
-        "  -h        print this Help\n"                                 \
-        "  -l        List suites and their tests, then exit\n"          \
-        "  -f        Stop runner after first failure\n"                 \
-        "  -v        Verbose output\n"                                  \
-        "  -s SUITE  only run suites containing string SUITE\n"         \
-        "  -t TEST   only run tests containing string TEST\n",          \
+        "  -h, --help  print this Help\n"                               \
+        "  -l          List suites and their tests, then exit\n"        \
+        "  -f          Stop runner after first failure\n"               \
+        "  -v          Verbose output\n"                                \
+        "  -s SUITE    only run suites containing string SUITE\n"       \
+        "  -t TEST     only run tests containing string TEST\n",        \
         name);                                                          \
 }                                                                       \
                                                                         \
@@ -797,7 +797,8 @@ static void greatest_parse_args(int argc, char **argv) {                \
             greatest_info.verbosity++;                                  \
         } else if (0 == strncmp("-l", argv[i], 2)) {                    \
             greatest_info.flags |= GREATEST_FLAG_LIST_ONLY;             \
-        } else if (0 == strncmp("-h", argv[i], 2)) {                    \
+        } else if (0 == strncmp("-h", argv[i], 2) ||                    \
+                   0 == strncmp("--help", argv[i], 6)) {                \
             greatest_usage(argv[0]);                                    \
             exit(EXIT_SUCCESS);                                         \
         } else if (0 == strncmp("--", argv[i], 2)) {                    \
