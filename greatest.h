@@ -431,7 +431,8 @@ typedef enum greatest_test_res {
         if ((EXP) != (GOT)) { GREATEST_FAILm(MSG); }                    \
     } while (0)
 
-/* Fail if EXP != GOT (equality comparison by ==). */
+/* Fail if EXP != GOT (equality comparison by ==).
+ * Warning: EXP and GOT will be evaluated more than once on failure. */
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
         const char *fmt = ( FMT );                                      \

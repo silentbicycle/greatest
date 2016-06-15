@@ -149,6 +149,11 @@ values using FORMAT as the `printf` format string.
 
 For example: `ASSERT_EQ_FMT(123, result, "%d");`
 
+Note: `EXPECTED` and `ACTUAL` will be evaluated more than once on
+failure, so they should not be a function call with side effects.
+(Since their type is not known by the macro, they cannot be
+captured in a local variable.)
+
 
 ### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)`
 
