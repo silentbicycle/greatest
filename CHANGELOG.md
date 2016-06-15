@@ -19,6 +19,10 @@ pointer typedef so the compiler can give better type errors.
 
 Warn about redundant evaluation of arguments in `ASSERT_EQ_FMT`.
 
+Prefix the variables used in the expansion of the `ASSERT_EQ_FMT`,
+`ASSERT_ENUM_EQ`, and `ASSERT_IN_RANGE` macros, to avoid name clashes
+that can cause confusing compiler errors.
+
 
 ## v1.2.0 - 2016-06-06
 

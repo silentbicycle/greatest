@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* 1.2.0 */
+/* 1.2.0 develop */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 2
 #define GREATEST_VERSION_PATCH 0
@@ -435,13 +435,13 @@ typedef enum greatest_test_res {
  * Warning: EXP and GOT will be evaluated more than once on failure. */
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
-        const char *fmt = ( FMT );                                      \
+        const char *greatest_FMT = ( FMT );                             \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) {                                           \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
-            fprintf(GREATEST_STDOUT, fmt, EXP);                         \
+            fprintf(GREATEST_STDOUT, greatest_FMT, EXP);                \
             fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
-            fprintf(GREATEST_STDOUT, fmt, GOT);                         \
+            fprintf(GREATEST_STDOUT, greatest_FMT, GOT);                \
             fprintf(GREATEST_STDOUT, "\n");                             \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
@@ -450,11 +450,14 @@ typedef enum greatest_test_res {
 /* Fail if EXP is not equal to GOT, printing enum IDs. */
 #define GREATEST_ASSERT_ENUM_EQm(MSG, EXP, GOT, ENUM_STR)               \
     do {                                                                \
-        int exp = (int)(EXP); int got = (int)(GOT);                     \
-        greatest_enum_str_fun *enum_str = ENUM_STR;                     \
-        if (exp != got) {                                               \
-            fprintf(GREATEST_STDOUT, "\nExpected: %s", enum_str(exp));  \
-            fprintf(GREATEST_STDOUT, "\n     Got: %s\n", enum_str(got));\
+        int greatest_EXP = (int)(EXP);                                  \
+        int greatest_GOT = (int)(GOT);                                  \
+        greatest_enum_str_fun *greatest_ENUM_STR = ENUM_STR;            \
+        if (greatest_EXP != greatest_GOT) {                             \
+            fprintf(GREATEST_STDOUT, "\nExpected: %s",                  \
+                greatest_ENUM_STR(greatest_EXP));                       \
+            fprintf(GREATEST_STDOUT, "\n     Got: %s\n",                \
+                greatest_ENUM_STR(greatest_GOT));                       \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)                                                         \
@@ -462,18 +465,20 @@ typedef enum greatest_test_res {
 /* Fail if GOT not in range of EXP +|- TOL. */
 #define GREATEST_ASSERT_IN_RANGEm(MSG, EXP, GOT, TOL)                   \
     do {                                                                \
-        GREATEST_FLOAT exp = (EXP);                                     \
-        GREATEST_FLOAT got = (GOT);                                     \
-        GREATEST_FLOAT tol = (TOL);                                     \
+        GREATEST_FLOAT greatest_EXP = (EXP);                            \
+        GREATEST_FLOAT greatest_GOT = (GOT);                            \
+        GREATEST_FLOAT greatest_TOL = (TOL);                            \
         greatest_info.assertions++;                                     \
-        if ((exp > got && exp - got > tol) ||                           \
-            (exp < got && got - exp > tol)) {                           \
+        if ((greatest_EXP > greatest_GOT &&                             \
+                greatest_EXP - greatest_GOT > greatest_TOL) ||          \
+            (greatest_EXP < greatest_GOT &&                             \
+                greatest_GOT - greatest_EXP > greatest_TOL)) {          \
             fprintf(GREATEST_STDOUT,                                    \
                 "\nExpected: " GREATEST_FLOAT_FMT                       \
                 " +/- " GREATEST_FLOAT_FMT                              \
                 "\n     Got: " GREATEST_FLOAT_FMT                       \
                 "\n",                                                   \
-                exp, tol, got);                                         \
+                greatest_EXP, greatest_TOL, greatest_GOT);              \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)
@@ -559,9 +564,9 @@ typedef enum greatest_test_res {
 /* Check the result of a subfunction using ASSERT, etc. */
 #define GREATEST_CHECK_CALL(RES)                                        \
     do {                                                                \
-        enum greatest_test_res _check_call_res = RES;                   \
-        if (_check_call_res != GREATEST_TEST_RES_PASS) {                \
-            return _check_call_res;                                     \
+        enum greatest_test_res greatest_RES = RES;                      \
+        if (greatest_RES != GREATEST_TEST_RES_PASS) {                   \
+            return greatest_RES;                                        \
         }                                                               \
     } while (0)                                                         \
 
