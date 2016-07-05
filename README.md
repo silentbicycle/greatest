@@ -11,6 +11,11 @@ A testing system for C, contained in 1 file.
     scaffolding should build without warnings under `-Wall -pedantic`.
     It is under 800 LOC (SLOCCount), and does no dynamic allocation.
 
+- **Permissive License**
+
+    greatest is released under the [ISC License][ISC]. You can use it
+    freely, even for commercial purposes.
+
 - **Easy To Set Up**
 
     To use, just `#include "greatest.h"` in your project. There is
@@ -51,7 +56,7 @@ with more information.
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 [theft]: https://github.com/silentbicycle/theft
 [pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
-
+[ISC]: https://opensource.org/licenses/isc-license.txt
 
 ## Basic Usage
 
