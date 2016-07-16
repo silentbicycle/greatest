@@ -658,7 +658,7 @@ void greatest_post_test(const char *name, int res) {                    \
         fprintf(GREATEST_STDOUT, "\n");                                 \
         greatest_info.col = 0;                                          \
     }                                                                   \
-    if (GREATEST_STDOUT == stdout) fflush(stdout);                      \
+    fflush(GREATEST_STDOUT);                                            \
 }                                                                       \
                                                                         \
 static void report_suite(void) {                                        \
