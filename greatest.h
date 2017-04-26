@@ -205,7 +205,12 @@ typedef enum {
 typedef struct greatest_run_info {
     unsigned char flags;
     unsigned char verbosity;
+    unsigned char pad_0[2];
+
     unsigned int tests_run;     /* total test count */
+
+    /* currently running test suite */
+    greatest_suite_info suite;
 
     /* overall pass/fail/skip counts */
     unsigned int passed;
@@ -213,12 +218,10 @@ typedef struct greatest_run_info {
     unsigned int skipped;
     unsigned int assertions;
 
-    /* currently running test suite */
-    greatest_suite_info suite;
-
     /* info to print about the most recent failure */
-    const char *fail_file;
     unsigned int fail_line;
+    unsigned int pad_1;
+    const char *fail_file;
     const char *msg;
 
     /* current setup/teardown hooks and userdata */
@@ -242,6 +245,7 @@ typedef struct greatest_run_info {
 #endif
 
 #if GREATEST_USE_LONGJMP
+    int pad_jmp_buf;
     jmp_buf jump_dest;
 #endif
 } greatest_run_info;
