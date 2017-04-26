@@ -8,8 +8,9 @@ A testing system for C, contained in 1 file.
 - **Small, Portable, Lightweight**
 
     greatest doesn't depend on anything beyond ANSI C89, and the test
-    scaffolding should build without warnings under `-Wall -pedantic`.
-    It is under 800 LOC (SLOCCount), and does no dynamic allocation.
+    scaffolding should build without warnings when compiled with
+    `-Wall -Weverything -pedantic`. It is under 1,000 LOC (SLOCCount),
+    and does no dynamic allocation.
 
 - **Permissive License**
 
