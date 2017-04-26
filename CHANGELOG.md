@@ -1,5 +1,28 @@
 # greatest Changes By Release
 
+## v1.2.2 - TBD
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Explicitly mention ISC License in README.
+
+Always `fflush(GREATEST_STDOUT)` after tests, rather than checking
+whether `GREATEST_STDOUT` expands to `stdout` (the default) first. This
+avoids a tautological comparison warning. Reported by @jibsen and
+@nemequ.
+
+Address warnings that can appear under `-Weverything`: padding in
+`struct greatest_run_info`, a pointer cast that unintentionally removed
+`const`, and a non-literal `printf` format string (caused by a literal
+format string constructed and saved to a variable in a macro). Reported
+by @kozross.
+
+
 ## v1.2.1 - 2016-06-25
 
 ### API Changes
