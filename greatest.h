@@ -894,7 +894,8 @@ static int greatest_memory_equal_cb(const void *exp, const void *got,   \
                                                                         \
 static int greatest_memory_printf_cb(const void *t, void *udata) {      \
     greatest_memory_cmp_env *env = (greatest_memory_cmp_env *)udata;    \
-    unsigned char *buf = (unsigned char *)t, diff_mark = ' ';           \
+    const unsigned char *buf = (const unsigned char *)t;                \
+    unsigned char diff_mark = ' ';                                      \
     FILE *out = GREATEST_STDOUT;                                        \
     size_t i, line_i, line_len = 0;                                     \
     int len = 0;   /* format hexdump with differences highlighted */    \
