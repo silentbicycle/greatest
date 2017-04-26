@@ -49,8 +49,8 @@ typedef struct {
 
 /* Callback used to check whether two boxed_ints are equal. */
 static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
-    boxed_int *ei = (boxed_int *)exp;
-    boxed_int *gi = (boxed_int *)got;
+    const boxed_int *ei = (const boxed_int *)exp;
+    const boxed_int *gi = (const boxed_int *)got;
 
     /* udata is not used here, but could be used to specify a comparison
      * resolution, a string encoding, or any other state that should be
@@ -62,7 +62,7 @@ static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
 /* Callback to print a boxed_int, used to produce an
  * "Exected X, got Y" failure message. */
 static int boxed_int_printf_cb(const void *t, void *udata) {
-    boxed_int *bi = (boxed_int *)t;
+    const boxed_int *bi = (const boxed_int *)t;
     (void)udata;
     return printf("{%d}", bi->i);
 }
@@ -83,8 +83,8 @@ TEST expect_boxed_int_equal(void) {
 }
 
 TEST expect_int_equal_printing_hex(void) {
-    int a = 0xba5eba11;
-    int b = 0xf005ba11;
+    unsigned int a = 0xba5eba11;
+    unsigned int b = 0xf005ba11;
     ASSERT_EQ_FMT(a, b, "0x%08x");
     PASS();
 }
@@ -174,8 +174,8 @@ TEST expect_mem_equal(void) {
     char exp[sizeof(got)];
     size_t i = 0;
     for (i = 0; i < sizeof(got); i++) {
-        exp[i] = i;
-        got[i] = i;
+        exp[i] = (char)i;
+        got[i] = (char)i;
     }
 
     /* Two bytes differ */
@@ -191,7 +191,6 @@ static const char *foo_str(int v) {
     case FOO_1: return "FOO_1";
     case FOO_2: return "FOO_2";
     case FOO_3: return "FOO_3";
-    default: return "MATCH FAIL";
     }
 }
 
