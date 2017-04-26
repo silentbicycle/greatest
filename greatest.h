@@ -432,16 +432,16 @@ typedef enum greatest_test_res {
     } while (0)
 
 /* Fail if EXP != GOT (equality comparison by ==).
- * Warning: EXP and GOT will be evaluated more than once on failure. */
+ * Warning: FMT, EXP, and GOT will be evaluated more
+ * than once on failure. */
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
-        const char *greatest_FMT = ( FMT );                             \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) {                                           \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
-            fprintf(GREATEST_STDOUT, greatest_FMT, EXP);                \
+            fprintf(GREATEST_STDOUT, FMT, EXP);                         \
             fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
-            fprintf(GREATEST_STDOUT, greatest_FMT, GOT);                \
+            fprintf(GREATEST_STDOUT, FMT, GOT);                         \
             fprintf(GREATEST_STDOUT, "\n");                             \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
