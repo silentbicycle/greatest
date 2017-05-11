@@ -1,5 +1,18 @@
 # greatest Changes By Release
 
+## v_._._ - TBD
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Add `contrib/entapment` script, which converts a greatest test runner's
+verbose-style output to TAP version 13 format.
+
+
 ## v1.2.2 - 2017-04-26
 
 ### API Changes

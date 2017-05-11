@@ -10,6 +10,11 @@ TEST blah(void) {
     PASS();
 }
 
+TEST todo(void) {
+    SKIPm("TODO");
+}
+
 GREATEST_SUITE(other_suite) {
     RUN_TEST(blah);
+    RUN_TEST(todo);
 }
