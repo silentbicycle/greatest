@@ -302,6 +302,17 @@ void greatest_set_flag(greatest_flag_t flag);
 #endif
 
 
+/********************
+* Language Support *
+********************/
+
+/* If __VA_ARGS__ (C99) is supported, allow parametric testing
+* without needing to manually manage the argument struct. */
+#if __STDC_VERSION__ >= 19901L || _MSC_VER >= 1800
+#define GREATEST_VA_ARGS
+#endif
+
+
 /**********
  * Macros *
  **********/
