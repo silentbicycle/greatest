@@ -108,6 +108,11 @@ int main(int argc, char **argv) {
 #endif
 
 /* FILE *, for test logging. */
+#ifndef GREATEST_FPRINTF
+#define GREATEST_FPRINTF fprintf
+#endif
+
+/* FILE *, for test logging. */
 #ifndef GREATEST_STDOUT
 #define GREATEST_STDOUT stdout
 #endif
@@ -336,7 +341,7 @@ typedef enum greatest_test_res {
             }                                                           \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "  %s\n", #TEST);         \
         }                                                               \
     } while (0)
 
@@ -351,7 +356,7 @@ typedef enum greatest_test_res {
             int res = TEST(ENV);                                        \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "  %s\n", #TEST);         \
         }                                                               \
     } while (0)
 
@@ -362,7 +367,7 @@ typedef enum greatest_test_res {
             int res = TEST(__VA_ARGS__);                                \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "  %s\n", #TEST);         \
         }                                                               \
     } while (0)
 #endif
@@ -441,12 +446,13 @@ typedef enum greatest_test_res {
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
         greatest_info.assertions++;                                     \
+        const char *fmt = ( FMT );                                      \
         if ((EXP) != (GOT)) {                                           \
-            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
-            fprintf(GREATEST_STDOUT, FMT, EXP);                         \
-            fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
-            fprintf(GREATEST_STDOUT, FMT, GOT);                         \
-            fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: ");          \
+            GREATEST_FPRINTF(GREATEST_STDOUT, fmt, EXP);                \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\nGot: ");               \
+            GREATEST_FPRINTF(GREATEST_STDOUT, fmt, GOT);                \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)
@@ -458,9 +464,9 @@ typedef enum greatest_test_res {
         int greatest_GOT = (int)(GOT);                                  \
         greatest_enum_str_fun *greatest_ENUM_STR = ENUM_STR;            \
         if (greatest_EXP != greatest_GOT) {                             \
-            fprintf(GREATEST_STDOUT, "\nExpected: %s",                  \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: %s",         \
                 greatest_ENUM_STR(greatest_EXP));                       \
-            fprintf(GREATEST_STDOUT, "\n     Got: %s\n",                \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: %s\n",       \
                 greatest_ENUM_STR(greatest_GOT));                       \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
@@ -477,7 +483,7 @@ typedef enum greatest_test_res {
                 greatest_EXP - greatest_GOT > greatest_TOL) ||          \
             (greatest_EXP < greatest_GOT &&                             \
                 greatest_GOT - greatest_EXP > greatest_TOL)) {          \
-            fprintf(GREATEST_STDOUT,                                    \
+            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "\nExpected: " GREATEST_FLOAT_FMT                       \
                 " +/- " GREATEST_FLOAT_FMT                              \
                 "\n     Got: " GREATEST_FLOAT_FMT                       \
@@ -578,13 +584,13 @@ typedef enum greatest_test_res {
 #define GREATEST_SET_TIME(NAME)                                         \
     NAME = clock();                                                     \
     if (NAME == (clock_t) -1) {                                         \
-        fprintf(GREATEST_STDOUT,                                        \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
             "clock error: %s\n", #NAME);                                \
         exit(EXIT_FAILURE);                                             \
     }
 
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
-    fprintf(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",                  \
+    GREATEST_FPRINTF(GREATEST_STDOUT, " (%lu ticks, %.3f sec)",         \
         (long unsigned int) (C2) - (long unsigned int)(C1),             \
         (double)((C2) - (C1)) / (1.0 * (double)CLOCKS_PER_SEC))
 #else
@@ -657,9 +663,9 @@ void greatest_post_test(const char *name, int res) {                    \
     if (GREATEST_IS_VERBOSE()) {                                        \
         GREATEST_CLOCK_DIFF(greatest_info.suite.pre_test,               \
             greatest_info.suite.post_test);                             \
-        fprintf(GREATEST_STDOUT, "\n");                                 \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                        \
     } else if (greatest_info.col % greatest_info.width == 0) {          \
-        fprintf(GREATEST_STDOUT, "\n");                                 \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                        \
         greatest_info.col = 0;                                          \
     }                                                                   \
     fflush(GREATEST_STDOUT);                                            \
@@ -667,7 +673,7 @@ void greatest_post_test(const char *name, int res) {                    \
                                                                         \
 static void report_suite(void) {                                        \
     if (greatest_info.suite.tests_run > 0) {                            \
-        fprintf(GREATEST_STDOUT,                                        \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
             "\n%u test%s - %u passed, %u failed, %u skipped",           \
             greatest_info.suite.tests_run,                              \
             greatest_info.suite.tests_run == 1 ? "" : "s",              \
@@ -676,7 +682,7 @@ static void report_suite(void) {                                        \
             greatest_info.suite.skipped);                               \
         GREATEST_CLOCK_DIFF(greatest_info.suite.pre_suite,              \
             greatest_info.suite.post_suite);                            \
-        fprintf(GREATEST_STDOUT, "\n");                                 \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                        \
     }                                                                   \
 }                                                                       \
                                                                         \
@@ -701,7 +707,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
     }                                                                   \
     update_counts_and_reset_suite();                                    \
     if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
-    fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
+    GREATEST_FPRINTF(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);   \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
     suite_cb();                                                         \
     GREATEST_SET_TIME(greatest_info.suite.post_suite);                  \
@@ -710,29 +716,29 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        fprintf(GREATEST_STDOUT, "PASS %s: %s",                         \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "PASS %s: %s",                \
             name, greatest_info.msg ? greatest_info.msg : "");          \
     } else {                                                            \
-        fprintf(GREATEST_STDOUT, ".");                                  \
+        GREATEST_FPRINTF(GREATEST_STDOUT, ".");                         \
     }                                                                   \
     greatest_info.suite.passed++;                                       \
 }                                                                       \
                                                                         \
 void greatest_do_fail(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        fprintf(GREATEST_STDOUT,                                        \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
             "FAIL %s: %s (%s:%u)",                                      \
             name, greatest_info.msg ? greatest_info.msg : "",           \
             greatest_info.fail_file, greatest_info.fail_line);          \
     } else {                                                            \
-        fprintf(GREATEST_STDOUT, "F");                                  \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "F");                         \
         greatest_info.col++;                                            \
         /* add linebreak if in line of '.'s */                          \
         if (greatest_info.col != 0) {                                   \
-            fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
             greatest_info.col = 0;                                      \
         }                                                               \
-        fprintf(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",               \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",      \
             name,                                                       \
             greatest_info.msg ? greatest_info.msg : "",                 \
             greatest_info.fail_file, greatest_info.fail_line);          \
@@ -742,12 +748,12 @@ void greatest_do_fail(const char *name) {                               \
                                                                         \
 void greatest_do_skip(const char *name) {                               \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        fprintf(GREATEST_STDOUT, "SKIP %s: %s",                         \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "SKIP %s: %s",                \
             name,                                                       \
             greatest_info.msg ?                                         \
             greatest_info.msg : "" );                                   \
     } else {                                                            \
-        fprintf(GREATEST_STDOUT, "s");                                  \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "s");                         \
     }                                                                   \
     greatest_info.suite.skipped++;                                      \
 }                                                                       \
@@ -761,13 +767,13 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
     eq = type_info->equal(exp, got, udata);                             \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
-            fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: ");          \
             (void)type_info->print(exp, udata);                         \
-            fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: ");          \
             (void)type_info->print(got, udata);                         \
-            fprintf(GREATEST_STDOUT, "\n");                             \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
         } else {                                                        \
-            fprintf(GREATEST_STDOUT,                                    \
+            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "GREATEST_ASSERT_EQUAL_T failure at %s:%u\n",           \
                 greatest_info.fail_file,                                \
                 greatest_info.fail_line);                               \
@@ -777,7 +783,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
 }                                                                       \
                                                                         \
 void greatest_usage(const char *name) {                                 \
-    fprintf(GREATEST_STDOUT,                                            \
+    GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
         "Usage: %s [-hlfv] [-s SUITE] [-t TEST]\n"                      \
         "  -h, --help  print this Help\n"                               \
         "  -l          List suites and their tests, then exit\n"        \
@@ -818,7 +824,7 @@ static void greatest_parse_args(int argc, char **argv) {                \
         } else if (0 == strncmp("--", argv[i], 2)) {                    \
             break;                                                      \
         } else {                                                        \
-            fprintf(GREATEST_STDOUT,                                    \
+            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "Unknown argument '%s'\n", argv[i]);                    \
             greatest_usage(argv[0]);                                    \
             exit(EXIT_FAILURE);                                         \
@@ -878,7 +884,7 @@ static int greatest_string_equal_cb(const void *exp, const void *got,   \
                                                                         \
 static int greatest_string_printf_cb(const void *t, void *udata) {      \
     (void)udata; /* note: does not check \0 termination. */             \
-    return fprintf(GREATEST_STDOUT, "%s", (const char *)t);             \
+    return GREATEST_FPRINTF(GREATEST_STDOUT, "%s", (const char *)t);    \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_string = {                        \
@@ -906,21 +912,21 @@ static int greatest_memory_printf_cb(const void *t, void *udata) {      \
         for (line_i = i; line_i < i + line_len; line_i++) {             \
             if (env->exp[line_i] != env->got[line_i]) diff_mark = 'X';  \
         }                                                               \
-        len += fprintf(out, "\n%04x %c ", (unsigned int)i, diff_mark);  \
+        len += GREATEST_FPRINTF(out, "\n%04x %c ", (unsigned int)i, diff_mark);  \
         for (line_i = i; line_i < i + line_len; line_i++) {             \
             int m = env->exp[line_i] == env->got[line_i]; /* match? */  \
-            len += fprintf(out, "%02x%c", buf[line_i], m ? ' ' : '<');  \
+            len += GREATEST_FPRINTF(out, "%02x%c", buf[line_i], m ? ' ' : '<');  \
         }                                                               \
         for (line_i = 0; line_i < 16 - line_len; line_i++) {            \
-            len += fprintf(out, "   ");                                 \
+            len += GREATEST_FPRINTF(out, "   ");                        \
         }                                                               \
-        fprintf(out, " ");                                              \
+        GREATEST_FPRINTF(out, " ");                                     \
         for (line_i = i; line_i < i + line_len; line_i++) {             \
             unsigned char c = buf[line_i];                              \
-            len += fprintf(out, "%c", isprint(c) ? c : '.');            \
+            len += GREATEST_FPRINTF(out, "%c", isprint(c) ? c : '.');   \
         }                                                               \
     }                                                                   \
-    len += fprintf(out, "\n");                                          \
+    len += GREATEST_FPRINTF(out, "\n");                                 \
     return len;                                                         \
 }                                                                       \
                                                                         \
@@ -957,16 +963,16 @@ greatest_run_info greatest_info
         if (!GREATEST_LIST_ONLY()) {                                    \
             update_counts_and_reset_suite();                            \
             GREATEST_SET_TIME(greatest_info.end);                       \
-            fprintf(GREATEST_STDOUT,                                    \
+            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "\nTotal: %u test%s",                                   \
                 greatest_info.tests_run,                                \
                 greatest_info.tests_run == 1 ? "" : "s");               \
             GREATEST_CLOCK_DIFF(greatest_info.begin,                    \
                 greatest_info.end);                                     \
-            fprintf(GREATEST_STDOUT, ", %u assertion%s\n",              \
+            GREATEST_FPRINTF(GREATEST_STDOUT, ", %u assertion%s\n",     \
                 greatest_info.assertions,                               \
                 greatest_info.assertions == 1 ? "" : "s");              \
-            fprintf(GREATEST_STDOUT,                                    \
+            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "Pass: %u, fail: %u, skip: %u.\n",                      \
                 greatest_info.passed,                                   \
                 greatest_info.failed, greatest_info.skipped);           \
