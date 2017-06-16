@@ -18,7 +18,7 @@
 #define GREATEST_H
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 /* 1.2.2 */
@@ -1040,7 +1040,7 @@ greatest_run_info greatest_info
 #endif /* USE_ABBREVS */
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif
