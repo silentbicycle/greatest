@@ -5,10 +5,13 @@
 #include "greatest.h"
 
 /* Define a suite, compiled seperately. */
-extern SUITE(other_suite);
+SUITE_EXTERN(other_suite);
 
 /* Declare a local suite. */
 SUITE(suite);
+
+enum foo_t { FOO_1, FOO_2, FOO_3 };
+static greatest_enum_str_fun foo_str;
 
 /* Just test against random ints, to show a variety of results. */
 TEST example_test_case(void) {
@@ -28,8 +31,14 @@ TEST expect_equal(void) {
 }
 
 TEST expect_str_equal(void) {
-    const char *foo = "foo";
-    ASSERT_STR_EQ("bar", foo);
+    const char *foo1 = "foo1";
+    ASSERT_STR_EQ("foo2", foo1);
+    PASS();
+}
+
+TEST expect_strn_equal(void) {
+    const char *foo1 = "foo1";
+    ASSERT_STRN_EQ("foo2", foo1, 3);
     PASS();
 }
 
@@ -40,8 +49,8 @@ typedef struct {
 
 /* Callback used to check whether two boxed_ints are equal. */
 static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
-    boxed_int *ei = (boxed_int *)exp;
-    boxed_int *gi = (boxed_int *)got;
+    const boxed_int *ei = (const boxed_int *)exp;
+    const boxed_int *gi = (const boxed_int *)got;
 
     /* udata is not used here, but could be used to specify a comparison
      * resolution, a string encoding, or any other state that should be
@@ -53,7 +62,7 @@ static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
 /* Callback to print a boxed_int, used to produce an
  * "Exected X, got Y" failure message. */
 static int boxed_int_printf_cb(const void *t, void *udata) {
-    boxed_int *bi = (boxed_int *)t;
+    const boxed_int *bi = (const boxed_int *)t;
     (void)udata;
     return printf("{%d}", bi->i);
 }
@@ -74,8 +83,8 @@ TEST expect_boxed_int_equal(void) {
 }
 
 TEST expect_int_equal_printing_hex(void) {
-    int a = 0xba5eba11;
-    int b = 0xf005ba11;
+    unsigned int a = 0xba5eba11;
+    unsigned int b = 0xf005ba11;
     ASSERT_EQ_FMT(a, b, "0x%08x");
     PASS();
 }
@@ -160,6 +169,51 @@ TEST fail_via_ASSERT_OR_LONGJMP(void) {
 }
 #endif
 
+TEST expect_mem_equal(void) {
+    char got[56];
+    char exp[sizeof(got)];
+    size_t i = 0;
+    for (i = 0; i < sizeof(got); i++) {
+        exp[i] = (char)i;
+        got[i] = (char)i;
+    }
+
+    /* Two bytes differ */
+    got[23] = 'X';
+    got[34] = 'X';
+
+    ASSERT_MEM_EQm("expected matching memory", got, exp, sizeof(got));
+    PASS();
+}
+
+static const char *foo_str(int v) {
+    switch ((enum foo_t)v) {
+    case FOO_1: return "FOO_1";
+    case FOO_2: return "FOO_2";
+    case FOO_3: return "FOO_3";
+    }
+}
+
+static int side_effect = 0;
+
+static enum foo_t foo_2_with_side_effect(void) {
+    side_effect++;
+    return FOO_2;
+}
+
+TEST expect_enum_equal(void) {
+    ASSERT_ENUM_EQ(FOO_1, foo_2_with_side_effect(), foo_str);
+    PASS();
+}
+
+TEST expect_enum_equal_only_evaluates_args_once(void) {
+    /* If the failure case for ASSERT_ENUM_EQ evaluates GOT more
+     * than once, `side_effect` will be != 1 here. */
+    ASSERT_EQ_FMTm("ASSERT_ENUM_EQ should only evaluate arguments once",
+        1, side_effect, "%d");
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -182,6 +236,8 @@ SUITE(suite) {
     RUN_TEST(expect_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
+    printf("\nThis should pass:\n");
+    RUN_TEST(expect_strn_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
 
@@ -211,6 +267,10 @@ SUITE(suite) {
     RUN_TEST(teardown_example_SKIP);
     assert(teardown_was_called);
 
+    /* clear setup and teardown */
+    GREATEST_SET_SETUP_CB(NULL, NULL);
+    GREATEST_SET_TEARDOWN_CB(NULL, NULL);
+
     printf("This should fail, but note the subfunction that failed.\n");
     RUN_TEST(example_using_subfunctions);
 
@@ -233,6 +293,24 @@ SUITE(suite) {
     RUN_TEST(fail_via_FAIL_WITH_LONGJMP);
     RUN_TEST(fail_via_ASSERT_OR_LONGJMP);
 #endif
+
+    if (GREATEST_IS_VERBOSE()) {
+        printf("greatest was run with verbosity level: %u\n",
+            greatest_get_verbosity());
+    }
+
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_mem_equal);
+
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_enum_equal);
+
+    printf("\nThis should NOT fail:\n");
+    RUN_TEST(expect_enum_equal_only_evaluates_args_once);
+}
+
+TEST standalone_test(void) {
+    FAILm("(expected failure)");
 }
 
 /* Add all the definitions that need to be in the test runner's main file. */
@@ -240,7 +318,15 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+
+    /* If tests are run outside of a suite, a default suite is used. */
+    RUN_TEST(standalone_test);
+
     RUN_SUITE(suite);
     RUN_SUITE(other_suite);
+
+    /* Standalone tests can appear before or after other suites. */
+    RUN_TEST(standalone_test);
+
     GREATEST_MAIN_END();        /* display results */
 }
