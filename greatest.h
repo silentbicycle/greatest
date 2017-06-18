@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 
 /* FILE *, for test logging. */
 #ifndef GREATEST_FPRINTF
-#define GREATEST_FPRINTF(stream,...) fprintf(stream,__VA_ARGS__)
+#define GREATEST_FPRINTF fprintf
 #endif
 
 /* FILE *, for test logging. */
