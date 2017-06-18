@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
 
 /* Exit behaviour */
 #ifndef GREATEST_EXIT
-#define GREATEST_EXIT(x) throw(x)
+#define GREATEST_EXIT(x) exit(x)
 #endif
 
 /*********
