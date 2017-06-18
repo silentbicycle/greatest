@@ -17,8 +17,12 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-#ifdef __cplusplus
-//extern "C" {
+#ifndef GREATEST_EXTERN_C
+#define GREATEST_EXTERN_C 1
+#endif
+
+#if defined(__cplusplus) && GREATEST_EXTERN_C
+extern "C" {
 #endif
 
 /* 1.2.2 */
@@ -109,7 +113,7 @@ int main(int argc, char **argv) {
 
 /* FILE *, for test logging. */
 #ifndef GREATEST_FPRINTF
-#define GREATEST_FPRINTF fprintf
+#define GREATEST_FPRINTF(stream,...) fprintf(stream,__VA_ARGS__)
 #endif
 
 /* FILE *, for test logging. */
@@ -144,6 +148,11 @@ int main(int argc, char **argv) {
 #ifndef GREATEST_FLOAT
 #define GREATEST_FLOAT double
 #define GREATEST_FLOAT_FMT "%g"
+#endif
+
+/* Exit behaviour */
+#ifndef GREATEST_EXIT
+#define GREATEST_EXIT(x) throw(x)
 #endif
 
 /*********
@@ -586,7 +595,7 @@ typedef enum greatest_test_res {
     if (NAME == (clock_t) -1) {                                         \
         GREATEST_FPRINTF(GREATEST_STDOUT,                               \
             "clock error: %s\n", #NAME);                                \
-        exit(EXIT_FAILURE);                                             \
+        GREATEST_EXIT(EXIT_FAILURE);                                    \
     }
 
 #define GREATEST_CLOCK_DIFF(C1, C2)                                     \
@@ -800,14 +809,14 @@ static void greatest_parse_args(int argc, char **argv) {                \
         if (0 == strncmp("-t", argv[i], 2)) {                           \
             if (argc <= i + 1) {                                        \
                 greatest_usage(argv[0]);                                \
-                exit(EXIT_FAILURE);                                     \
+                GREATEST_EXIT(EXIT_FAILURE);                            \
             }                                                           \
             greatest_info.test_filter = argv[i+1];                      \
             i++;                                                        \
         } else if (0 == strncmp("-s", argv[i], 2)) {                    \
             if (argc <= i + 1) {                                        \
                 greatest_usage(argv[0]);                                \
-                exit(EXIT_FAILURE);                                     \
+                GREATEST_EXIT(EXIT_FAILURE);                            \
             }                                                           \
             greatest_info.suite_filter = argv[i+1];                     \
             i++;                                                        \
@@ -820,14 +829,14 @@ static void greatest_parse_args(int argc, char **argv) {                \
         } else if (0 == strncmp("-h", argv[i], 2) ||                    \
                    0 == strncmp("--help", argv[i], 6)) {                \
             greatest_usage(argv[0]);                                    \
-            exit(EXIT_SUCCESS);                                         \
+            GREATEST_EXIT(EXIT_SUCCESS);                                \
         } else if (0 == strncmp("--", argv[i], 2)) {                    \
             break;                                                      \
         } else {                                                        \
             GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "Unknown argument '%s'\n", argv[i]);                    \
             greatest_usage(argv[0]);                                    \
-            exit(EXIT_FAILURE);                                         \
+            GREATEST_EXIT(EXIT_FAILURE);                                \
         }                                                               \
     }                                                                   \
 }                                                                       \
@@ -1039,8 +1048,8 @@ greatest_run_info greatest_info
 
 #endif /* USE_ABBREVS */
 
-#ifdef __cplusplus
-//}
+#if defined(__cplusplus) && GREATEST_EXTERN_C
+}
 #endif
 
 #endif
