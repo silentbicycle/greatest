@@ -626,6 +626,11 @@ static int greatest_name_match(const char *name,                        \
     const char *filter) {                                               \
     size_t offset = 0;                                                  \
     size_t filter_len = strlen(filter);                                 \
+    if( GREATEST_IS_VERBOSE() )                                         \
+    {                                                                   \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "Compare %s against %s\n",    \
+                         name, filter);                                 \
+    }                                                                   \
     while (name[offset] != '\0') {                                      \
         if (name[offset] == filter[0]) {                                \
             if (0 == strncmp(&name[offset], filter, filter_len)) {      \
