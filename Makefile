@@ -10,11 +10,12 @@ CPPFLAGS += ${COMMON_FLAGS}
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 
-PROGRAMS_C=	example example_no_suite example_no_runner
+PROGRAMS_C=	example example_no_suite example_no_runner example_random
 PROGRAMS_CPP=	example_cpp
 
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
+#CFLAGS += -std=c89
 
 # Uncomment to disable setjmp()/longjmp().
 #CFLAGS += -DGREATEST_USE_LONGJMP=0

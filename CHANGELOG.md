@@ -4,7 +4,9 @@
 
 ### API Changes
 
-None.
+Added `GREATEST_SHUFFLE_TESTS(SEED, BODY)` macro (and `SHUFFLE_TESTS`
+abbreviation). This runs any tests within BODY in pseudorandom order,
+seeded by SEED.
 
 
 ### Other Improvements
