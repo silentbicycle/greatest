@@ -191,6 +191,8 @@ static const char *foo_str(int v) {
     case FOO_1: return "FOO_1";
     case FOO_2: return "FOO_2";
     case FOO_3: return "FOO_3";
+    default:
+        return "unknown";
     }
 }
 
