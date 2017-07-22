@@ -36,6 +36,9 @@ example_cpp: example_cpp.cpp
 *.o: Makefile
 *.o: greatest.h
 
+${PROGRAMS_C}: greatest.h
+${PROGRAMS_CPP}: greatest.h
+
 clean:
 	rm -f ${PROGRAMS_C} ${PROGRAMS_CPP} *.o *.core
 
