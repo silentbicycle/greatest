@@ -594,8 +594,8 @@ typedef enum greatest_test_res {
 
 #if GREATEST_USE_LONGJMP
 #define GREATEST_SAVE_CONTEXT()                                         \
-        /* setjmp returns 0 (GREATEST_TEST_RES_PASS) on first call */   \
-        /* so the test runs, then RES_FAIL from FAIL_WITH_LONGJMP. */   \
+        /* setjmp returns 0 (GREATEST_TEST_RES_PASS) on first call *    \
+         * so the test runs, then RES_FAIL from FAIL_WITH_LONGJMP. */   \
         ((enum greatest_test_res)(setjmp(greatest_info.jump_dest)))
 #else
 #define GREATEST_SAVE_CONTEXT()                                         \
