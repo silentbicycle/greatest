@@ -12,6 +12,8 @@ None.
 Add `contrib/entapment` script, which converts a greatest test runner's
 verbose-style output to TAP version 13 format.
 
+Disabled `-Weverything` in Makefile: it isn't portable.
+
 
 ## v1.2.2 - 2017-04-26
 
