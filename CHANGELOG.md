@@ -12,6 +12,9 @@ Added `GREATEST_SHUFFLE_TESTS(SEED, BODY)` macro (and `SHUFFLE_TESTS`
 abbreviation). This runs any tests within BODY in pseudorandom order,
 seeded by SEED.
 
+If `GREATEST_NO_EXTERN_CPLUSPLUS` is `#define`d, then the C++
+`extern "C" { ... }` namespacing around greatest is disabled.
+
 
 ### Other Improvements
 

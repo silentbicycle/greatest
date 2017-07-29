@@ -17,7 +17,7 @@
 #ifndef GREATEST_H
 #define GREATEST_H
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(GREATEST_NO_EXTERN_CPLUSPLUS)
 extern "C" {
 #endif
 
@@ -1158,7 +1158,7 @@ greatest_run_info greatest_info
 
 #endif /* USE_ABBREVS */
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(GREATEST_NO_EXTERN_CPLUSPLUS)
 }
 #endif
 
