@@ -368,7 +368,10 @@ typedef enum greatest_test_res {
 #define GREATEST_RUN_TEST1(TEST, ENV)                                   \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            int res = TEST(ENV);                                        \
+            enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
+            if (res == GREATEST_TEST_RES_PASS) {                        \
+                res = TEST(ENV);                                        \
+            }                                                           \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
@@ -379,7 +382,10 @@ typedef enum greatest_test_res {
 #define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
         if (greatest_pre_test(#TEST) == 1) {                            \
-            int res = TEST(__VA_ARGS__);                                \
+            enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
+            if (res == GREATEST_TEST_RES_PASS) {                        \
+                res = TEST(__VA_ARGS__);                                \
+            }                                                           \
             greatest_post_test(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
