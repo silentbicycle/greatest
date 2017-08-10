@@ -11,6 +11,11 @@ seeded by SEED.
 
 ### Other Improvements
 
+Bugfix: `GREATEST_SAVE_CONTEXT()` was only used in `GREATEST_RUN_TEST`,
+not `GREATEST_RUN_TEST1` or `GREATEST_RUN_TESTp`, which could cause
+corruption when tests using them called `ASSERT_OR_LONGJMPm` or
+`FAIL_WITH_LONGJMPm`. Reported and fixed by @tcarmelveilleux.
+
 Add `contrib/entapment` script, which converts a greatest test runner's
 verbose-style output to TAP version 13 format.
 

@@ -163,6 +163,11 @@ TEST fail_via_FAIL_WITH_LONGJMP(void) {
     PASS();
 }
 
+TEST fail_via_FAIL_WITH_LONGJMP_if_0(int arg) {
+    subfunction_with_FAIL_WITH_LONGJMP(arg);
+    PASS();
+}
+
 TEST fail_via_ASSERT_OR_LONGJMP(void) {
     subfunction_with_ASSERT_OR_LONGJMP(0);
     PASS();
@@ -293,7 +298,12 @@ SUITE(suite) {
 
 #if GREATEST_USE_LONGJMP
     RUN_TEST(fail_via_FAIL_WITH_LONGJMP);
+    RUN_TEST1(fail_via_FAIL_WITH_LONGJMP_if_0, 0);
     RUN_TEST(fail_via_ASSERT_OR_LONGJMP);
+#endif
+
+#if GREATEST_USE_LONGJMP && __STDC_VERSION__ >= 19901L
+    RUN_TESTp(fail_via_FAIL_WITH_LONGJMP_if_0, 0);
 #endif
 
     if (GREATEST_IS_VERBOSE()) {
