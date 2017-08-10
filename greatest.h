@@ -1015,8 +1015,9 @@ int greatest_prng_init_second_pass(unsigned int seed) {                 \
 /* Step the pseudorandom number generator until its state reaches       \
  * another test ID between 0 and the test count.                        \
  * This use a linear congruential pseudorandom number generator,        \
- * with the power-of-two ceiling of the test count as the modulus       \
- * and two twin primes as the multiplier and increment.                 \
+ * with the power-of-two ceiling of the test count as the modulus, the  \
+ * masked seed as the multiplier, and a prime as the increment. For     \
+ * each generated value < the test count, run the corresponding test.   \
  * This will visit all IDs 0 <= X < mod once before repeating,          \
  * with a starting position chosen based on the initial seed.           \
  * For details, see: Knuth, The Art of Computer Programming             \
