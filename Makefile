@@ -28,17 +28,22 @@ all: all_c
 all_c: ${PROGRAMS_C}
 all_cpp: ${PROGRAMS_CPP}
 
-example: example.c greatest.h example-suite.o
-	${CC} -o $@ example.c example-suite.o ${CFLAGS} ${LDFLAGS}
+example: example.o example-suite.o
+example_no_suite: example_no_suite.o
+example_no_runner: example_no_runner.o
+example_random: example_random.o
 
 example_cpp: example_cpp.cpp
 	${CXX} -o $@ example_cpp.cpp ${CPPFLAGS} ${LDFLAGS}
 
+%.o: %.c
+	${CC} -c -o $@ ${CFLAGS} $<
+
+%: %.o
+	${CC} -o $@ ${LDFLAGS} $^
+
 *.o: Makefile
 *.o: greatest.h
-
-${PROGRAMS_C}: greatest.h
-${PROGRAMS_CPP}: greatest.h
 
 clean:
 	rm -f ${PROGRAMS_C} ${PROGRAMS_CPP} *.o *.core
