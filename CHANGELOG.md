@@ -4,6 +4,10 @@
 
 ### API Changes
 
+Added `GREATEST_SHUFFLE_SUITES(SEED, BODY)` macro (and `SHUFFLE_SUITES`
+abbreviation). This runs any suites within BODY in pseudorandom order,
+seeded by SEED.
+
 Added `GREATEST_SHUFFLE_TESTS(SEED, BODY)` macro (and `SHUFFLE_TESTS`
 abbreviation). This runs any tests within BODY in pseudorandom order,
 seeded by SEED.

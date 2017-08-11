@@ -631,7 +631,7 @@ typedef enum greatest_test_res {
     GREATEST_TEST_RES_PASS
 #endif
 
-/* Run every test function run within BODY in pseudo-random
+/* Run every suite / test function run within BODY in pseudo-random
  * order, seeded by SEED. (The top 3 bits of the seed are ignored.)
  *
  * This should be called like:
@@ -643,23 +643,24 @@ typedef enum greatest_test_res {
  *
  * Note that the body of the second argument will be evaluated
  * multiple times. */
-#define GREATEST_SHUFFLE_TESTS(SD, BODY)                                \
+#define GREATEST_SHUFFLE_SUITES(SD, BODY) GREATEST_SHUFFLE(0, SD, BODY)
+#define GREATEST_SHUFFLE_TESTS(SD, BODY) GREATEST_SHUFFLE(1, SD, BODY)
+#define GREATEST_SHUFFLE(ID, SD, BODY)                                  \
     do {                                                                \
-        struct greatest_prng *prng = &greatest_info.prng[1];            \
-        greatest_prng_init_first_pass(1);                               \
+        struct greatest_prng *prng = &greatest_info.prng[ID];           \
+        greatest_prng_init_first_pass(ID);                              \
         do {                                                            \
-            greatest_info.prng[1].count = 0;                            \
-            if (prng->initialized) { greatest_prng_step(1); }           \
+            prng->count = 0;                                            \
+            if (prng->initialized) { greatest_prng_step(ID); }          \
             BODY;                                                       \
             if (!prng->initialized) {                                   \
-                if (!greatest_prng_init_second_pass(1, SD)) { break; }  \
+                if (!greatest_prng_init_second_pass(ID, SD)) { break; } \
             } else if (prng->count_run == prng->count_ceil) {           \
                 break;                                                  \
             }                                                           \
         } while(1);                                                     \
         prng->count_run = prng->random_order = prng->initialized = 0;   \
     } while(0)
-
 
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
@@ -699,7 +700,7 @@ int greatest_test_pre(const char *name) {                               \
         if (greatest_info.setup) {                                      \
             greatest_info.setup(greatest_info.setup_udata);             \
         }                                                               \
-        greatest_info.prng[1].count_run++;                              \
+        p->count_run++;                                                 \
         return 1;               /* test should be run */                \
     } else {                                                            \
         return 0;               /* skipped */                           \
@@ -769,7 +770,16 @@ int greatest_suite_pre(const char *suite_name) {                        \
     if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) {            \
         return 0;                                                       \
     }                                                                   \
+    struct greatest_prng *p = &greatest_info.prng[0];                   \
+    if (p->random_order) {                                              \
+        p->count++;                                                     \
+        if (!p->initialized || ((p->count - 1) != p->state)) {          \
+            return 0; /* don't run this suite yet */                    \
+        }                                                               \
+    }                                                                   \
+    p->count_run++;                                                     \
     update_counts_and_reset_suite();                                    \
+    fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
     return 1;                                                           \
 }                                                                       \
@@ -782,7 +792,6 @@ void greatest_suite_post(void) {                                        \
 static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
                                const char *suite_name) {                \
     if (greatest_suite_pre(suite_name)) {                               \
-        fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);        \
         suite_cb();                                                     \
         greatest_suite_post();                                          \
     }                                                                   \
@@ -1142,6 +1151,7 @@ greatest_run_info greatest_info
 #define SET_TEARDOWN   GREATEST_SET_TEARDOWN_CB
 #define CHECK_CALL     GREATEST_CHECK_CALL
 #define SHUFFLE_TESTS  GREATEST_SHUFFLE_TESTS
+#define SHUFFLE_SUITES GREATEST_SHUFFLE_SUITES
 
 #ifdef GREATEST_VA_ARGS
 #define RUN_TESTp      GREATEST_RUN_TESTp

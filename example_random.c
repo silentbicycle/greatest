@@ -30,7 +30,7 @@ static void reset_run(void) {
 
 static int print_flag = 0;
 
-TEST print_and_pass(unsigned int id) {
+TEST print_check_runs_and_pass(unsigned int id) {
     if (print_flag) {
         printf("running test %u\n", id);
     }
@@ -52,7 +52,7 @@ static unsigned int seed_of_time(void) {
     return ~(tv.tv_sec ^ tv.tv_usec) * counter++;
 }
 
-SUITE(suite) {
+SUITE(suite1) {
     const unsigned int limit = TEST_COUNT;
     unsigned int count;
     const unsigned int small_test_count = 10;
@@ -64,15 +64,15 @@ SUITE(suite) {
         unsigned int seed = seed_of_time();
         fprintf(stderr, "count %u, seed %u\n", count, seed);
         SHUFFLE_TESTS(seed, {
-            if (count > 0) { RUN_TEST1(print_and_pass, 0); }
-            if (count > 1) { RUN_TEST1(print_and_pass, 1); }
-            if (count > 2) { RUN_TEST1(print_and_pass, 2); }
-            if (count > 3) { RUN_TEST1(print_and_pass, 3); }
-            if (count > 4) { RUN_TEST1(print_and_pass, 4); }
-            if (count > 5) { RUN_TEST1(print_and_pass, 5); }
-            if (count > 6) { RUN_TEST1(print_and_pass, 6); }
-            if (count > 7) { RUN_TEST1(print_and_pass, 7); }
-            if (count > 8) { RUN_TEST1(print_and_pass, 8); }
+            if (count > 0) { RUN_TEST1(print_check_runs_and_pass, 0); }
+            if (count > 1) { RUN_TEST1(print_check_runs_and_pass, 1); }
+            if (count > 2) { RUN_TEST1(print_check_runs_and_pass, 2); }
+            if (count > 3) { RUN_TEST1(print_check_runs_and_pass, 3); }
+            if (count > 4) { RUN_TEST1(print_check_runs_and_pass, 4); }
+            if (count > 5) { RUN_TEST1(print_check_runs_and_pass, 5); }
+            if (count > 6) { RUN_TEST1(print_check_runs_and_pass, 6); }
+            if (count > 7) { RUN_TEST1(print_check_runs_and_pass, 7); }
+            if (count > 8) { RUN_TEST1(print_check_runs_and_pass, 8); }
         });
 
         for (i = 0; i < count; i++) {
@@ -88,7 +88,7 @@ SUITE(suite) {
     /* Check that all are run exactly once, for a larger amount of tests */
     SHUFFLE_TESTS(seed_of_time(), {
         for (i = 0; i < limit; i++) {
-            RUN_TEST1(print_and_pass, i);
+            RUN_TEST1(print_check_runs_and_pass, i);
         }
     });
 
@@ -100,13 +100,30 @@ SUITE(suite) {
     }
 }
 
+TEST just_print_and_pass(unsigned int id) {
+    printf("running test from suite %u\n", id);
+    PASS();
+}
+
+/* A few other single-function suites */
+SUITE(suite2) { RUN_TEST1(just_print_and_pass, 2); }
+SUITE(suite3) { RUN_TEST1(just_print_and_pass, 3); }
+SUITE(suite4) { RUN_TEST1(just_print_and_pass, 4); }
+SUITE(suite5) { RUN_TEST1(just_print_and_pass, 5); }
+
 /* Add all the definitions that need to be in the test runner's main file. */
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
 
-    RUN_SUITE(suite);
+    SHUFFLE_SUITES(seed_of_time(), {
+        RUN_SUITE(suite1);
+        RUN_SUITE(suite2);
+        RUN_SUITE(suite3);
+        RUN_SUITE(suite4);
+        RUN_SUITE(suite5);
+        });
 
     GREATEST_MAIN_END();        /* display results */
 }
