@@ -12,6 +12,15 @@
 
 static char test_has_run[(TEST_COUNT / 8) + 1];
 
+/* Don't bother complaining about tests not being run if listing tests
+ * or name-based filtering means not all tests are being run. */
+static int running_all(void) {
+    if (GREATEST_LIST_ONLY()) { return 0; }
+    if (greatest_info.test_filter != NULL ||
+        greatest_info.suite_filter != NULL) { return 0; }
+    return 1;
+}
+
 static int check_run(unsigned int id) {
     size_t offset = id / 8;
     char bit = 1U << (id & 0x07);
@@ -76,7 +85,7 @@ SUITE(suite1) {
         });
 
         for (i = 0; i < count; i++) {
-            if (!check_run(i)) {
+            if (running_all() && !check_run(i)) {
                 fprintf(stderr, "Error: Test %u got lost in the shuffle!\n", i);
                 assert(0);
             }
@@ -93,7 +102,7 @@ SUITE(suite1) {
     });
 
     for (i = 0; i < limit; i++) {
-        if (!check_run(i)) {
+        if (running_all() && !check_run(i)) {
             fprintf(stderr, "Error: Test %u got lost in the shuffle!\n", i);
             assert(0);
         }
