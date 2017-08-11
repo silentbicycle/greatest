@@ -292,8 +292,8 @@ void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
 int greatest_suite_pre(const char *suite_name);
 void greatest_suite_post(void);
-int greatest_pre_test(const char *name);
-void greatest_post_test(const char *name, int res);
+int greatest_test_pre(const char *name);
+void greatest_test_post(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
 greatest_type_info *type_info, void *udata);
@@ -351,12 +351,12 @@ typedef enum greatest_test_res {
 /* Run a test in the current suite. */
 #define GREATEST_RUN_TEST(TEST)                                         \
     do {                                                                \
-        if (greatest_pre_test(#TEST) == 1) {                            \
+        if (greatest_test_pre(#TEST) == 1) {                            \
             enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
             if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST();                                           \
             }                                                           \
-            greatest_post_test(#TEST, res);                             \
+            greatest_test_post(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
@@ -369,12 +369,12 @@ typedef enum greatest_test_res {
  * which can be a pointer to a struct with multiple arguments. */
 #define GREATEST_RUN_TEST1(TEST, ENV)                                   \
     do {                                                                \
-        if (greatest_pre_test(#TEST) == 1) {                            \
+        if (greatest_test_pre(#TEST) == 1) {                            \
             enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
             if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST(ENV);                                        \
             }                                                           \
-            greatest_post_test(#TEST, res);                             \
+            greatest_test_post(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
@@ -383,12 +383,12 @@ typedef enum greatest_test_res {
 #ifdef GREATEST_VA_ARGS
 #define GREATEST_RUN_TESTp(TEST, ...)                                   \
     do {                                                                \
-        if (greatest_pre_test(#TEST) == 1) {                            \
+        if (greatest_test_pre(#TEST) == 1) {                            \
             enum greatest_test_res res = GREATEST_SAVE_CONTEXT();       \
             if (res == GREATEST_TEST_RES_PASS) {                        \
                 res = TEST(__VA_ARGS__);                                \
             }                                                           \
-            greatest_post_test(#TEST, res);                             \
+            greatest_test_post(#TEST, res);                             \
         } else if (GREATEST_LIST_ONLY()) {                              \
             fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
@@ -683,7 +683,7 @@ static int greatest_name_match(const char *name,                        \
                                                                         \
 /* Before running a test, check the name filtering and                  \
  * test shuffling state, if applicable, and then call setup hooks. */   \
-int greatest_pre_test(const char *name) {                               \
+int greatest_test_pre(const char *name) {                               \
     if (!GREATEST_LIST_ONLY()                                           \
         && (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)  \
         && (greatest_info.test_filter == NULL ||                        \
@@ -706,7 +706,7 @@ int greatest_pre_test(const char *name) {                               \
     }                                                                   \
 }                                                                       \
                                                                         \
-void greatest_post_test(const char *name, int res) {                    \
+void greatest_test_post(const char *name, int res) {                    \
     GREATEST_SET_TIME(greatest_info.suite.post_test);                   \
     if (greatest_info.teardown) {                                       \
         void *udata = greatest_info.teardown_udata;                     \
