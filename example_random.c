@@ -126,6 +126,12 @@ GREATEST_MAIN_DEFS();
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
 
+    /* PRNG internal state assumes uint32_t values */
+    assert(sizeof(greatest_info.prng[0].state) >= 4);
+    assert(sizeof(greatest_info.prng[0].mod) >= 4);
+    assert(sizeof(greatest_info.prng[0].a) >= 4);
+    assert(sizeof(greatest_info.prng[0].c) >= 4);
+
     SHUFFLE_SUITES(seed_of_time(), {
         RUN_SUITE(suite1);
         RUN_SUITE(suite2);

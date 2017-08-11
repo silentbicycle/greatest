@@ -207,13 +207,13 @@ struct greatest_prng {
     unsigned char random_order; /* use random ordering? */
     unsigned char initialized;  /* is random ordering initialized? */
     unsigned char pad_0[2];
-    unsigned int state;         /* PRNG state */
-    unsigned int count;         /* how many tests, this pass */
-    unsigned int count_ceil;    /* total number of tests */
-    unsigned int count_run;     /* total tests run */
-    unsigned int mod;           /* power-of-2 ceiling of count_ceil */
-    unsigned int a;             /* LCG multiplier */
-    unsigned int c;             /* LCG increment */
+    unsigned long state;        /* PRNG state */
+    unsigned long count;        /* how many tests, this pass */
+    unsigned long count_ceil;   /* total number of tests */
+    unsigned long count_run;    /* total tests run */
+    unsigned long mod;          /* power-of-2 ceiling of count_ceil */
+    unsigned long a;            /* LCG multiplier */
+    unsigned long c;            /* LCG increment */
 };
 
 /* Struct containing all test runner state. */
@@ -298,7 +298,7 @@ void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
 greatest_type_info *type_info, void *udata);
 void greatest_prng_init_first_pass(int id);
-int greatest_prng_init_second_pass(int id, unsigned int seed);
+int greatest_prng_init_second_pass(int id, unsigned long seed);
 void greatest_prng_step(int id);
 
 /* These are part of the public greatest API. */
@@ -1011,8 +1011,8 @@ void greatest_prng_init_first_pass(int id) {                            \
     greatest_info.prng[id].count_run = 0;                               \
 }                                                                       \
                                                                         \
-int greatest_prng_init_second_pass(int id, unsigned int seed) {         \
-    static unsigned int primes[] = { 11, 101, 1009, 10007,              \
+int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
+    static unsigned long primes[] = { 11, 101, 1009, 10007,             \
         100003, 1000003, 10000019, 100000007, 1000000007,               \
         1538461, 1865471, 17471, 2147483647 /* 2**32 - 1 */, };         \
     struct greatest_prng *prng = &greatest_info.prng[id];               \
@@ -1020,8 +1020,8 @@ int greatest_prng_init_second_pass(int id, unsigned int seed) {         \
     prng->mod = 1;                                                      \
     prng->count_ceil = prng->count;                                     \
     while (prng->mod < prng->count) { prng->mod <<= 1; }                \
-    prng->state = seed & ((~0U) >> 3);       /* mask 3 top bits... */   \
-    prng->a = (4LU * prng->state) + 1;       /* to avoid overflow */    \
+    prng->state = seed & 0x1fffffff;    /* only use lower 29 bits... */ \
+    prng->a = (4LU * prng->state) + 1;  /* to avoid overflow */         \
     prng->c = primes[(seed * 16451) % sizeof(primes)/sizeof(primes[0])];\
     prng->initialized = 1;                                              \
     return 1;                                                           \
