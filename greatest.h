@@ -253,7 +253,7 @@ typedef struct greatest_run_info {
     const char *suite_filter;
     const char *test_filter;
 
-    struct greatest_prng prng;
+    struct greatest_prng prng[2]; /* 0: suites, 1: tests */
 
 #if GREATEST_USE_TIME
     /* overall timers */
@@ -290,14 +290,16 @@ typedef const char *greatest_enum_str_fun(int value);
 void greatest_do_pass(const char *name);
 void greatest_do_fail(const char *name);
 void greatest_do_skip(const char *name);
+int greatest_suite_pre(const char *suite_name);
+void greatest_suite_post(void);
 int greatest_pre_test(const char *name);
 void greatest_post_test(const char *name, int res);
 void greatest_usage(const char *name);
 int greatest_do_assert_equal_t(const void *exp, const void *got,
 greatest_type_info *type_info, void *udata);
-void greatest_prng_init_first_pass(void);
-int greatest_prng_init_second_pass(unsigned int seed);
-void greatest_prng_step(void);
+void greatest_prng_init_first_pass(int id);
+int greatest_prng_init_second_pass(int id, unsigned int seed);
+void greatest_prng_step(int id);
 
 /* These are part of the public greatest API. */
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
@@ -641,16 +643,16 @@ typedef enum greatest_test_res {
  *
  * Note that the body of the second argument will be evaluated
  * multiple times. */
-#define GREATEST_SHUFFLE_TESTS(SEED, BODY)                              \
+#define GREATEST_SHUFFLE_TESTS(SD, BODY)                                \
     do {                                                                \
-        struct greatest_prng *prng = &greatest_info.prng;               \
-        greatest_prng_init_first_pass();                                \
+        struct greatest_prng *prng = &greatest_info.prng[1];            \
+        greatest_prng_init_first_pass(1);                               \
         do {                                                            \
-            greatest_info.prng.count = 0;                               \
-            if (prng->initialized) { greatest_prng_step(); }            \
+            greatest_info.prng[1].count = 0;                            \
+            if (prng->initialized) { greatest_prng_step(1); }           \
             BODY;                                                       \
             if (!prng->initialized) {                                   \
-                if (!greatest_prng_init_second_pass(SEED)) { break; }   \
+                if (!greatest_prng_init_second_pass(1, SD)) { break; }  \
             } else if (prng->count_run == prng->count_ceil) {           \
                 break;                                                  \
             }                                                           \
@@ -686,7 +688,7 @@ int greatest_pre_test(const char *name) {                               \
         && (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)  \
         && (greatest_info.test_filter == NULL ||                        \
             greatest_name_match(name, greatest_info.test_filter))) {    \
-        struct greatest_prng *p = &greatest_info.prng;                  \
+        struct greatest_prng *p = &greatest_info.prng[1];               \
         if (p->random_order) {                                          \
             p->count++;                                                 \
             if (!p->initialized || ((p->count - 1) != p->state)) {      \
@@ -697,7 +699,7 @@ int greatest_pre_test(const char *name) {                               \
         if (greatest_info.setup) {                                      \
             greatest_info.setup(greatest_info.setup_udata);             \
         }                                                               \
-        greatest_info.prng.count_run++;                                 \
+        greatest_info.prng[1].count_run++;                              \
         return 1;               /* test should be run */                \
     } else {                                                            \
         return 0;               /* skipped */                           \
@@ -759,19 +761,31 @@ static void update_counts_and_reset_suite(void) {                       \
     greatest_info.col = 0;                                              \
 }                                                                       \
                                                                         \
-static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
-                               const char *suite_name) {                \
+int greatest_suite_pre(const char *suite_name) {                        \
     if (greatest_info.suite_filter &&                                   \
         !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
-        return;                                                         \
+        return 0;                                                       \
+    }                                                                   \
+    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) {            \
+        return 0;                                                       \
     }                                                                   \
     update_counts_and_reset_suite();                                    \
-    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) { return; }  \
-    fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);            \
     GREATEST_SET_TIME(greatest_info.suite.pre_suite);                   \
-    suite_cb();                                                         \
+    return 1;                                                           \
+}                                                                       \
+                                                                        \
+void greatest_suite_post(void) {                                        \
     GREATEST_SET_TIME(greatest_info.suite.post_suite);                  \
     report_suite();                                                     \
+}                                                                       \
+                                                                        \
+static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
+                               const char *suite_name) {                \
+    if (greatest_suite_pre(suite_name)) {                               \
+        fprintf(GREATEST_STDOUT, "\n* Suite %s:\n", suite_name);        \
+        suite_cb();                                                     \
+        greatest_suite_post();                                          \
+    }                                                                   \
 }                                                                       \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
@@ -991,16 +1005,16 @@ static int greatest_memory_printf_cb(const void *t, void *udata) {      \
     return len;                                                         \
 }                                                                       \
                                                                         \
-void greatest_prng_init_first_pass(void) {                              \
-    greatest_info.prng.random_order = 1;                                \
-    greatest_info.prng.count_run = 0;                                   \
+void greatest_prng_init_first_pass(int id) {                            \
+    greatest_info.prng[id].random_order = 1;                            \
+    greatest_info.prng[id].count_run = 0;                               \
 }                                                                       \
                                                                         \
-int greatest_prng_init_second_pass(unsigned int seed) {                 \
+int greatest_prng_init_second_pass(int id, unsigned int seed) {         \
     static unsigned int primes[] = { 11, 101, 1009, 10007,              \
         100003, 1000003, 10000019, 100000007, 1000000007,               \
         1538461, 1865471, 17471, 2147483647 /* 2**32 - 1 */, };         \
-    struct greatest_prng *prng = &greatest_info.prng;                   \
+    struct greatest_prng *prng = &greatest_info.prng[id];               \
     if (prng->count == 0) { return 0; }                                 \
     prng->mod = 1;                                                      \
     prng->count_ceil = prng->count;                                     \
@@ -1022,8 +1036,8 @@ int greatest_prng_init_second_pass(unsigned int seed) {                 \
  * with a starting position chosen based on the initial seed.           \
  * For details, see: Knuth, The Art of Computer Programming             \
  * Volume. 2, section 3.2.1. */                                         \
-void greatest_prng_step(void) {                                         \
-    struct greatest_prng *p = &greatest_info.prng;                      \
+void greatest_prng_step(int id) {                                       \
+    struct greatest_prng *p = &greatest_info.prng[id];                  \
     do {                                                                \
         p->state = ((p->a * p->state) + p->c) & (p->mod - 1);           \
     } while (p->state >= p->count_ceil);                                \
