@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* 1.2.2 + SHUFFLE_TESTS */
+/* 1.2.2 + SHUFFLE_TESTS + SHUFFLE_SUITES */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 2
 #define GREATEST_VERSION_PATCH 2
@@ -357,8 +357,6 @@ typedef enum greatest_test_res {
                 res = TEST();                                           \
             }                                                           \
             greatest_test_post(#TEST, res);                             \
-        } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 
@@ -375,8 +373,6 @@ typedef enum greatest_test_res {
                 res = TEST(ENV);                                        \
             }                                                           \
             greatest_test_post(#TEST, res);                             \
-        } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 
@@ -389,8 +385,6 @@ typedef enum greatest_test_res {
                 res = TEST(__VA_ARGS__);                                \
             }                                                           \
             greatest_test_post(#TEST, res);                             \
-        } else if (GREATEST_LIST_ONLY()) {                              \
-            fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
         }                                                               \
     } while (0)
 #endif
@@ -666,8 +660,8 @@ typedef enum greatest_test_res {
 #define GREATEST_MAIN_DEFS()                                            \
                                                                         \
 /* Is FILTER a subset of NAME? */                                       \
-static int greatest_name_match(const char *name,                        \
-    const char *filter) {                                               \
+static int greatest_name_match(const char *name, const char *filter) {  \
+    if (filter == NULL) { return 1; } /* no filter */                   \
     size_t offset = 0;                                                  \
     size_t filter_len = strlen(filter);                                 \
     while (name[offset] != '\0') {                                      \
@@ -685,15 +679,16 @@ static int greatest_name_match(const char *name,                        \
 /* Before running a test, check the name filtering and                  \
  * test shuffling state, if applicable, and then call setup hooks. */   \
 int greatest_test_pre(const char *name) {                               \
-    if (!GREATEST_LIST_ONLY()                                           \
-        && (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)  \
-        && (greatest_info.test_filter == NULL ||                        \
-            greatest_name_match(name, greatest_info.test_filter))) {    \
+    if (GREATEST_LIST_ONLY()) { /* just listing test names */           \
+        fprintf(GREATEST_STDOUT, "  %s\n", name); return 0;             \
+    }                                                                   \
+    if ((greatest_name_match(name, greatest_info.test_filter)) &&       \
+        (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)) {  \
         struct greatest_prng *p = &greatest_info.prng[1];               \
         if (p->random_order) {                                          \
             p->count++;                                                 \
             if (!p->initialized || ((p->count - 1) != p->state)) {      \
-                return 0; /* don't run this test yet */                 \
+                return 0;       /* don't run this test yet */           \
             }                                                           \
         }                                                               \
         GREATEST_SET_TIME(greatest_info.suite.pre_test);                \
@@ -763,11 +758,8 @@ static void update_counts_and_reset_suite(void) {                       \
 }                                                                       \
                                                                         \
 int greatest_suite_pre(const char *suite_name) {                        \
-    if (greatest_info.suite_filter &&                                   \
-        !greatest_name_match(suite_name, greatest_info.suite_filter)) { \
-        return 0;                                                       \
-    }                                                                   \
-    if (GREATEST_FIRST_FAIL() && greatest_info.failed > 0) {            \
+    if (!greatest_name_match(suite_name, greatest_info.suite_filter)    \
+        || (GREATEST_FIRST_FAIL() && greatest_info.failed > 0)) {       \
         return 0;                                                       \
     }                                                                   \
     struct greatest_prng *p = &greatest_info.prng[0];                   \
