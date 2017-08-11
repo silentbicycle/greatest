@@ -661,9 +661,9 @@ typedef enum greatest_test_res {
                                                                         \
 /* Is FILTER a subset of NAME? */                                       \
 static int greatest_name_match(const char *name, const char *filter) {  \
-    if (filter == NULL) { return 1; } /* no filter */                   \
     size_t offset = 0;                                                  \
-    size_t filter_len = strlen(filter);                                 \
+    size_t filter_len = filter ? strlen(filter) : 0;                    \
+    if (filter_len ==0) { return 1; } /* no filter */                   \
     while (name[offset] != '\0') {                                      \
         if (name[offset] == filter[0]) {                                \
             if (0 == strncmp(&name[offset], filter, filter_len)) {      \
@@ -758,11 +758,11 @@ static void update_counts_and_reset_suite(void) {                       \
 }                                                                       \
                                                                         \
 int greatest_suite_pre(const char *suite_name) {                        \
+    struct greatest_prng *p = &greatest_info.prng[0];                   \
     if (!greatest_name_match(suite_name, greatest_info.suite_filter)    \
         || (GREATEST_FIRST_FAIL() && greatest_info.failed > 0)) {       \
         return 0;                                                       \
     }                                                                   \
-    struct greatest_prng *p = &greatest_info.prng[0];                   \
     if (p->random_order) {                                              \
         p->count++;                                                     \
         if (!p->initialized || ((p->count - 1) != p->state)) {          \
