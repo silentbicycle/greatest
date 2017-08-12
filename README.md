@@ -121,6 +121,22 @@ For example, a test or suite named "main" will have a name collision.
 (For more examples, look at `example.c` and `example_suite.c`.)
 
 
+## Filtering By Name
+
+greatest runs all tests by default, but can be configured to only
+run suites or tests whose names contain a filter string.
+
+    void greatest_set_test_filter(const char *name);
+    void greatest_set_suite_filter(const char *name);
+
+The command line runner's `-s` and `-t` arguments set the suite
+and test name filters, respectively. For example, to run any
+tests with "error" in the name, in suites with "integ" in the
+name (such as "integration"):
+
+    ./test_project -s integ -t error
+
+
 ## Available Assertions
 
 Assertions fail the current test unless some condition holds. All
