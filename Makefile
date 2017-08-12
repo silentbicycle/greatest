@@ -15,7 +15,6 @@ PROGRAMS_CPP=	example_cpp
 
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
-#CFLAGS += -std=c89
 
 # Uncomment to disable setjmp()/longjmp().
 #CFLAGS += -DGREATEST_USE_LONGJMP=0
