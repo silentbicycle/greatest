@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         RUN_SUITE(suite3);
         RUN_SUITE(suite4);
         RUN_SUITE(suite5);
-        });
+    });
 
     GREATEST_MAIN_END();        /* display results */
 }

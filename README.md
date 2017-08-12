@@ -215,6 +215,44 @@ function calls. (If built with `GREATEST_USE_LONGJMP` set to 0, then all
 setjmp/longjmp-related functionality will be compiled out.)
 
 
+## Random Shuffling
+
+Groups of suites or tests can be run in random order by using
+`GREATEST_SHUFFLE_SUITES` and `GREATEST_SHUFFLE_TESTS`, respectively.
+This can help find and eliminate coupling between tests.
+
+The shuffled order depends on the seed and the test/suite count, so a
+consistent seed will only lead to reproducible ordering until the
+group's count changes.
+
+Shuffling suites:
+
+    SHUFFLE_SUITES(seed, {
+        RUN_SUITE(suite1);
+        RUN_SUITE(suite2);
+        RUN_SUITE(suite3);
+        RUN_SUITE(suite4);
+        RUN_SUITE(suite5);
+    });
+
+Shuffling tests:
+
+    SHUFFLE_TESTS(seed, {
+        RUN_TEST(test_a);
+        RUN_TEST1(test_b, 12345);
+        RUN_TEST(test_c);
+        RUN_TESTp(test_d, "some_argument");
+        RUN_TEST(test_e);
+   });
+
+Note: Any other code inside the block will be executed several times.
+The shuffling macro expands to a loop with COUNT + 1 iterations -- the
+first pass counts, and the other passes will only execute the next
+chosen suite/test. In particular, avoid running tests directly inside of
+a `SHUFFLE_SUITES` block (without a suite), because the test run over
+and over.
+
+
 ## Sub-Functions
 
 Because of how `PASS()`, `ASSERT()`, `FAIL()`, etc. are implemented
