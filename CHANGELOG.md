@@ -20,6 +20,9 @@ which can be `#define`d to substitute another function with the same
 interface. Feature suggestion and initial implementation by
 @AndreasMartin72.
 
+Added `greatest_stop_at_first_fail()`, to set the flag to stop the test
+runner at the first failure (`-f` in the CLI runner).
+
 
 ### Other Improvements
 

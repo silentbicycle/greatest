@@ -313,6 +313,7 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
 int greatest_all_passed(void);
 void greatest_set_test_filter(const char *name);
 void greatest_set_suite_filter(const char *name);
+void greatest_stop_at_first_fail(void);
 void greatest_get_report(struct greatest_report_t *report);
 unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
@@ -896,7 +897,7 @@ static void greatest_parse_args(int argc, char **argv) {                \
             greatest_set_suite_filter(argv[i + 1]);                     \
             i++;                                                        \
         } else if (0 == strncmp("-f", argv[i], 2)) {                    \
-            greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;            \
+            greatest_stop_at_first_fail();                              \
         } else if (0 == strncmp("-v", argv[i], 2)) {                    \
             greatest_info.verbosity++;                                  \
         } else if (0 == strncmp("-l", argv[i], 2)) {                    \
@@ -924,6 +925,10 @@ void greatest_set_test_filter(const char *name) {                       \
                                                                         \
 void greatest_set_suite_filter(const char *name) {                      \
     greatest_info.suite_filter = name;                                  \
+}                                                                       \
+                                                                        \
+void greatest_stop_at_first_fail(void) {                                \
+    greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;                    \
 }                                                                       \
                                                                         \
 void greatest_get_report(struct greatest_report_t *report) {            \
