@@ -45,8 +45,8 @@ A testing system for C, contained in 1 file.
 
 
 There are some compile-time options, and slightly nicer syntax for
-parametric testing (running tests with arguments) is available if
-compiled with `-std=c99`.
+parametric testing (running tests with arguments) if compiled
+with a C99 or later language standard.
 
 I wrote a
 [blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
