@@ -686,7 +686,10 @@ static int greatest_name_match(const char *name, const char *filter) {  \
  * test shuffling state, if applicable, and then call setup hooks. */   \
 int greatest_test_pre(const char *name) {                               \
     if (GREATEST_LIST_ONLY()) { /* just listing test names */           \
-        fprintf(GREATEST_STDOUT, "  %s\n", name); return 0;             \
+        if (greatest_name_match(name, greatest_info.test_filter)) {     \
+            fprintf(GREATEST_STDOUT, "  %s\n", name);                   \
+        }                                                               \
+        return 0;                                                       \
     }                                                                   \
     if ((greatest_name_match(name, greatest_info.test_filter)) &&       \
         (!GREATEST_FIRST_FAIL() || greatest_info.suite.failed == 0)) {  \

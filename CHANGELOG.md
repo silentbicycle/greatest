@@ -35,6 +35,9 @@ Disabled `-Weverything` in Makefile: it isn't portable.
 
 Various improvements to the documentation.
 
+If list (`-l`) and filter by test name (`-t`) are both used, only
+matching names are printed.
+
 
 ## v1.2.2 - 2017-04-26
 
