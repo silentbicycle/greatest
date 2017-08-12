@@ -28,7 +28,7 @@ all: all_c
 all_c: ${PROGRAMS_C}
 all_cpp: ${PROGRAMS_CPP}
 
-example: example.o example-suite.o
+example: example.o example_suite.o
 example_no_suite: example_no_suite.o
 example_no_runner: example_no_runner.o
 example_random: example_random.o
@@ -48,4 +48,3 @@ example_cpp: example_cpp.cpp
 clean:
 	rm -f ${PROGRAMS_C} ${PROGRAMS_CPP} *.o *.core
 
-example-suite.o: example-suite.c
