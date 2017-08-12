@@ -1,6 +1,6 @@
 # Warning flags for C and C++:
 COMMON_FLAGS += -Wall -Wextra -pedantic -Werror
-COMMON_FLAGS += -Wmissing-declarations
+COMMON_FLAGS += -Wmissing-declarations -g
 #COMMON_FLAGS += -Weverything
 
 CFLAGS += ${COMMON_FLAGS}
