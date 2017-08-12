@@ -865,7 +865,7 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
                                                                         \
 void greatest_usage(const char *name) {                                 \
     GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
-        "Usage: %s [-hlfv] [-s SUITE] [-t TEST]\n"                      \
+        "Usage: %s [--help] [-hlfv] [-s SUITE] [-t TEST]\n"             \
         "  -h, --help  print this Help\n"                               \
         "  -l          List suites and their tests, then exit\n"        \
         "  -f          Stop runner after first failure\n"               \
@@ -883,14 +883,14 @@ static void greatest_parse_args(int argc, char **argv) {                \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_FAILURE);                                     \
             }                                                           \
-            greatest_info.test_filter = argv[i+1];                      \
+            greatest_set_test_filter(argv[i + 1]);                      \
             i++;                                                        \
         } else if (0 == strncmp("-s", argv[i], 2)) {                    \
             if (argc <= i + 1) {                                        \
                 greatest_usage(argv[0]);                                \
                 exit(EXIT_FAILURE);                                     \
             }                                                           \
-            greatest_info.suite_filter = argv[i+1];                     \
+            greatest_set_suite_filter(argv[i + 1]);                     \
             i++;                                                        \
         } else if (0 == strncmp("-f", argv[i], 2)) {                    \
             greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;            \
