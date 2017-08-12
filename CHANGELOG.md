@@ -33,6 +33,8 @@ verbose-style output to TAP version 13 format.
 
 Disabled `-Weverything` in Makefile: it isn't portable.
 
+Various improvements to the documentation.
+
 
 ## v1.2.2 - 2017-04-26
 

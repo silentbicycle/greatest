@@ -9,7 +9,7 @@ A testing system for C, contained in 1 file.
 
     greatest doesn't depend on anything beyond ANSI C89, and the test
     scaffolding should build without warnings when compiled with
-    `-Wall -Weverything -pedantic`. It is under 1,000 LOC (SLOCCount),
+    `-Wall -Wextra -pedantic`. It is under 1,000 LOC (SLOCCount),
     and does no dynamic allocation.
 
 - **Permissive License**
@@ -109,8 +109,8 @@ Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
-Test cases should call assertions and then end in PASS(), SKIP(),
-FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
+Test cases should call assertions and then end in `PASS()`, `SKIP()`,
+`FAIL()`, or one of their message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
 otherwise it will return 0. (Skips do not cause a test runner to
 report failure.)
@@ -123,12 +123,12 @@ For example, a test or suite named "main" will have a name collision.
 
 ## Available Assertions
 
-Note that all assertions have a "message" form, which takes an
-additional first argument, a custom string to include in the test
-failure message. This form adds an 'm' suffix to the ASSERT name. For
-example, `ASSERT_EQ(foo, bar);` could also be used as
-`ASSERT_EQm("theese should match", foo, bar)`. If the "message" form is
-not used, greatest will attempt to create a reasonable default message.
+Assertions fail the current test unless some condition holds. All
+assertions have a "message" variant (with an `m` suffix), which takes a
+custom failure message string as their first argument. For example, the
+assertion `ASSERT_EQ(apple, orange);` could instead be used like
+`ASSERT_EQm("these should match", apple, orange)`. Non-message
+assertions create a default message.
 
 
 ### `ASSERT(COND)`
@@ -202,17 +202,19 @@ each enum value to a string using `ENUM_STR_FUN` before printing them.
 
 Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`
 function pointed to by `TYPE_INFO->equal` to compare them. The
-function's UDATA argument can be used to pass in arbitrary user data (or
-NULL). If the values are not equal and the `TYPE_INFO->print` function
-is defined, it will be used to print an "Expected: X, Got: Y" message.
+assertion's `UDATA` argument can be used to pass in arbitrary user data
+(or `NULL`). If the values are not equal and the `TYPE_INFO->print`
+function is defined, it will be used to print an "Expected: X, Got: Y"
+message.
 
 
 ### `ASSERT_OR_LONGJMP(COND)`
 
 Assert that `COND` evaluates to a true value. If not, then use
-longjmp(3) to immediately return from the test case and any intermediate
-function calls. (If built with `GREATEST_USE_LONGJMP` set to 0, then all
-setjmp/longjmp-related functionality will be compiled out.)
+`longjmp(3)` to immediately return from the test case and any
+intermediate function calls. (If built with `GREATEST_USE_LONGJMP`
+defined to 0, then all setjmp/longjmp-related functionality will be
+compiled out.)
 
 
 ## Random Shuffling
@@ -221,7 +223,7 @@ Groups of suites or tests can be run in random order by using
 `GREATEST_SHUFFLE_SUITES` and `GREATEST_SHUFFLE_TESTS`, respectively.
 This can help find and eliminate coupling between tests.
 
-The shuffled order depends on the seed and the test/suite count, so a
+The shuffling depends on the seed and the test/suite count, so a
 consistent seed will only lead to reproducible ordering until the
 group's count changes.
 
@@ -246,10 +248,10 @@ Shuffling tests:
    });
 
 Note: Any other code inside the block will be executed several times.
-The shuffling macro expands to a loop with COUNT + 1 iterations -- the
-first pass counts, and the other passes will only execute the next
-chosen suite/test. In particular, avoid running tests directly inside of
-a `SHUFFLE_SUITES` block (without a suite), because the test run over
+The shuffling macro expands to a loop with (count + 1) iterations -- the
+first pass counts, and the following passes only execute the next chosen
+suite/test. In particular, avoid running tests directly inside of a
+`SHUFFLE_SUITES` block (without a suite), because the test will run over
 and over.
 
 
@@ -271,13 +273,15 @@ This is only necessary if the called function can cause test failures.
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [-hlfv] [-s SUITE] [-t TEST]
-      -h        print this Help
-      -l        List suites and their tests, then exit
-      -f        Stop runner after first failure
-      -v        Verbose output
-      -s SUITE  only run suite w/ name containing SUITE substring
-      -t TEST   only run test w/ name containing TEST substring
+    Usage: (test_runner) [--help] [-hlfv] [-s SUITE] [-t TEST]
+      -h, --help  print this Help
+      -l          List suites and their tests, then exit
+      -f          Stop runner after first failure
+      -v          Verbose output
+      -s SUITE    only run suite w/ name containing SUITE substring
+      -t TEST     only run test w/ name containing TEST substring
+
+Any arguments after `--` will be ignored.
 
 If you want to run multiple test suites in parallel, look at
 [parade](https://github.com/silentbicycle/parade).
@@ -287,14 +291,12 @@ These command line options are processed by `GREATEST_MAIN_BEGIN();`.
 
 ## Aliases
 
-All the macros have unprefixed and prefixed forms. For example, `SUITE`
-is the same as `GREATEST_SUITE`.
+Most of the macros have prefixed and unprefixed forms. For example,
+`SUITE` is the same as `GREATEST_SUITE`.
 
-Checkout the [source][1] for the entire list.
+Check the source for the list -- search for `#if GREATEST_USE_ABBREVS`.
 
 These aliases can be disabled by `#define`-ing `GREATEST_USE_ABBREVS` to 0.
-
-[1]: https://github.com/silentbicycle/greatest/blob/87530d9ce56b98e2efc6105689dc411e9863190a/greatest.h#L582-L603
 
 
 ## Color Output
