@@ -21,7 +21,14 @@ interface. Feature suggestion and initial implementation by
 @AndreasMartin72.
 
 Added `greatest_stop_at_first_fail()`, to set the flag to stop the test
-runner at the first failure (`-f` in the CLI runner).
+runner at the first failure (`-f` in the CLI test runner).
+
+Added `void greatest_test_exclude(const char *filter)`, which takes a
+filter string and ignores all tests whose names contain the filter
+string. This takes precedence over `greatest_test_filter` matches.
+
+Added a CLI test runner option, `-x`, which calls
+`greatest_test_exclude` with its argument.
 
 
 ### Other Improvements
@@ -38,8 +45,8 @@ Disabled `-Weverything` in Makefile: it isn't portable.
 
 Various improvements to the documentation.
 
-If list (`-l`) and filter by test name (`-t`) are both used, only
-matching names are printed.
+If list (`-l`) and test name filtering are both used, only tests that
+would have run are printed. This can be used to test filter strings.
 
 
 ## v1.2.2 - 2017-04-26

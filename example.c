@@ -221,6 +221,23 @@ TEST expect_enum_equal_only_evaluates_args_once(void) {
     PASS();
 }
 
+static size_t Fibonacci(unsigned char x) {
+    if (x < 2) {
+        return 1;
+    } else {
+        return Fibonacci(x - 1) + Fibonacci(x - 2);
+    }
+}
+
+TEST extra_slow_test(void) {
+    unsigned char i;
+    printf("\nThis test can be skipped with a negative test filter...\n");
+    for (i = 1; i < 40; i++) {
+        printf("fib %u -> %lu\n", i, (long unsigned)Fibonacci(i));
+    }
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -320,6 +337,8 @@ SUITE(suite) {
 
     printf("\nThis should NOT fail:\n");
     RUN_TEST(expect_enum_equal_only_evaluates_args_once);
+
+    RUN_TEST(extra_slow_test);
 }
 
 TEST standalone_test(void) {

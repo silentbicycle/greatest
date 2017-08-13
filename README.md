@@ -83,7 +83,7 @@ SUITE(the_suite) {
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
-    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+    GREATEST_MAIN_BEGIN();      /* command-line options, initialization. */
 
     /* Individual tests can be run directly. */
     /* RUN_TEST(x_should_equal_1); */
@@ -123,18 +123,26 @@ For example, a test or suite named "main" will have a name collision.
 
 ## Filtering By Name
 
-greatest runs all tests by default, but can be configured to only
-run suites or tests whose names contain a filter string.
+greatest runs all tests by default, but can be configured to only run
+suites or tests whose names contain a filter string, and/or exclude
+tests whose name contains a filter string. When test name filtering and
+exclusion are used together, exclusion takes precedence.
 
-    void greatest_set_test_filter(const char *name);
     void greatest_set_suite_filter(const char *name);
+    void greatest_set_test_filter(const char *name);
+    void greatest_set_test_exclude(const char *name);
 
-The command line runner's `-s` and `-t` arguments set the suite
-and test name filters, respectively. For example, to run any
-tests with "error" in the name, in suites with "integ" in the
-name (such as "integration"):
+These correspond to the following command line test runner options:
 
-    ./test_project -s integ -t error
+    `-s SUITE`:   Only run suites whose names contain the string "SUITE"
+    `-t TEST`:    Only run tests whose names contain the string "TEST"
+    `-x EXCLUDE`: Exclude tests whose names contain the string "EXCLUDE"
+
+For example, to run any tests with "tree" in the name, in suites with
+"pars" in the name (such as "parser"), but exclude any tests whose names
+also contain "slow":
+
+    ./test_project -s pars -t tree -x slow
 
 
 ## Available Assertions
@@ -296,6 +304,7 @@ Test runners build with the following command line options:
       -v          Verbose output
       -s SUITE    only run suite w/ name containing SUITE substring
       -t TEST     only run test w/ name containing TEST substring
+      -t EXCLUDE  exclude tests containing string EXCLUDE substring
 
 Any arguments after `--` will be ignored.
 
