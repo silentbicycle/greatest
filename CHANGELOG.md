@@ -1,5 +1,57 @@
 # greatest Changes By Release
 
+## v1.3.0 - 2017-08-13
+
+### API Changes
+
+Added `GREATEST_SHUFFLE_SUITES(SEED, BODY)` macro (and `SHUFFLE_SUITES`
+abbreviation). This runs any suites within BODY in pseudorandom order,
+seeded by SEED.
+
+Added `GREATEST_SHUFFLE_TESTS(SEED, BODY)` macro (and `SHUFFLE_TESTS`
+abbreviation). This runs any tests within BODY in pseudorandom order,
+seeded by SEED.
+
+If `GREATEST_NO_EXTERN_CPLUSPLUS` is `#define`d, then the C++
+`extern "C" { ... }` namespacing around greatest is disabled.
+
+All calls to `fprintf` have been wrapped in a macro, `GREATEST_FPRINTF`,
+which can be `#define`d to substitute another function with the same
+interface. Feature suggestion and initial implementation by
+@AndreasMartin72.
+
+Added `greatest_stop_at_first_fail()`, to set the flag to stop the test
+runner at the first failure (`-f` in the CLI test runner).
+
+Added `void greatest_test_exclude(const char *filter)`, which takes a
+filter string and ignores all tests whose names contain the filter
+string. This takes precedence over `greatest_test_filter` matches.
+
+Added a CLI test runner option, `-x`, which calls
+`greatest_test_exclude` with its argument.
+
+
+### Other Improvements
+
+Bugfix: `GREATEST_SAVE_CONTEXT()` was only used in `GREATEST_RUN_TEST`,
+not `GREATEST_RUN_TEST1` or `GREATEST_RUN_TESTp`, which could cause
+corruption when tests using them called `ASSERT_OR_LONGJMPm` or
+`FAIL_WITH_LONGJMPm`. Reported and fixed by @tcarmelveilleux.
+
+Add `contrib/entapment` script, which converts a greatest test runner's
+verbose-style output to TAP version 13 format.
+
+Add `contrib/testify` script, which converts calls to `RUN_TEST(test);`
+to test functions with `SKIPm("TODO");`.
+
+Disabled `-Weverything` in Makefile: it isn't portable.
+
+Various improvements to the documentation.
+
+If list (`-l`) and test name filtering are both used, only tests that
+would have run are printed. This can be used to test filter strings.
+
+
 ## v1.2.2 - 2017-04-26
 
 ### API Changes

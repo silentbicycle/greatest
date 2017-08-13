@@ -1,4 +1,5 @@
 example
 example_no_suite
 example_no_runner
+example_random
 *.o

@@ -163,6 +163,11 @@ TEST fail_via_FAIL_WITH_LONGJMP(void) {
     PASS();
 }
 
+TEST fail_via_FAIL_WITH_LONGJMP_if_0(int arg) {
+    subfunction_with_FAIL_WITH_LONGJMP(arg);
+    PASS();
+}
+
 TEST fail_via_ASSERT_OR_LONGJMP(void) {
     subfunction_with_ASSERT_OR_LONGJMP(0);
     PASS();
@@ -191,6 +196,8 @@ static const char *foo_str(int v) {
     case FOO_1: return "FOO_1";
     case FOO_2: return "FOO_2";
     case FOO_3: return "FOO_3";
+    default:
+        return "unknown";
     }
 }
 
@@ -214,6 +221,23 @@ TEST expect_enum_equal_only_evaluates_args_once(void) {
     PASS();
 }
 
+static size_t Fibonacci(unsigned char x) {
+    if (x < 2) {
+        return 1;
+    } else {
+        return Fibonacci(x - 1) + Fibonacci(x - 2);
+    }
+}
+
+TEST extra_slow_test(void) {
+    unsigned char i;
+    printf("\nThis test can be skipped with a negative test filter...\n");
+    for (i = 1; i < 40; i++) {
+        printf("fib %u -> %lu\n", i, (long unsigned)Fibonacci(i));
+    }
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -228,7 +252,8 @@ static void trace_teardown(void *arg) {
 
 /* Primary test suite. */
 SUITE(suite) {
-    int i=0;
+    volatile int i = 0;
+    int arg = 0;
     printf("\nThis should have some failures:\n");
     for (i=0; i<200; i++) {
         RUN_TEST(example_test_case);
@@ -277,10 +302,10 @@ SUITE(suite) {
     /* Run a test with one void* argument (which can point to a
      * struct with multiple arguments). */
     printf("\nThis should fail:\n");
-    i = 10;
-    RUN_TEST1(parametric_example_c89, &i);
-    i = 11;
-    RUN_TEST1(parametric_example_c89, &i);
+    arg = 10;
+    RUN_TEST1(parametric_example_c89, &arg);
+    arg = 11;
+    RUN_TEST1(parametric_example_c89, &arg);
 
     /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
@@ -291,7 +316,12 @@ SUITE(suite) {
 
 #if GREATEST_USE_LONGJMP
     RUN_TEST(fail_via_FAIL_WITH_LONGJMP);
+    RUN_TEST1(fail_via_FAIL_WITH_LONGJMP_if_0, 0);
     RUN_TEST(fail_via_ASSERT_OR_LONGJMP);
+#endif
+
+#if GREATEST_USE_LONGJMP && __STDC_VERSION__ >= 19901L
+    RUN_TESTp(fail_via_FAIL_WITH_LONGJMP_if_0, 0);
 #endif
 
     if (GREATEST_IS_VERBOSE()) {
@@ -307,6 +337,8 @@ SUITE(suite) {
 
     printf("\nThis should NOT fail:\n");
     RUN_TEST(expect_enum_equal_only_evaluates_args_once);
+
+    RUN_TEST(extra_slow_test);
 }
 
 TEST standalone_test(void) {

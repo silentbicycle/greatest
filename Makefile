@@ -1,6 +1,8 @@
 # Warning flags for C and C++:
-COMMON_FLAGS += -Wall -Weverything -Wextra -pedantic -Werror
-COMMON_FLAGS += -Wmissing-declarations
+COMMON_FLAGS += -Wall -Wextra -pedantic -Werror
+COMMON_FLAGS += -Wmissing-declarations -g
+#COMMON_FLAGS += -Weverything
+
 CFLAGS += ${COMMON_FLAGS}
 CPPFLAGS += ${COMMON_FLAGS}
 
@@ -8,7 +10,7 @@ CPPFLAGS += ${COMMON_FLAGS}
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 
-PROGRAMS_C=	example example_no_suite example_no_runner
+PROGRAMS_C=	example example_no_suite example_no_runner example_random
 PROGRAMS_CPP=	example_cpp
 
 # Uncomment to demo c99 parametric testing.
@@ -25,11 +27,19 @@ all: all_c
 all_c: ${PROGRAMS_C}
 all_cpp: ${PROGRAMS_CPP}
 
-example: example.c greatest.h example-suite.o
-	${CC} -o $@ example.c example-suite.o ${CFLAGS} ${LDFLAGS}
+example: example.o example_suite.o
+example_no_suite: example_no_suite.o
+example_no_runner: example_no_runner.o
+example_random: example_random.o
 
 example_cpp: example_cpp.cpp
 	${CXX} -o $@ example_cpp.cpp ${CPPFLAGS} ${LDFLAGS}
+
+%.o: %.c
+	${CC} -c -o $@ ${CFLAGS} $<
+
+%: %.o
+	${CC} -o $@ ${LDFLAGS} $^
 
 *.o: Makefile
 *.o: greatest.h
@@ -37,4 +47,3 @@ example_cpp: example_cpp.cpp
 clean:
 	rm -f ${PROGRAMS_C} ${PROGRAMS_CPP} *.o *.core
 
-example-suite.o: example-suite.c

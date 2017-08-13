@@ -9,7 +9,7 @@ A testing system for C, contained in 1 file.
 
     greatest doesn't depend on anything beyond ANSI C89, and the test
     scaffolding should build without warnings when compiled with
-    `-Wall -Weverything -pedantic`. It is under 1,000 LOC (SLOCCount),
+    `-Wall -Wextra -pedantic`. It is under 1,000 LOC (SLOCCount),
     and does no dynamic allocation.
 
 - **Permissive License**
@@ -45,8 +45,8 @@ A testing system for C, contained in 1 file.
 
 
 There are some compile-time options, and slightly nicer syntax for
-parametric testing (running tests with arguments) is available if
-compiled with `-std=c99`.
+parametric testing (running tests with arguments) if compiled
+with a C99 or later language standard.
 
 I wrote a
 [blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
@@ -83,7 +83,7 @@ SUITE(the_suite) {
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
-    GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
+    GREATEST_MAIN_BEGIN();      /* command-line options, initialization. */
 
     /* Individual tests can be run directly. */
     /* RUN_TEST(x_should_equal_1); */
@@ -109,8 +109,8 @@ Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
-Test cases should call assertions and then end in PASS(), SKIP(),
-FAIL(), or one of their message variants (e.g. `SKIPm("TODO");`).
+Test cases should call assertions and then end in `PASS()`, `SKIP()`,
+`FAIL()`, or one of their message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
 otherwise it will return 0. (Skips do not cause a test runner to
 report failure.)
@@ -118,17 +118,41 @@ report failure.)
 Tests and suites are just functions, so normal C scoping rules apply.
 For example, a test or suite named "main" will have a name collision.
 
-(For more examples, look at example.c and example-suite.c.)
+(For more examples, look at `example.c` and `example_suite.c`.)
+
+
+## Filtering By Name
+
+greatest runs all tests by default, but can be configured to only run
+suites or tests whose names contain a filter string, and/or exclude
+tests whose name contains a filter string. When test name filtering and
+exclusion are used together, exclusion takes precedence.
+
+    void greatest_set_suite_filter(const char *name);
+    void greatest_set_test_filter(const char *name);
+    void greatest_set_test_exclude(const char *name);
+
+These correspond to the following command line test runner options:
+
+    `-s SUITE`:   Only run suites whose names contain the string "SUITE"
+    `-t TEST`:    Only run tests whose names contain the string "TEST"
+    `-x EXCLUDE`: Exclude tests whose names contain the string "EXCLUDE"
+
+For example, to run any tests with "tree" in the name, in suites with
+"pars" in the name (such as "parser"), but exclude any tests whose names
+also contain "slow":
+
+    ./test_project -s pars -t tree -x slow
 
 
 ## Available Assertions
 
-Note that all assertions have a "message" form, which takes an
-additional first argument, a custom string to include in the test
-failure message. This form adds an 'm' suffix to the ASSERT name. For
-example, `ASSERT_EQ(foo, bar);` could also be used as
-`ASSERT_EQm("theese should match", foo, bar)`. If the "message" form is
-not used, greatest will attempt to create a reasonable default message.
+Assertions fail the current test unless some condition holds. All
+assertions have a "message" variant (with an `m` suffix), which takes a
+custom failure message string as their first argument. For example, the
+assertion `ASSERT_EQ(apple, orange);` could instead be used like
+`ASSERT_EQm("these should match", apple, orange)`. Non-message
+assertions create a default message.
 
 
 ### `ASSERT(COND)`
@@ -202,17 +226,57 @@ each enum value to a string using `ENUM_STR_FUN` before printing them.
 
 Assert that EXPECTED and ACTUAL are equal, using the `greatest_equal_cb`
 function pointed to by `TYPE_INFO->equal` to compare them. The
-function's UDATA argument can be used to pass in arbitrary user data (or
-NULL). If the values are not equal and the `TYPE_INFO->print` function
-is defined, it will be used to print an "Expected: X, Got: Y" message.
+assertion's `UDATA` argument can be used to pass in arbitrary user data
+(or `NULL`). If the values are not equal and the `TYPE_INFO->print`
+function is defined, it will be used to print an "Expected: X, Got: Y"
+message.
 
 
 ### `ASSERT_OR_LONGJMP(COND)`
 
 Assert that `COND` evaluates to a true value. If not, then use
-longjmp(3) to immediately return from the test case and any intermediate
-function calls. (If built with `GREATEST_USE_LONGJMP` set to 0, then all
-setjmp/longjmp-related functionality will be compiled out.)
+`longjmp(3)` to immediately return from the test case and any
+intermediate function calls. (If built with `GREATEST_USE_LONGJMP`
+defined to 0, then all setjmp/longjmp-related functionality will be
+compiled out.)
+
+
+## Random Shuffling
+
+Groups of suites or tests can be run in random order by using
+`GREATEST_SHUFFLE_SUITES` and `GREATEST_SHUFFLE_TESTS`, respectively.
+This can help find and eliminate coupling between tests.
+
+The shuffling depends on the seed and the test/suite count, so a
+consistent seed will only lead to reproducible ordering until the
+group's count changes.
+
+Shuffling suites:
+
+    SHUFFLE_SUITES(seed, {
+        RUN_SUITE(suite1);
+        RUN_SUITE(suite2);
+        RUN_SUITE(suite3);
+        RUN_SUITE(suite4);
+        RUN_SUITE(suite5);
+    });
+
+Shuffling tests:
+
+    SHUFFLE_TESTS(seed, {
+        RUN_TEST(test_a);
+        RUN_TEST1(test_b, 12345);
+        RUN_TEST(test_c);
+        RUN_TESTp(test_d, "some_argument");
+        RUN_TEST(test_e);
+   });
+
+Note: Any other code inside the block will be executed several times.
+The shuffling macro expands to a loop with (count + 1) iterations -- the
+first pass counts, and the following passes only execute the next chosen
+suite/test. In particular, avoid running tests directly inside of a
+`SHUFFLE_SUITES` block (without a suite), because the test will run over
+and over.
 
 
 ## Sub-Functions
@@ -233,13 +297,16 @@ This is only necessary if the called function can cause test failures.
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [-hlfv] [-s SUITE] [-t TEST]
-      -h        print this Help
-      -l        List suites and their tests, then exit
-      -f        Stop runner after first failure
-      -v        Verbose output
-      -s SUITE  only run suite w/ name containing SUITE substring
-      -t TEST   only run test w/ name containing TEST substring
+    Usage: (test_runner) [--help] [-hlfv] [-s SUITE] [-t TEST]
+      -h, --help  print this Help
+      -l          List suites and tests, then exit (dry run)
+      -f          Stop runner after first failure
+      -v          Verbose output
+      -s SUITE    only run suite w/ name containing SUITE substring
+      -t TEST     only run test w/ name containing TEST substring
+      -t EXCLUDE  exclude tests containing string EXCLUDE substring
+
+Any arguments after `--` will be ignored.
 
 If you want to run multiple test suites in parallel, look at
 [parade](https://github.com/silentbicycle/parade).
@@ -249,14 +316,12 @@ These command line options are processed by `GREATEST_MAIN_BEGIN();`.
 
 ## Aliases
 
-All the macros have unprefixed and prefixed forms. For example, `SUITE`
-is the same as `GREATEST_SUITE`.
+Most of the macros have prefixed and unprefixed forms. For example,
+`SUITE` is the same as `GREATEST_SUITE`.
 
-Checkout the [source][1] for the entire list.
+Check the source for the list -- search for `#if GREATEST_USE_ABBREVS`.
 
 These aliases can be disabled by `#define`-ing `GREATEST_USE_ABBREVS` to 0.
-
-[1]: https://github.com/silentbicycle/greatest/blob/87530d9ce56b98e2efc6105689dc411e9863190a/greatest.h#L582-L603
 
 
 ## Color Output
