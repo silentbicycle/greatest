@@ -872,7 +872,7 @@ void greatest_usage(const char *name) {                                 \
     GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
         "Usage: %s [--help] [-hlfv] [-s SUITE] [-t TEST]\n"             \
         "  -h, --help  print this Help\n"                               \
-        "  -l          List suites and their tests, then exit\n"        \
+        "  -l          List suites and tests, then exit (dry run)\n"    \
         "  -f          Stop runner after first failure\n"               \
         "  -v          Verbose output\n"                                \
         "  -s SUITE    only run suites containing string SUITE\n"       \
@@ -898,7 +898,7 @@ static void greatest_parse_options(int argc, char **argv) {             \
                 greatest_set_test_exclude(argv[i + 1]); i++; break;     \
             case 'f': /* first fail flag */                             \
                 greatest_stop_at_first_fail(); break;                   \
-            case 'l': /* list only */                                   \
+            case 'l': /* list only (dry run) */                         \
                 greatest_info.flags |= GREATEST_FLAG_LIST_ONLY; break;  \
             case 'v': /* first fail flag */                             \
                 greatest_info.verbosity++; break;                       \

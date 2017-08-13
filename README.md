@@ -299,7 +299,7 @@ Test runners build with the following command line options:
 
     Usage: (test_runner) [--help] [-hlfv] [-s SUITE] [-t TEST]
       -h, --help  print this Help
-      -l          List suites and their tests, then exit
+      -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
       -v          Verbose output
       -s SUITE    only run suite w/ name containing SUITE substring
