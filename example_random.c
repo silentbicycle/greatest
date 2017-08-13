@@ -63,9 +63,9 @@ static unsigned int seed_of_time(void) {
 
 SUITE(suite1) {
     const unsigned int limit = TEST_COUNT;
-    unsigned int count;
+    volatile unsigned int count;
     const unsigned int small_test_count = 10;
-    unsigned int i = 0;
+    volatile unsigned int i = 0;
 
     /* Check that all are run exactly once, for a small number of tests */
     print_flag = 1;

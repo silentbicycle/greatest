@@ -235,7 +235,8 @@ static void trace_teardown(void *arg) {
 
 /* Primary test suite. */
 SUITE(suite) {
-    int i=0;
+    volatile int i = 0;
+    int arg = 0;
     printf("\nThis should have some failures:\n");
     for (i=0; i<200; i++) {
         RUN_TEST(example_test_case);
@@ -284,10 +285,10 @@ SUITE(suite) {
     /* Run a test with one void* argument (which can point to a
      * struct with multiple arguments). */
     printf("\nThis should fail:\n");
-    i = 10;
-    RUN_TEST1(parametric_example_c89, &i);
-    i = 11;
-    RUN_TEST1(parametric_example_c89, &i);
+    arg = 10;
+    RUN_TEST1(parametric_example_c89, &arg);
+    arg = 11;
+    RUN_TEST1(parametric_example_c89, &arg);
 
     /* Run a test, with arguments. ('p' for "parametric".) */
 #if __STDC_VERSION__ >= 19901L
