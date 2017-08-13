@@ -1,6 +1,6 @@
 # greatest Changes By Release
 
-## v_._._ - TBD
+## v1.3.0 - 2017-08-13
 
 ### API Changes
 
