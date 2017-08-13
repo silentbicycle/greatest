@@ -41,6 +41,9 @@ corruption when tests using them called `ASSERT_OR_LONGJMPm` or
 Add `contrib/entapment` script, which converts a greatest test runner's
 verbose-style output to TAP version 13 format.
 
+Add `contrib/testify` script, which converts calls to `RUN_TEST(test);`
+to test functions with `SKIPm("TODO");`.
+
 Disabled `-Weverything` in Makefile: it isn't portable.
 
 Various improvements to the documentation.
