@@ -52,6 +52,10 @@ TEST print_check_runs_and_pass(unsigned int id) {
     PASS();
 }
 
+TEST just_fail(void) {
+    FAIL();
+}
+
 static unsigned int seed_of_time(void) {
     static unsigned int counter = 1;
     struct timeval tv;
@@ -120,6 +124,21 @@ SUITE(suite3) { RUN_TEST1(just_print_and_pass, 3); }
 SUITE(suite4) { RUN_TEST1(just_print_and_pass, 4); }
 SUITE(suite5) { RUN_TEST1(just_print_and_pass, 5); }
 
+SUITE(suite_failure) {
+    RUN_TEST(just_fail);
+}
+
+SUITE(suite_shuffle_pass_and_failure) {
+    SHUFFLE_TESTS(seed_of_time(), {
+        RUN_TEST1(just_print_and_pass, 1);
+        RUN_TEST1(just_print_and_pass, 2);
+        RUN_TEST1(just_print_and_pass, 3);
+        RUN_TEST1(just_print_and_pass, 4);
+        RUN_TEST1(just_print_and_pass, 5);
+        RUN_TEST(just_fail);
+    });
+}
+
 /* Add all the definitions that need to be in the test runner's main file. */
 GREATEST_MAIN_DEFS();
 
@@ -138,6 +157,8 @@ int main(int argc, char **argv) {
         RUN_SUITE(suite3);
         RUN_SUITE(suite4);
         RUN_SUITE(suite5);
+        RUN_SUITE(suite_shuffle_pass_and_failure);
+        RUN_SUITE(suite_failure);
     });
 
     GREATEST_MAIN_END();        /* display results */
