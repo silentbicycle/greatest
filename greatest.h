@@ -21,10 +21,10 @@
 extern "C" {
 #endif
 
-/* 1.3.0 */
+/* 1.3.1 */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 3
-#define GREATEST_VERSION_PATCH 0
+#define GREATEST_VERSION_PATCH 1
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
