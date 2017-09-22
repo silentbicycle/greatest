@@ -406,7 +406,8 @@ typedef enum greatest_test_res {
 #define GREATEST_FIRST_FAIL()                                           \
     (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
 #define GREATEST_FAILURE_ABORT()                                        \
-    (greatest_info.suite.failed > 0 && GREATEST_FIRST_FAIL())
+    (GREATEST_FIRST_FAIL() &&                                           \
+        (greatest_info.suite.failed > 0 || greatest_info.failed > 0))
 
 /* Message-less forms of tests defined below. */
 #define GREATEST_PASS() GREATEST_PASSm(NULL)
@@ -661,7 +662,7 @@ typedef enum greatest_test_res {
             } else if (prng->count_run == prng->count_ceil) {           \
                 break;                                                  \
             }                                                           \
-        } while(1);                                                     \
+        } while (!GREATEST_FAILURE_ABORT());                            \
         prng->count_run = prng->random_order = prng->initialized = 0;   \
     } while(0)
 

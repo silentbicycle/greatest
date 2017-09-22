@@ -1,5 +1,22 @@
 # greatest Changes By Release
 
+## v1.3.1 - 2017-xx-yy
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Bugfix: `GREATEST_SHUFFLE_TESTS` and `GREATEST_SHUFFLE_SUITES`
+did not check for the `stop_at_first_fail` flag, and could get
+stuck in an infinite loop. Now their loops stop as expected.
+
+Renamed `example_random.c` to `example_shuffle.c`, since its
+focus is really on random shuffling of suites and tests.
+
+
 ## v1.3.0 - 2017-08-13
 
 ### API Changes
