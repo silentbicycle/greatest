@@ -4,7 +4,10 @@
 
 ### API Changes
 
-None.
+Added `greatest_set_test_suffix(const char *suffix)`, which can
+be used to add a suffix to the name printed for the next test.
+This can be used to distinguish between tests when running
+parametric tests (particularly when shuffled).
 
 
 ### Other Improvements
