@@ -269,7 +269,7 @@ Shuffling tests:
         RUN_TEST(test_c);
         RUN_TESTp(test_d, "some_argument");
         RUN_TEST(test_e);
-   });
+    });
 
 Note: Any other code inside the block will be executed several times.
 The shuffling macro expands to a loop with (count + 1) iterations -- the
