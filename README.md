@@ -57,7 +57,7 @@ with more information.
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 [theft]: https://github.com/silentbicycle/theft
 [pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
-[ISC]: https://opensource.org/licenses/isc-license.txt
+[ISC]: https://opensource.org/licenses/ISC
 
 ## Basic Usage
 
