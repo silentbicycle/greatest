@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 #include <ctype.h>
 
 /***********
@@ -205,7 +206,8 @@ extern greatest_type_info greatest_type_info_memory;
 
 typedef enum {
     GREATEST_FLAG_FIRST_FAIL = 0x01,
-    GREATEST_FLAG_LIST_ONLY = 0x02
+    GREATEST_FLAG_LIST_ONLY = 0x02,
+    GREATEST_FLAG_RAISE_FIRST_FAIL = 0x04
 } greatest_flag_t;
 
 /* Internal state for a PRNG, used to shuffle test order. */
@@ -316,6 +318,7 @@ void greatest_set_suite_filter(const char *filter);
 void greatest_set_test_filter(const char *filter);
 void greatest_set_test_exclude(const char *filter);
 void greatest_stop_at_first_fail(void);
+void greatest_raise_at_first_fail(void);
 void greatest_get_report(struct greatest_report_t *report);
 unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
@@ -405,6 +408,8 @@ typedef enum greatest_test_res {
     (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
 #define GREATEST_FIRST_FAIL()                                           \
     (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
+#define GREATEST_RAISE_FIRST_FAIL()                                     \
+    (greatest_info.flags & GREATEST_FLAG_RAISE_FIRST_FAIL)
 #define GREATEST_FAILURE_ABORT()                                        \
     (GREATEST_FIRST_FAIL() &&                                           \
         (greatest_info.suite.failed > 0 || greatest_info.failed > 0))
@@ -575,6 +580,8 @@ typedef enum greatest_test_res {
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         greatest_info.msg = MSG;                                        \
+        if (GREATEST_RAISE_FIRST_FAIL())                                \
+            raise(SIGABRT);                                             \
         return GREATEST_TEST_RES_FAIL;                                  \
     } while (0)
 
@@ -871,10 +878,11 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
                                                                         \
 void greatest_usage(const char *name) {                                 \
     GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
-        "Usage: %s [--help] [-hlfv] [-s SUITE] [-t TEST]\n"             \
+        "Usage: %s [--help] [-hlfav] [-s SUITE] [-t TEST]\n"            \
         "  -h, --help  print this Help\n"                               \
         "  -l          List suites and tests, then exit (dry run)\n"    \
         "  -f          Stop runner after first failure\n"               \
+        "  -a          Raise SIGABRT on first failure\n"                \
         "  -v          Verbose output\n"                                \
         "  -s SUITE    only run suites containing string SUITE\n"       \
         "  -t TEST     only run tests containing string TEST\n"         \
@@ -898,9 +906,11 @@ static void greatest_parse_options(int argc, char **argv) {             \
             case 'x': /* test name exclusion */                         \
                 greatest_set_test_exclude(argv[i + 1]); i++; break;     \
             case 'f': /* first fail flag */                             \
-                greatest_stop_at_first_fail(); break;                   \
+                greatest_set_flag(GREATEST_FLAG_FIRST_FAIL); break;     \
+            case 'a': /* raise at first fail flag */                    \
+                greatest_set_flag(GREATEST_FLAG_RAISE_FIRST_FAIL); break;\
             case 'l': /* list only (dry run) */                         \
-                greatest_info.flags |= GREATEST_FLAG_LIST_ONLY; break;  \
+                greatest_set_flag(GREATEST_FLAG_LIST_ONLY); break;      \
             case 'v': /* first fail flag */                             \
                 greatest_info.verbosity++; break;                       \
             case 'h': /* help */                                        \
@@ -937,6 +947,10 @@ void greatest_set_suite_filter(const char *filter) {                    \
                                                                         \
 void greatest_stop_at_first_fail(void) {                                \
     greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;                    \
+}                                                                       \
+                                                                        \
+void greatest_raise_at_first_fail(void) {                               \
+    greatest_info.flags |= GREATEST_FLAG_RAISE_FIRST_FAIL;              \
 }                                                                       \
                                                                         \
 void greatest_get_report(struct greatest_report_t *report) {            \
