@@ -13,9 +13,7 @@ don't contribute code you aren't legally able to share.)
 
 ## Bug Reports
 
-Please report bugs at [the Issues page][issues].
-
-[issues]: https://github.com/silentbicycle/greatest/issues).
+Please report bugs at [the Issues page](https://github.com/silentbicycle/greatest/issues).
 
 If you are reporting a bug, please include:
 
