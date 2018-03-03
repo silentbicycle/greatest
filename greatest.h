@@ -96,7 +96,6 @@ int main(int argc, char **argv) {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <signal.h>
 #include <ctype.h>
 
 /***********
@@ -207,7 +206,7 @@ extern greatest_type_info greatest_type_info_memory;
 typedef enum {
     GREATEST_FLAG_FIRST_FAIL = 0x01,
     GREATEST_FLAG_LIST_ONLY = 0x02,
-    GREATEST_FLAG_RAISE_FIRST_FAIL = 0x04
+    GREATEST_FLAG_ABORT_ON_FAIL = 0x04,
 } greatest_flag_t;
 
 /* Internal state for a PRNG, used to shuffle test order. */
@@ -318,7 +317,7 @@ void greatest_set_suite_filter(const char *filter);
 void greatest_set_test_filter(const char *filter);
 void greatest_set_test_exclude(const char *filter);
 void greatest_stop_at_first_fail(void);
-void greatest_raise_at_first_fail(void);
+void greatest_abort_on_fail(void);
 void greatest_get_report(struct greatest_report_t *report);
 unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
@@ -408,8 +407,8 @@ typedef enum greatest_test_res {
     (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
 #define GREATEST_FIRST_FAIL()                                           \
     (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
-#define GREATEST_RAISE_FIRST_FAIL()                                     \
-    (greatest_info.flags & GREATEST_FLAG_RAISE_FIRST_FAIL)
+#define GREATEST_ABORT_ON_FAIL()                                        \
+    (greatest_info.flags & GREATEST_FLAG_ABORT_ON_FAIL)
 #define GREATEST_FAILURE_ABORT()                                        \
     (GREATEST_FIRST_FAIL() &&                                           \
         (greatest_info.suite.failed > 0 || greatest_info.failed > 0))
@@ -580,8 +579,7 @@ typedef enum greatest_test_res {
         greatest_info.fail_file = __FILE__;                             \
         greatest_info.fail_line = __LINE__;                             \
         greatest_info.msg = MSG;                                        \
-        if (GREATEST_RAISE_FIRST_FAIL())                                \
-            raise(SIGABRT);                                             \
+        if (GREATEST_ABORT_ON_FAIL()) { abort(); }                      \
         return GREATEST_TEST_RES_FAIL;                                  \
     } while (0)
 
@@ -907,8 +905,8 @@ static void greatest_parse_options(int argc, char **argv) {             \
                 greatest_set_test_exclude(argv[i + 1]); i++; break;     \
             case 'f': /* first fail flag */                             \
                 greatest_set_flag(GREATEST_FLAG_FIRST_FAIL); break;     \
-            case 'a': /* raise at first fail flag */                    \
-                greatest_set_flag(GREATEST_FLAG_RAISE_FIRST_FAIL); break;\
+            case 'a': /* abort() on fail flag */                        \
+                greatest_set_flag(GREATEST_FLAG_ABORT_ON_FAIL); break;  \
             case 'l': /* list only (dry run) */                         \
                 greatest_set_flag(GREATEST_FLAG_LIST_ONLY); break;      \
             case 'v': /* first fail flag */                             \
@@ -949,8 +947,8 @@ void greatest_stop_at_first_fail(void) {                                \
     greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;                    \
 }                                                                       \
                                                                         \
-void greatest_raise_at_first_fail(void) {                               \
-    greatest_info.flags |= GREATEST_FLAG_RAISE_FIRST_FAIL;              \
+void greatest_abort_on_fail(void) {                                     \
+    greatest_info.flags |= GREATEST_FLAG_ABORT_ON_FAIL;                 \
 }                                                                       \
                                                                         \
 void greatest_get_report(struct greatest_report_t *report) {            \
