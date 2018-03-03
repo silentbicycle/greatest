@@ -260,6 +260,7 @@ typedef struct greatest_run_info {
     const char *suite_filter;
     const char *test_filter;
     const char *test_exclude;
+    const char *name_suffix;    /* print suffix with test name */
 
     struct greatest_prng prng[2]; /* 0: suites, 1: tests */
 
@@ -289,6 +290,7 @@ extern greatest_run_info greatest_info;
 
 /* Type for ASSERT_ENUM_EQ's ENUM_STR argument. */
 typedef const char *greatest_enum_str_fun(int value);
+
 
 /**********************
  * Exported functions *
@@ -323,6 +325,7 @@ void greatest_get_report(struct greatest_report_t *report);
 unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
 void greatest_set_flag(greatest_flag_t flag);
+void greatest_set_test_suffix(const char *suffix);
 
 
 /********************
@@ -672,6 +675,9 @@ typedef enum greatest_test_res {
         prng->count_run = prng->random_order = prng->initialized = 0;   \
     } while(0)
 
+#define GREATEST_SUFFIX_ARGS() /* optional separator and name suffix */ \
+    (g->name_suffix ? "_" : ""), (g->name_suffix ? g->name_suffix : "") \
+
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
                                                                         \
@@ -699,25 +705,31 @@ int greatest_test_pre(const char *name) {                               \
     struct greatest_run_info *g = &greatest_info;                       \
     int match = greatest_name_match(name, g->test_filter, 1) &&         \
       !greatest_name_match(name, g->test_exclude, 0);                   \
-    if (GREATEST_LIST_ONLY()) { /* just listing test names */           \
-        if (match) { fprintf(GREATEST_STDOUT, "  %s\n", name); }        \
-        return 0;                                                       \
+    if (GREATEST_LIST_ONLY()) {   /* just listing test names */         \
+        if (match) {                                                    \
+            fprintf(GREATEST_STDOUT, "  %s%s%s\n",                      \
+                name, GREATEST_SUFFIX_ARGS());                          \
+        }                                                               \
+        goto clear;                                                     \
     }                                                                   \
     if (match && (!GREATEST_FIRST_FAIL() || g->suite.failed == 0)) {    \
             struct greatest_prng *p = &g->prng[1];                      \
         if (p->random_order) {                                          \
             p->count++;                                                 \
             if (!p->initialized || ((p->count - 1) != p->state)) {      \
-                return 0;       /* don't run this test yet */           \
+                goto clear;       /* don't run this test yet */         \
             }                                                           \
         }                                                               \
         GREATEST_SET_TIME(g->suite.pre_test);                           \
         if (g->setup) { g->setup(g->setup_udata); }                     \
         p->count_run++;                                                 \
-        return 1;               /* test should be run */                \
+        return 1;                 /* test should be run */              \
     } else {                                                            \
-        return 0;               /* skipped */                           \
+        goto clear;               /* skipped */                         \
     }                                                                   \
+clear:                                                                  \
+    g->name_suffix = NULL;                                              \
+    return 0;                                                           \
 }                                                                       \
                                                                         \
 void greatest_test_post(const char *name, int res) {                    \
@@ -734,6 +746,7 @@ void greatest_test_post(const char *name, int res) {                    \
     } else if (res == GREATEST_TEST_RES_PASS) {                         \
         greatest_do_pass(name);                                         \
     }                                                                   \
+    greatest_info.name_suffix = NULL;                                   \
     greatest_info.suite.tests_run++;                                    \
     greatest_info.col++;                                                \
     if (GREATEST_IS_VERBOSE()) {                                        \
@@ -808,47 +821,45 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
 }                                                                       \
                                                                         \
 void greatest_do_pass(const char *name) {                               \
+    struct greatest_run_info *g = &greatest_info;                       \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        GREATEST_FPRINTF(GREATEST_STDOUT, "PASS %s: %s",                \
-            name, greatest_info.msg ? greatest_info.msg : "");          \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "PASS %s%s%s: %s",            \
+            name, GREATEST_SUFFIX_ARGS(), g->msg ? g->msg : "");        \
     } else {                                                            \
         GREATEST_FPRINTF(GREATEST_STDOUT, ".");                         \
     }                                                                   \
-    greatest_info.suite.passed++;                                       \
+    g->suite.passed++;                                                  \
 }                                                                       \
                                                                         \
 void greatest_do_fail(const char *name) {                               \
+    struct greatest_run_info *g = &greatest_info;                       \
     if (GREATEST_IS_VERBOSE()) {                                        \
         GREATEST_FPRINTF(GREATEST_STDOUT,                               \
-            "FAIL %s: %s (%s:%u)",                                      \
-            name, greatest_info.msg ? greatest_info.msg : "",           \
-            greatest_info.fail_file, greatest_info.fail_line);          \
+            "FAIL %s%s%s: %s (%s:%u)", name, GREATEST_SUFFIX_ARGS(),    \
+            g->msg ? g->msg : "", g->fail_file, g->fail_line);          \
     } else {                                                            \
         GREATEST_FPRINTF(GREATEST_STDOUT, "F");                         \
-        greatest_info.col++;                                            \
-        /* add linebreak if in line of '.'s */                          \
-        if (greatest_info.col != 0) {                                   \
+        g->col++;  /* add linebreak if in line of '.'s */               \
+        if (g->col != 0) {                                              \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
-            greatest_info.col = 0;                                      \
+            g->col = 0;                                                 \
         }                                                               \
-        GREATEST_FPRINTF(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",      \
-            name,                                                       \
-            greatest_info.msg ? greatest_info.msg : "",                 \
-            greatest_info.fail_file, greatest_info.fail_line);          \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "FAIL %s%s%s: %s (%s:%u)\n",  \
+            name, GREATEST_SUFFIX_ARGS(), g->msg ? g->msg : "",         \
+            g->fail_file, g->fail_line);                                \
     }                                                                   \
-    greatest_info.suite.failed++;                                       \
+    g->suite.failed++;                                                  \
 }                                                                       \
                                                                         \
 void greatest_do_skip(const char *name) {                               \
+    struct greatest_run_info *g = &greatest_info;                       \
     if (GREATEST_IS_VERBOSE()) {                                        \
-        GREATEST_FPRINTF(GREATEST_STDOUT, "SKIP %s: %s",                \
-            name,                                                       \
-            greatest_info.msg ?                                         \
-            greatest_info.msg : "" );                                   \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "SKIP %s%s%s: %s",            \
+            name, GREATEST_SUFFIX_ARGS(), g->msg ? g->msg : "");        \
     } else {                                                            \
         GREATEST_FPRINTF(GREATEST_STDOUT, "s");                         \
     }                                                                   \
-    greatest_info.suite.skipped++;                                      \
+    g->suite.skipped++;                                                 \
 }                                                                       \
                                                                         \
 int greatest_do_assert_equal_t(const void *exp, const void *got,        \
@@ -977,6 +988,10 @@ void greatest_set_flag(greatest_flag_t flag) {                          \
     greatest_info.flags |= flag;                                        \
 }                                                                       \
                                                                         \
+void greatest_set_test_suffix(const char *suffix) {                     \
+    greatest_info.name_suffix = suffix;                                 \
+}                                                                       \
+                                                                        \
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup = cb;                                           \
     greatest_info.setup_udata = udata;                                  \
@@ -1101,6 +1116,7 @@ greatest_run_info greatest_info
         (void)greatest_prng_step;                                       \
         (void)greatest_prng_init_first_pass;                            \
         (void)greatest_prng_init_second_pass;                           \
+        (void)greatest_set_test_suffix;                                 \
                                                                         \
         memset(&greatest_info, 0, sizeof(greatest_info));               \
         greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
