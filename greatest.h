@@ -318,6 +318,7 @@ void greatest_set_test_filter(const char *filter);
 void greatest_set_test_exclude(const char *filter);
 void greatest_stop_at_first_fail(void);
 void greatest_abort_on_fail(void);
+void greatest_list_only(void);
 void greatest_get_report(struct greatest_report_t *report);
 unsigned int greatest_get_verbosity(void);
 void greatest_set_verbosity(unsigned int verbosity);
@@ -904,11 +905,11 @@ static void greatest_parse_options(int argc, char **argv) {             \
             case 'x': /* test name exclusion */                         \
                 greatest_set_test_exclude(argv[i + 1]); i++; break;     \
             case 'f': /* first fail flag */                             \
-                greatest_set_flag(GREATEST_FLAG_FIRST_FAIL); break;     \
+                greatest_stop_at_first_fail(); break;                   \
             case 'a': /* abort() on fail flag */                        \
-                greatest_set_flag(GREATEST_FLAG_ABORT_ON_FAIL); break;  \
+                greatest_abort_on_fail(); break;                        \
             case 'l': /* list only (dry run) */                         \
-                greatest_set_flag(GREATEST_FLAG_LIST_ONLY); break;      \
+                greatest_list_only(); break;                            \
             case 'v': /* first fail flag */                             \
                 greatest_info.verbosity++; break;                       \
             case 'h': /* help */                                        \
@@ -944,11 +945,15 @@ void greatest_set_suite_filter(const char *filter) {                    \
 }                                                                       \
                                                                         \
 void greatest_stop_at_first_fail(void) {                                \
-    greatest_info.flags |= GREATEST_FLAG_FIRST_FAIL;                    \
+    greatest_set_flag(GREATEST_FLAG_FIRST_FAIL);                        \
 }                                                                       \
                                                                         \
 void greatest_abort_on_fail(void) {                                     \
-    greatest_info.flags |= GREATEST_FLAG_ABORT_ON_FAIL;                 \
+    greatest_set_flag(GREATEST_FLAG_ABORT_ON_FAIL);                     \
+}                                                                       \
+                                                                        \
+void greatest_list_only(void) {                                         \
+    greatest_set_flag(GREATEST_FLAG_LIST_ONLY);                         \
 }                                                                       \
                                                                         \
 void greatest_get_report(struct greatest_report_t *report) {            \
