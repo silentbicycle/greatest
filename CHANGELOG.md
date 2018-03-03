@@ -15,7 +15,10 @@ option in the CLI test runner.
 
 ### Other Improvements
 
-None.
+Fixed link to ISC license in README.md. (Thanks @vaibhavsagar.)
+
+Fixed issue link and whitespace in README.md and CONTRIBUTING.md.
+(Thanks @bebehei.)
 
 
 ## v1.3.1 - 2017-09-22
