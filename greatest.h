@@ -213,7 +213,7 @@ typedef enum {
 struct greatest_prng {
     unsigned char random_order; /* use random ordering? */
     unsigned char initialized;  /* is random ordering initialized? */
-    unsigned char pad_0[2];
+    unsigned char pad_0[6];
     unsigned long state;        /* PRNG state */
     unsigned long count;        /* how many tests, this pass */
     unsigned long count_ceil;   /* total number of tests */
@@ -272,6 +272,7 @@ typedef struct greatest_run_info {
 
 #if GREATEST_USE_LONGJMP
     int pad_jmp_buf;
+    unsigned char pad_2[4];
     jmp_buf jump_dest;
 #endif
 } greatest_run_info;
@@ -334,7 +335,8 @@ void greatest_set_test_suffix(const char *suffix);
 
 /* If __VA_ARGS__ (C99) is supported, allow parametric testing
 * without needing to manually manage the argument struct. */
-#if __STDC_VERSION__ >= 19901L || _MSC_VER >= 1800
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 19901L) ||        \
+    (defined(_MSC_VER) && _MSC_VER >= 1800)
 #define GREATEST_VA_ARGS
 #endif
 

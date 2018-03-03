@@ -23,13 +23,13 @@ static int running_all(void) {
 
 static int check_run(unsigned int id) {
     size_t offset = id / 8;
-    char bit = 1U << (id & 0x07);
+    unsigned char bit = (unsigned char)(1U << (id & 0x07));
     return 0 != (test_has_run[offset] & bit);
 }
 
 static void set_run(unsigned int id) {
     size_t offset = id / 8;
-    char bit = 1U << (id & 0x07);
+    unsigned char bit = (unsigned char)(1U << (id & 0x07));
     test_has_run[offset] |= bit;
 }
 
@@ -62,7 +62,7 @@ static unsigned int seed_of_time(void) {
     if (0 != gettimeofday(&tv, NULL)) {
         err(1, "gettimeofday");
     }
-    return ~(tv.tv_sec ^ tv.tv_usec) * counter++;
+    return (unsigned int)(~(tv.tv_sec ^ tv.tv_usec) * counter++);
 }
 
 static char suffix_buf[8];
