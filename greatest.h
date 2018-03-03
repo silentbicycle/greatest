@@ -206,7 +206,7 @@ extern greatest_type_info greatest_type_info_memory;
 typedef enum {
     GREATEST_FLAG_FIRST_FAIL = 0x01,
     GREATEST_FLAG_LIST_ONLY = 0x02,
-    GREATEST_FLAG_ABORT_ON_FAIL = 0x04,
+    GREATEST_FLAG_ABORT_ON_FAIL = 0x04
 } greatest_flag_t;
 
 /* Internal state for a PRNG, used to shuffle test order. */
