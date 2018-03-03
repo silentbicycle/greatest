@@ -10,7 +10,8 @@ CPPFLAGS += ${COMMON_FLAGS}
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 
-PROGRAMS_C=	example example_no_suite example_no_runner example_shuffle
+PROGRAMS_C=	example example_no_suite example_no_runner \
+		example_shuffle example_trunc
 PROGRAMS_CPP=	example_cpp
 
 # Uncomment to demo c99 parametric testing.

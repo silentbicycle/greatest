@@ -15,7 +15,14 @@ option in the CLI test runner.
 Added `greatest_set_test_suffix(const char *suffix)`, which can
 be used to add a suffix to the name printed for the next test.
 This can be used to distinguish between tests when running
-parametric tests (particularly when shuffled).
+parametric tests (particularly when shuffled). Note that this
+suffix is included in the matching for `-t` and `-x`.
+
+The `greatest_info` struct now allocates a `char` buffer for the test
+name and optional '_' separator & suffix. The buffer size can be
+configured by `#define`ing `GREATEST_TESTNAME_BUF_SIZE`. (See
+`example_trunc.c`.) If the test name plus optional suffix does not fit
+in the buffer, it will be truncated and `\0` terminated.
 
 
 ### Other Improvements
