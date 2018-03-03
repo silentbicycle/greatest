@@ -57,7 +57,7 @@ with more information.
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 [theft]: https://github.com/silentbicycle/theft
 [pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
-[ISC]: https://opensource.org/licenses/isc-license.txt
+[ISC]: https://opensource.org/licenses/ISC
 
 ## Basic Usage
 
@@ -269,7 +269,7 @@ Shuffling tests:
         RUN_TEST(test_c);
         RUN_TESTp(test_d, "some_argument");
         RUN_TEST(test_e);
-   });
+    });
 
 Note: Any other code inside the block will be executed several times.
 The shuffling macro expands to a loop with (count + 1) iterations -- the
