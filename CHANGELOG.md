@@ -4,7 +4,13 @@
 
 ### API Changes
 
-None.
+Added `greatest_abort_on_fail`, which sets a flag to call `abort()` on
+the first test failure (`-a` in the CLI test runner). If tests are
+running inside a debugger, this will break right on the failure.
+Feature suggestion and initial implementation by @fsaintjacques.
+
+Added `greatest_list_only()`, which sets the same flag as the `-l`
+option in the CLI test runner.
 
 
 ### Other Improvements
