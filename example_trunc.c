@@ -29,7 +29,5 @@ int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
     RUN_SUITE(suite);
 
-    printf("sizeof(greatest_info): %lu\n",
-        (unsigned long)sizeof(greatest_info));
     GREATEST_MAIN_END();
 }

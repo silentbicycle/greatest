@@ -16,8 +16,8 @@ static char test_has_run[(TEST_COUNT / 8) + 1];
  * or name-based filtering means not all tests are being run. */
 static int running_all(void) {
     if (GREATEST_LIST_ONLY()) { return 0; }
-    if (greatest_info.test_filter != NULL ||
-        greatest_info.suite_filter != NULL) { return 0; }
+    if (greatest_info()->test_filter != NULL ||
+        greatest_info()->suite_filter != NULL) { return 0; }
     return 1;
 }
 
@@ -166,12 +166,6 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
-
-    /* PRNG internal state assumes uint32_t values */
-    assert(sizeof(greatest_info.prng[0].state) >= 4);
-    assert(sizeof(greatest_info.prng[0].mod) >= 4);
-    assert(sizeof(greatest_info.prng[0].a) >= 4);
-    assert(sizeof(greatest_info.prng[0].c) >= 4);
 
     SHUFFLE_SUITES(seed_of_time(), {
         RUN_SUITE(suite1);
