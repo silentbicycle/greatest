@@ -293,6 +293,35 @@ suite/test. In particular, avoid running tests directly inside of a
 on each iteration.
 
 
+## Test Name Suffixes
+
+`greatest_set_test_suffix` can be used to set an optional name suffix
+for the next test:
+
+    for (i = 0; i < row_count; i++) {
+        const struct table_row *row = &table[row_count];
+        greatest_set_test_suffix(row->name);
+        RUN_TEST1(test_with_arg, row);
+    }
+
+This will cause the test name to print with a `_` separator and the
+suffix in all pass/fail/skip messages (i.e., `test_with_arg_KEY`). This
+is especially useful when running a test several times with different
+arguments, in shuffled order. The name suffix is included when using
+name-based filtering.
+
+The test name and optional suffix are copied into an internal buffer.
+Its size can be configured by `#define`ing the constant
+`GREATEST_TESTNAME_BUF_SIZE`. (If not `#define`d, it defaults to 128
+bytes.) If the buffer is not large enough for the name and suffix, it
+will truncate after `size - 1` bytes, to ensure that it is properly
+`\0`-terminated.
+
+The name suffix pointer is cleared after each `RUN_TEST*` call, so a
+suffix can be constructed in a stack allocated buffer without later
+dereferencing a pointer that has gone out of scope.
+
+
 ## Sub-Functions
 
 Because of how `PASS()`, `ASSERT()`, `FAIL()`, etc. are implemented
