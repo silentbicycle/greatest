@@ -82,6 +82,24 @@ TEST expect_boxed_int_equal(void) {
     PASS();
 }
 
+/* The struct that stores the previous two functions' pointers. */
+static greatest_type_info boxed_int_type_info_no_print = {
+    boxed_int_equal_cb,
+    NULL,
+};
+
+TEST expect_boxed_int_equal_no_print(void) {
+    boxed_int a = {3};
+    boxed_int b = {3};
+    boxed_int c = {4};
+    (void)boxed_int_printf_cb;
+    /* succeeds */
+    ASSERT_EQUAL_T(&a, &b, &boxed_int_type_info_no_print, NULL);
+    /* fails */
+    ASSERT_EQUAL_T(&a, &c, &boxed_int_type_info_no_print, NULL);
+    PASS();
+}
+
 TEST expect_int_equal_printing_hex(void) {
     unsigned int a = 0xba5eba11;
     unsigned int b = 0xf005ba11;
@@ -264,6 +282,8 @@ SUITE(suite) {
     RUN_TEST(expect_strn_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_boxed_int_equal_no_print);
 
     printf("\nThis should fail, printing the mismatched values in hex.\n");
     RUN_TEST(expect_int_equal_printing_hex);

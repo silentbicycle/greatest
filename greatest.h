@@ -887,11 +887,6 @@ int greatest_do_assert_equal_t(const void *exp, const void *got,        \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: ");          \
             (void)type_info->print(got, udata);                         \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
-        } else {                                                        \
-            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
-                "GREATEST_ASSERT_EQUAL_T failure at %s:%u\n",           \
-                greatest_info.fail_file,                                \
-                greatest_info.fail_line);                               \
         }                                                               \
     }                                                                   \
     return eq;                                                          \
