@@ -24,6 +24,11 @@ configured by `#define`ing `GREATEST_TESTNAME_BUF_SIZE`. (See
 `example_trunc.c`.) If the test name plus optional suffix does not fit
 in the buffer, it will be truncated and `\0` terminated.
 
+Made a couple functions `static` that were previously exposed, but
+explictly listed as being internal (`greatest_do_pass`,
+`greatest_do_fail`, `greatest_do_skip`, `greatest_suite_pre`,
+`greatest_suite_post`, `greatest_usage`).
+
 
 ### Other Improvements
 
