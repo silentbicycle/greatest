@@ -358,6 +358,27 @@ If you want to run multiple test suites in parallel, look at
 These command line options are processed by `GREATEST_MAIN_BEGIN();`.
 
 
+## Running Tests In Another Program
+
+Rather than producing a command line test runner (which checks the
+command line options, and exits with a pass/fail return code after
+running tests), greatest can be used more like a library. Instead of
+using `GREATEST_MAIN_BEGIN()`, use `GREATEST_INIT()` to (re-)initialize
+greatest, then use either `GREATEST_PRINT_REPORT()` to print the report
+to `GREATEST_STDOUT`, or use `greatest_get_report(&report)` to get the
+pass, fail, skip, and assertion counters.
+
+The command line flags above have corresponding functions:
+
+- `greatest_stop_at_first_fail()`
+- `greatest_abort_on_fail()`
+- `greatest_list_only()`
+- `greatest_set_suite_filter(const char *filter)`
+- `greatest_set_test_filter(const char *filter)`
+- `greatest_set_test_exclude(const char *filter)`
+- `greatest_set_verbosity(unsigned int verbosity)`
+
+
 ## Aliases
 
 Most of the macros have prefixed and unprefixed forms. For example,
