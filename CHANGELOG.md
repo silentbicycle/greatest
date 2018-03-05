@@ -37,6 +37,11 @@ Fixed link to ISC license in README.md. (Thanks @vaibhavsagar.)
 Fixed issue link and whitespace in README.md and CONTRIBUTING.md.
 (Thanks @bebehei.)
 
+Change a couple macros into functions: `GREATEST_INIT` and
+`GREATEST_PRINT_REPORT`. Most of the macros have variable capture,
+return from their call site, etc., but these two don't need to be
+macros.
+
 
 ## v1.3.1 - 2017-09-22
 

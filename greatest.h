@@ -315,6 +315,8 @@ void greatest_prng_step(int id);
 /* These are part of the public greatest API. */
 void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata);
 void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata);
+void GREATEST_INIT(void);
+void GREATEST_PRINT_REPORT(void);
 int greatest_all_passed(void);
 void greatest_set_suite_filter(const char *filter);
 void greatest_set_test_filter(const char *filter);
@@ -1106,6 +1108,42 @@ void greatest_prng_step(int id) {                                       \
     } while (p->state >= p->count_ceil);                                \
 }                                                                       \
                                                                         \
+void GREATEST_INIT(void) {                                              \
+    /* Suppress unused function warning if features aren't used */      \
+    (void)greatest_run_suite;                                           \
+    (void)greatest_parse_options;                                       \
+    (void)greatest_prng_step;                                           \
+    (void)greatest_prng_init_first_pass;                                \
+    (void)greatest_prng_init_second_pass;                               \
+    (void)greatest_set_test_suffix;                                     \
+                                                                        \
+    memset(&greatest_info, 0, sizeof(greatest_info));                   \
+    greatest_info.width = GREATEST_DEFAULT_WIDTH;                       \
+    GREATEST_SET_TIME(greatest_info.begin);                             \
+}                                                                       \
+                                                                        \
+/* Report passes, failures, skipped tests, the number of                \
+ * assertions, and the overall run time. */                             \
+void GREATEST_PRINT_REPORT(void) {                                      \
+    if (!GREATEST_LIST_ONLY()) {                                        \
+        update_counts_and_reset_suite();                                \
+        GREATEST_SET_TIME(greatest_info.end);                           \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
+            "\nTotal: %u test%s",                                       \
+            greatest_info.tests_run,                                    \
+            greatest_info.tests_run == 1 ? "" : "s");                   \
+        GREATEST_CLOCK_DIFF(greatest_info.begin,                        \
+            greatest_info.end);                                         \
+        GREATEST_FPRINTF(GREATEST_STDOUT, ", %u assertion%s\n",         \
+            greatest_info.assertions,                                   \
+            greatest_info.assertions == 1 ? "" : "s");                  \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
+            "Pass: %u, fail: %u, skip: %u.\n",                          \
+            greatest_info.passed,                                       \
+            greatest_info.failed, greatest_info.skipped);               \
+    }                                                                   \
+}                                                                       \
+                                                                        \
 greatest_type_info greatest_type_info_memory = {                        \
     greatest_memory_equal_cb,                                           \
     greatest_memory_printf_cb,                                          \
@@ -1113,50 +1151,11 @@ greatest_type_info greatest_type_info_memory = {                        \
                                                                         \
 greatest_run_info greatest_info
 
-/* Init internals. */
-#define GREATEST_INIT()                                                 \
-    do {                                                                \
-        /* Suppress unused function warning if features aren't used */  \
-        (void)greatest_run_suite;                                       \
-        (void)greatest_parse_options;                                   \
-        (void)greatest_prng_step;                                       \
-        (void)greatest_prng_init_first_pass;                            \
-        (void)greatest_prng_init_second_pass;                           \
-        (void)greatest_set_test_suffix;                                 \
-                                                                        \
-        memset(&greatest_info, 0, sizeof(greatest_info));               \
-        greatest_info.width = GREATEST_DEFAULT_WIDTH;                   \
-        GREATEST_SET_TIME(greatest_info.begin);                         \
-    } while (0)                                                         \
-
 /* Handle command-line arguments, etc. */
 #define GREATEST_MAIN_BEGIN()                                           \
     do {                                                                \
         GREATEST_INIT();                                                \
         greatest_parse_options(argc, argv);                             \
-    } while (0)
-
-/* Report passes, failures, skipped tests, the number of
- * assertions, and the overall run time. */
-#define GREATEST_PRINT_REPORT()                                         \
-    do {                                                                \
-        if (!GREATEST_LIST_ONLY()) {                                    \
-            update_counts_and_reset_suite();                            \
-            GREATEST_SET_TIME(greatest_info.end);                       \
-            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
-                "\nTotal: %u test%s",                                   \
-                greatest_info.tests_run,                                \
-                greatest_info.tests_run == 1 ? "" : "s");               \
-            GREATEST_CLOCK_DIFF(greatest_info.begin,                    \
-                greatest_info.end);                                     \
-            GREATEST_FPRINTF(GREATEST_STDOUT, ", %u assertion%s\n",     \
-                greatest_info.assertions,                               \
-                greatest_info.assertions == 1 ? "" : "s");              \
-            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
-                "Pass: %u, fail: %u, skip: %u.\n",                      \
-                greatest_info.passed,                                   \
-                greatest_info.failed, greatest_info.skipped);           \
-        }                                                               \
     } while (0)
 
 /* Report results, exit with exit status based on results. */
