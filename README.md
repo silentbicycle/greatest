@@ -401,3 +401,12 @@ $ ./example -v | greenest
 (Note that `greenest` depends on a Unix-like environment.)
 
 greatest itself doesn't have built-in coloring to stay small and portable.
+
+
+## TAP Format
+
+There is an awk script provided, `contrib/entapment`, that converts the
+verbose output from the default CLI test runner to TAP version 13
+format:
+
+    ./example -v | contrib/entapment
