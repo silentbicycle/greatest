@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017 Scott Vokes <vokes.s@gmail.com>
+ * Copyright (c) 2011-2018 Scott Vokes <vokes.s@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* 1.4.0 develop */
+/* 1.4.0 */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 4
 #define GREATEST_VERSION_PATCH 0
