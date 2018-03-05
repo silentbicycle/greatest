@@ -1,6 +1,6 @@
 # greatest
 
-A testing system for C, contained in 1 file.
+A testing system for C, contained in 1 header file.
 
 
 ## Key Features
@@ -34,8 +34,7 @@ A testing system for C, contained in 1 file.
 - **Modular**
 
     Tests can be run individually, or grouped into suites. Suites can
-    share common setup, and can be in distinct compilation
-    units.
+    share common setup, and can be in distinct compilation units.
 
 - **Low Friction**
 
@@ -50,14 +49,15 @@ with a C99 or later language standard.
 
 I wrote a
 [blog post](http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/)
-with more information.
+with more information. While it's several years old, it's still accurate
+about the main functionality.
 
 [theft][], a related project, adds [property-based testing][pbt].
 
 [1]: http://spin.atomicobject.com/2013/07/31/greatest-c-testing-embedded/
 [theft]: https://github.com/silentbicycle/theft
 [pbt]: https://spin.atomicobject.com/2014/09/17/property-based-testing-c/
-[ISC]: https://opensource.org/licenses/isc-license.txt
+[ISC]: https://opensource.org/licenses/ISC
 
 ## Basic Usage
 
@@ -67,9 +67,14 @@ with more information.
 /* A test runs various assertions, then calls PASS(), FAIL(), or SKIP(). */
 TEST x_should_equal_1(void) {
     int x = 1;
-    ASSERT_EQ(1, x);                              /* default message */
-    ASSERT_EQm("yikes, x doesn't equal 1", 1, x); /* custom message */
-    /* printf expected and actual values as "%d" if they differ */
+    /* Compare, with an automatic "1 != x" failure message */
+    ASSERT_EQ(1, x);
+
+    /* Compare, with a custom failure message */
+    ASSERT_EQm("Yikes, x doesn't equal 1", 1, x);
+
+    /* Compare, and if they differ, print both values,
+     * formatted like `printf("Expected: %d\nGot: %d\n", 1, x);` */
     ASSERT_EQ_FMT(1, x, "%d");
     PASS();
 }
@@ -85,7 +90,7 @@ GREATEST_MAIN_DEFS();
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line options, initialization. */
 
-    /* Individual tests can be run directly. */
+    /* Individual tests can be run directly in main, outside of suites. */
     /* RUN_TEST(x_should_equal_1); */
 
     /* Tests can also be gathered into test suites. */
@@ -109,10 +114,10 @@ Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
-Test cases should call assertions and then end in `PASS()`, `SKIP()`,
+Test cases should call assertions and then end with `PASS()`, `SKIP()`,
 `FAIL()`, or one of their message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
-otherwise it will return 0. (Skips do not cause a test runner to
+otherwise it will return 0. (Skips do not cause the test runner to
 report failure.)
 
 Tests and suites are just functions, so normal C scoping rules apply.
@@ -144,6 +149,8 @@ also contain "slow":
 
     ./test_project -s pars -t tree -x slow
 
+The string matching includes optional test name suffixes.
+
 
 ## Available Assertions
 
@@ -157,19 +164,19 @@ assertions create a default message.
 
 ### `ASSERT(COND)`
 
-Assert that `COND` evaluates to a true value.
+Assert that `COND` evaluates to a true (non-zero) value.
 
 
 ### `ASSERT_FALSE(COND)`
 
-Assert that `COND` evaluates to a false value.
+Assert that `COND` evaluates to a false (zero) value.
 
 
 ### `ASSERT_EQ(EXPECTED, ACTUAL)`
 
-Assert that `EXPECTED == ACTUAL`. To compare with a custom equality test
-function, use `ASSERT_EQUAL_T` instead. To print the values if they
-differ, use `ASSERT_EQ_FMT`.
+Assert that `EXPECTED == ACTUAL`. To print the values if they
+differ, use `ASSERT_EQ_FMT`. To compare with custom equality test
+and print functions, use `ASSERT_EQUAL_T` instead.
 
 
 ### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)`
@@ -177,12 +184,14 @@ differ, use `ASSERT_EQ_FMT`.
 Assert that `EXPECTED == ACTUAL`. If they are not equal, print their
 values using FORMAT as the `printf` format string.
 
-For example: `ASSERT_EQ_FMT(123, result, "%d");`
+For example: `ASSERT_EQ_FMT(123, result, "%d");` will call `printf`
+like `printf("Expected: %d\nGot: %d\n", 123, result);` if its
+`EXPECTED` and `ACTUAL` arguments don't match.
 
 Note: `EXPECTED` and `ACTUAL` will be evaluated more than once on
 failure, so they should not be a function call with side effects.
 (Since their type is not known by the macro, they cannot be
-captured in a local variable.)
+captured in a local variable. `typeof` is a GCC extension.)
 
 
 ### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)`
@@ -190,6 +199,9 @@ captured in a local variable.)
 Assert that ACTUAL is within EXPECTED +/- TOLERANCE, once the values
 have been converted to a configurable floating point type
 (`GREATEST_FLOAT`).
+
+greatest does not depent on floating point math.
+It is only used within `ASSERT_IN_RANGE`'s macro expansion.
 
 
 ### `ASSERT_STR_EQ(EXPECTED, ACTUAL)`
@@ -206,10 +218,9 @@ Assert that the first SIZE bytes of the strings are equal
 
 ### `ASSERT_MEM_EQ(EXPECTED, ACTUAL, SIZE)`
 
-Assert that the first SIZE bytes of memory pointed to
-by EXPECTED and ACTUAL are equal. If the memory differs, print
-a hexdump and highlight the lines and individual bytes which
-do not match.
+Assert that the first SIZE bytes of memory pointed to by EXPECTED and
+ACTUAL are equal. If their memory differs, print a hexdump and highlight
+the lines and individual bytes which do not match.
 
 
 ### `ASSERT_ENUM_EQ(EXPECTED, ACTUAL, ENUM_STR_FUN)`
@@ -219,7 +230,7 @@ each enum value to a string using `ENUM_STR_FUN` before printing them.
 
 `ENUM_STR_FUN` should have a type like:
 
-    const char *some_enum_str(enum some_enum x);
+    const char *FUN(int x);
 
 
 ### `ASSERT_EQUAL_T(EXPECTED, ACTUAL, TYPE_INFO, UDATA)`
@@ -236,16 +247,19 @@ message.
 
 Assert that `COND` evaluates to a true value. If not, then use
 `longjmp(3)` to immediately return from the test case and any
-intermediate function calls. (If built with `GREATEST_USE_LONGJMP`
-defined to 0, then all setjmp/longjmp-related functionality will be
-compiled out.)
+intermediate function calls.
+
+If built with `GREATEST_USE_LONGJMP` `#define`d to 0, then all
+setjmp/longjmp-related functionality will be compiled out. This also
+reduces memory usage by `sizeof jmp_buf`, which may be several hundred
+bytes, depending on the platform.
 
 
 ## Random Shuffling
 
 Groups of suites or tests can be run in random order by using
 `GREATEST_SHUFFLE_SUITES` and `GREATEST_SHUFFLE_TESTS`, respectively.
-This can help find and eliminate coupling between tests.
+This can help find and eliminate accidental coupling between tests.
 
 The shuffling depends on the seed and the test/suite count, so a
 consistent seed will only lead to reproducible ordering until the
@@ -269,14 +283,43 @@ Shuffling tests:
         RUN_TEST(test_c);
         RUN_TESTp(test_d, "some_argument");
         RUN_TEST(test_e);
-   });
+    });
 
 Note: Any other code inside the block will be executed several times.
 The shuffling macro expands to a loop with (count + 1) iterations -- the
 first pass counts, and the following passes only execute the next chosen
 suite/test. In particular, avoid running tests directly inside of a
-`SHUFFLE_SUITES` block (without a suite), because the test will run over
-and over.
+`SHUFFLE_SUITES` block without a suite, because the test will be run
+on each iteration.
+
+
+## Test Name Suffixes
+
+`greatest_set_test_suffix` can be used to set an optional name suffix
+for the next test:
+
+    for (i = 0; i < row_count; i++) {
+        const struct table_row *row = &table[row_count];
+        greatest_set_test_suffix(row->name);
+        RUN_TEST1(test_with_arg, row);
+    }
+
+This will cause the test name to print with a `_` separator and the
+suffix in all pass/fail/skip messages (i.e., `test_with_arg_KEY`). This
+is especially useful when running a test several times with different
+arguments, in shuffled order. The name suffix is included when using
+name-based filtering.
+
+The test name and optional suffix are copied into an internal buffer.
+Its size can be configured by `#define`ing the constant
+`GREATEST_TESTNAME_BUF_SIZE`. (If not `#define`d, it defaults to 128
+bytes.) If the buffer is not large enough for the name and suffix, it
+will truncate after `size - 1` bytes, to ensure that it is properly
+`\0`-terminated.
+
+The name suffix pointer is cleared after each `RUN_TEST*` call, so a
+suffix can be constructed in a stack allocated buffer without later
+dereferencing a pointer that has gone out of scope.
 
 
 ## Sub-Functions
@@ -301,6 +344,7 @@ Test runners build with the following command line options:
       -h, --help  print this Help
       -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
+      -a          Abort on first failure (implies -f)
       -v          Verbose output
       -s SUITE    only run suite w/ name containing SUITE substring
       -t TEST     only run test w/ name containing TEST substring
@@ -314,12 +358,33 @@ If you want to run multiple test suites in parallel, look at
 These command line options are processed by `GREATEST_MAIN_BEGIN();`.
 
 
+## Running Tests In Another Program
+
+Rather than producing a command line test runner (which checks the
+command line options, and exits with a pass/fail return code after
+running tests), greatest can be used more like a library. Instead of
+using `GREATEST_MAIN_BEGIN()`, use `GREATEST_INIT()` to (re-)initialize
+greatest, then use either `GREATEST_PRINT_REPORT()` to print the report
+to `GREATEST_STDOUT`, or use `greatest_get_report(&report)` to get the
+pass, fail, skip, and assertion counters.
+
+The command line flags above have corresponding functions:
+
+- `greatest_stop_at_first_fail()`
+- `greatest_abort_on_fail()`
+- `greatest_list_only()`
+- `greatest_set_suite_filter(const char *filter)`
+- `greatest_set_test_filter(const char *filter)`
+- `greatest_set_test_exclude(const char *filter)`
+- `greatest_set_verbosity(unsigned int verbosity)`
+
+
 ## Aliases
 
 Most of the macros have prefixed and unprefixed forms. For example,
 `SUITE` is the same as `GREATEST_SUITE`.
 
-Check the source for the list -- search for `#if GREATEST_USE_ABBREVS`.
+Check the source for the list -- search for `GREATEST_USE_ABBREVS`.
 
 These aliases can be disabled by `#define`-ing `GREATEST_USE_ABBREVS` to 0.
 
@@ -336,3 +401,12 @@ $ ./example -v | greenest
 (Note that `greenest` depends on a Unix-like environment.)
 
 greatest itself doesn't have built-in coloring to stay small and portable.
+
+
+## TAP Format
+
+There is an awk script provided, `contrib/entapment`, that converts the
+verbose output from the default CLI test runner to TAP version 13
+format:
+
+    ./example -v | contrib/entapment

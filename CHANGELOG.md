@@ -1,5 +1,48 @@
 # greatest Changes By Release
 
+## v1.4.0 - 2018-03-05
+
+### API Changes
+
+Added `greatest_abort_on_fail`, which sets a flag to call `abort()` on
+the first test failure (`-a` in the CLI test runner). If tests are
+running inside a debugger, this will break right on the failure.
+Feature suggestion and initial implementation by @fsaintjacques.
+
+Added `greatest_list_only()`, which sets the same flag as the `-l`
+option in the CLI test runner.
+
+Added `greatest_set_test_suffix(const char *suffix)`, which can
+be used to add a suffix to the name printed for the next test.
+This can be used to distinguish between tests when running
+parametric tests (particularly when shuffled). Note that this
+suffix is included in the matching for `-t` and `-x`.
+
+The `greatest_info` struct now allocates a `char` buffer for the test
+name and optional '_' separator & suffix. The buffer size can be
+configured by `#define`ing `GREATEST_TESTNAME_BUF_SIZE`. (See
+`example_trunc.c`.) If the test name plus optional suffix does not fit
+in the buffer, it will be truncated and `\0` terminated.
+
+Made a couple functions `static` that were previously exposed, but
+explictly listed as being internal (`greatest_do_pass`,
+`greatest_do_fail`, `greatest_do_skip`, `greatest_suite_pre`,
+`greatest_suite_post`, `greatest_usage`).
+
+
+### Other Improvements
+
+Fixed link to ISC license in README.md. (Thanks @vaibhavsagar.)
+
+Fixed issue link and whitespace in README.md and CONTRIBUTING.md.
+(Thanks @bebehei.)
+
+Change a couple macros into functions: `GREATEST_INIT` and
+`GREATEST_PRINT_REPORT`. Most of the macros have variable capture,
+return from their call site, etc., but these two don't need to be
+macros.
+
+
 ## v1.3.1 - 2017-09-22
 
 ### API Changes
