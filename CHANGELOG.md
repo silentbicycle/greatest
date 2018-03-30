@@ -1,5 +1,17 @@
 # greatest Changes By Release
 
+## v1.x.y - 2018-xx-xx
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Fixed a warning when compiled with `-Wconversion`. (Thanks @HawkSK).
+
+
 ## v1.4.0 - 2018-03-05
 
 ### API Changes
