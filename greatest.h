@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* 1.4.0 */
+/* 1.4.0 develop */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 4
 #define GREATEST_VERSION_PATCH 0
