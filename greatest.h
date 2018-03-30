@@ -993,7 +993,7 @@ void greatest_set_verbosity(unsigned int verbosity) {                   \
 }                                                                       \
                                                                         \
 void greatest_set_flag(greatest_flag_t flag) {                          \
-    greatest_info.flags |= flag;                                        \
+    greatest_info.flags = (unsigned char)(greatest_info.flags | flag);  \
 }                                                                       \
                                                                         \
 void greatest_set_test_suffix(const char *suffix) {                     \
