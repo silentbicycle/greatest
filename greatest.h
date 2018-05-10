@@ -721,7 +721,7 @@ int greatest_test_pre(const char *name) {                               \
       !greatest_name_match(g->name_buf, g->test_exclude, 0);            \
     if (GREATEST_LIST_ONLY()) {   /* just listing test names */         \
         if (match) {                                                    \
-            fprintf(GREATEST_STDOUT, "  %s\n", g->name_buf);            \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "  %s\n", g->name_buf);   \
         }                                                               \
         goto clear;                                                     \
     }                                                                   \
