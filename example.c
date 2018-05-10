@@ -60,7 +60,7 @@ static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
 }
 
 /* Callback to print a boxed_int, used to produce an
- * "Exected X, got Y" failure message. */
+ * "Executed X, got Y" failure message. */
 static int boxed_int_printf_cb(const void *t, void *udata) {
     const boxed_int *bi = (const boxed_int *)t;
     (void)udata;
