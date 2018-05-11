@@ -11,6 +11,9 @@ None.
 
 Fixed a warning when compiled with `-Wconversion`. (Thanks @HawkSK).
 
+Replaced a remaining direct use of `fprintf` with `GREATEST_FPRINTF`.
+(Thanks @ligurio).
+
 
 ## v1.4.0 - 2018-03-05
 
