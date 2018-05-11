@@ -9,10 +9,12 @@ None.
 
 ### Other Improvements
 
-Fixed a warning when compiled with `-Wconversion`. (Thanks @HawkSK).
+Fixed a warning when compiled with `-Wconversion`. (Thanks @HawkSK.)
 
 Replaced a remaining direct use of `fprintf` with `GREATEST_FPRINTF`.
-(Thanks @ligurio).
+(Thanks @ligurio.)
+
+Fixed typo in example code. (Thanks @ligurio.)
 
 
 ## v1.4.0 - 2018-03-05
