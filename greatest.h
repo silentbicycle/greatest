@@ -846,9 +846,7 @@ static void update_counts_and_reset_suite(void) {                       \
 static int greatest_suite_pre(const char *suite_name) {                 \
     struct greatest_prng *p = &greatest_info.prng[0];                   \
     if (!greatest_name_match(suite_name, greatest_info.suite_filter, 1) \
-        || (GREATEST_FIRST_FAIL() && greatest_info.failed > 0)) {       \
-        return 0;                                                       \
-    }                                                                   \
+        || (GREATEST_FAILURE_ABORT())) { return 0; }                    \
     if (p->random_order) {                                              \
         p->count++;                                                     \
         if (!p->initialized || ((p->count - 1) != p->state)) {          \

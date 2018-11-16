@@ -1,6 +1,6 @@
 # greatest Changes By Release
 
-## v1.x.y - 2018-xx-xx
+## v1.4.1 - 2018-xx-xx
 
 ### API Changes
 
@@ -15,6 +15,9 @@ Replaced a remaining direct use of `fprintf` with `GREATEST_FPRINTF`.
 (Thanks @ligurio.)
 
 Fixed typo in example code. (Thanks @ligurio.)
+
+Bugfix: Previously, a test failure in first-fail mode didn't prevent
+later suites from running.
 
 
 ## v1.4.0 - 2018-03-05
