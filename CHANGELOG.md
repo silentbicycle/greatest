@@ -22,6 +22,9 @@ later suites from running.
 Added a comment noting that the duplicated declaration inside the
 `GREATEST_SUITE` macro is intentional.
 
+Renamed `exp` local variable to `expd`, to prevent a possible
+warning about shadowing `exp(3)`.
+
 
 ## v1.4.0 - 2018-03-05
 

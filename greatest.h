@@ -184,7 +184,7 @@ typedef void greatest_teardown_cb(void *udata);
 /* Type for an equality comparison between two pointers of the same type.
  * Should return non-0 if equal, otherwise 0.
  * UDATA is a closure value, passed through from ASSERT_EQUAL_T[m]. */
-typedef int greatest_equal_cb(const void *exp, const void *got, void *udata);
+typedef int greatest_equal_cb(const void *expd, const void *got, void *udata);
 
 /* Type for a callback that prints a value pointed to by T.
  * Return value has the same meaning as printf's.
@@ -306,7 +306,7 @@ typedef const char *greatest_enum_str_fun(int value);
 /* These are used internally by greatest macros. */
 int greatest_test_pre(const char *name);
 void greatest_test_post(int res);
-int greatest_do_assert_equal_t(const void *exp, const void *got,
+int greatest_do_assert_equal_t(const void *expd, const void *got,
     greatest_type_info *type_info, void *udata);
 void greatest_prng_init_first_pass(int id);
 int greatest_prng_init_second_pass(int id, unsigned long seed);
@@ -874,17 +874,17 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
     }                                                                   \
 }                                                                       \
                                                                         \
-int greatest_do_assert_equal_t(const void *exp, const void *got,        \
+int greatest_do_assert_equal_t(const void *expd, const void *got,       \
         greatest_type_info *type_info, void *udata) {                   \
     int eq = 0;                                                         \
     if (type_info == NULL || type_info->equal == NULL) {                \
         return 0;                                                       \
     }                                                                   \
-    eq = type_info->equal(exp, got, udata);                             \
+    eq = type_info->equal(expd, got, udata);                            \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: ");          \
-            (void)type_info->print(exp, udata);                         \
+            (void)type_info->print(expd, udata);                        \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: ");          \
             (void)type_info->print(got, udata);                         \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
@@ -1010,12 +1010,12 @@ void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
                                                                         \
-static int greatest_string_equal_cb(const void *exp, const void *got,   \
+static int greatest_string_equal_cb(const void *expd, const void *got,  \
     void *udata) {                                                      \
     size_t *size = (size_t *)udata;                                     \
     return (size != NULL                                                \
-        ? (0 == strncmp((const char *)exp, (const char *)got, *size))   \
-        : (0 == strcmp((const char *)exp, (const char *)got)));         \
+        ? (0 == strncmp((const char *)expd, (const char *)got, *size))  \
+        : (0 == strcmp((const char *)expd, (const char *)got)));        \
 }                                                                       \
                                                                         \
 static int greatest_string_printf_cb(const void *t, void *udata) {      \
@@ -1028,10 +1028,10 @@ greatest_type_info greatest_type_info_string = {                        \
     greatest_string_printf_cb,                                          \
 };                                                                      \
                                                                         \
-static int greatest_memory_equal_cb(const void *exp, const void *got,   \
+static int greatest_memory_equal_cb(const void *expd, const void *got,  \
     void *udata) {                                                      \
     greatest_memory_cmp_env *env = (greatest_memory_cmp_env *)udata;    \
-    return (0 == memcmp(exp, got, env->size));                          \
+    return (0 == memcmp(expd, got, env->size));                         \
 }                                                                       \
                                                                         \
 /* Hexdump raw memory, with differences highlighted */                  \
