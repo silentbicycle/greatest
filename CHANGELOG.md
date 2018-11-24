@@ -19,6 +19,9 @@ Fixed typo in example code. (Thanks @ligurio.)
 Bugfix: Previously, a test failure in first-fail mode didn't prevent
 later suites from running.
 
+Added a comment noting that the duplicated declaration inside the
+`GREATEST_SUITE` macro is intentional.
+
 
 ## v1.4.0 - 2018-03-05
 

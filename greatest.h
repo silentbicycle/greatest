@@ -347,7 +347,8 @@ void greatest_set_test_suffix(const char *suffix);
  * Macros *
  **********/
 
-/* Define a suite. */
+/* Define a suite. (The duplication is intentional -- it eliminates
+ * a warning from -Wmissing-declarations.) */
 #define GREATEST_SUITE(NAME) void NAME(void); void NAME(void)
 
 /* Declare a suite, provided by another compilation unit. */
