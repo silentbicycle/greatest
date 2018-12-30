@@ -25,6 +25,9 @@ Added a comment noting that the duplicated declaration inside the
 Renamed `exp` local variable to `expd`, to prevent a possible
 warning about shadowing `exp(3)`.
 
+Updated the command line argument documentation in the README and
+the usage message.
+
 
 ## v1.4.0 - 2018-03-05
 

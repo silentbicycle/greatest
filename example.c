@@ -134,7 +134,7 @@ TEST teardown_example_SKIP(void) {
 }
 
 /* Example of a test case that calls another function which uses ASSERT. */
-static greatest_test_res less_than_three(int arg) {
+static enum greatest_test_res less_than_three(int arg) {
     ASSERT(arg <3);
     PASS();
 }
@@ -164,14 +164,14 @@ TEST parametric_example_c99(int arg) {
 #endif
 
 #if GREATEST_USE_LONGJMP
-static greatest_test_res subfunction_with_FAIL_WITH_LONGJMP(int arg) {
+static enum greatest_test_res subfunction_with_FAIL_WITH_LONGJMP(int arg) {
     if (arg == 0) {
         FAIL_WITH_LONGJMPm("zero argument (expected failure)");
     }
     PASS();
 }
 
-static greatest_test_res subfunction_with_ASSERT_OR_LONGJMP(int arg) {
+static enum greatest_test_res subfunction_with_ASSERT_OR_LONGJMP(int arg) {
     ASSERT_OR_LONGJMPm("zero argument (expected failure)", arg != 0);
     PASS();
 }

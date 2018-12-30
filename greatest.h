@@ -895,15 +895,15 @@ int greatest_do_assert_equal_t(const void *expd, const void *got,       \
                                                                         \
 static void greatest_usage(const char *name) {                          \
     GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
-        "Usage: %s [--help] [-hlfav] [-s SUITE] [-t TEST]\n"            \
+        "Usage: %s [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]\n"        \
         "  -h, --help  print this Help\n"                               \
         "  -l          List suites and tests, then exit (dry run)\n"    \
         "  -f          Stop runner after first failure\n"               \
         "  -a          Abort on first failure (implies -f)\n"           \
         "  -v          Verbose output\n"                                \
-        "  -s SUITE    only run suites containing string SUITE\n"       \
-        "  -t TEST     only run tests containing string TEST\n"         \
-        "  -x EXCLUDE  exclude tests containing string EXCLUDE\n",      \
+        "  -s SUITE    only run suites containing substring SUITE\n"    \
+        "  -t TEST     only run tests containing substring TEST\n"      \
+        "  -x EXCLUDE  exclude tests containing substring EXCLUDE\n",   \
         name);                                                          \
 }                                                                       \
                                                                         \

@@ -334,21 +334,22 @@ directly from test functions must be wrapped in `CHECK_CALL`:
     }
 
 This is only necessary if the called function can cause test failures.
+The function should have a return type of `enum greatest_test_res`.
 
 
 ## Command Line Options
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [--help] [-hlfv] [-s SUITE] [-t TEST]
+    Usage: (test_runner) [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]
       -h, --help  print this Help
       -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
       -a          Abort on first failure (implies -f)
       -v          Verbose output
-      -s SUITE    only run suite w/ name containing SUITE substring
-      -t TEST     only run test w/ name containing TEST substring
-      -t EXCLUDE  exclude tests containing string EXCLUDE substring
+      -s SUITE    only run suite w/ name containing substring SUITE
+      -t TEST     only run test w/ name containing substring TEST
+      -x EXCLUDE  exclude tests containing string substring EXCLUDE
 
 Any arguments after `--` will be ignored.
 
