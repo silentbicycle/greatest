@@ -28,6 +28,11 @@ warning about shadowing `exp(3)`.
 Updated the command line argument documentation in the README and
 the usage message.
 
+Added a description of output behaviors for each test case
+result type, and clarified that the custom message variants
+(e.g. `SKIPm("TODO")`) can be used to set custom messages, but
+do not affect whether or not the message is printed.
+
 
 ## v1.4.0 - 2018-03-05
 

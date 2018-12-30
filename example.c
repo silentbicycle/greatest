@@ -39,7 +39,7 @@ TEST expect_str_equal(void) {
 TEST expect_strn_equal(void) {
     const char *foo1 = "foo1";
     ASSERT_STRN_EQ("foo2", foo1, 3);
-    PASS();
+    PASSm("custom PASSm message");
 }
 
 /* A boxed int type, used to show type-specific equality tests. */
