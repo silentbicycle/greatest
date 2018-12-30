@@ -115,10 +115,18 @@ Pass: 1, fail: 0, skip: 0.
 ```
 
 Test cases should call assertions and then end with `PASS()`, `SKIP()`,
-`FAIL()`, or one of their message variants (e.g. `SKIPm("TODO");`).
+`FAIL()`, or their custom message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
 otherwise it will return 0. (Skips do not cause the test runner to
 report failure.)
+
+`PASS()`/`PASSm("msg")` prints as a dot when verbosity is zero, or
+the test name and custom message (if any) with verbosity >= 1.
+
+`FAIL()`/`FAILm("msg")` always prints "FAIL test_name: msg file:line".
+
+`SKIP()`/`SKIPm("msg")` prints as an 's' when verbosity is zero, or
+the test name and custom message (if any) with verbosity >= 1.
 
 Tests and suites are just functions, so normal C scoping rules apply.
 For example, a test or suite named "main" will have a name collision.
@@ -155,8 +163,8 @@ The string matching includes optional test name suffixes.
 ## Available Assertions
 
 Assertions fail the current test unless some condition holds. All
-assertions have a "message" variant (with an `m` suffix), which takes a
-custom failure message string as their first argument. For example, the
+assertions have a custom message variant (with an `m` suffix), which
+takes a  message string as its first argument. For example, the
 assertion `ASSERT_EQ(apple, orange);` could instead be used like
 `ASSERT_EQm("these should match", apple, orange)`. Non-message
 assertions create a default message.
@@ -334,21 +342,22 @@ directly from test functions must be wrapped in `CHECK_CALL`:
     }
 
 This is only necessary if the called function can cause test failures.
+The function should have a return type of `enum greatest_test_res`.
 
 
 ## Command Line Options
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [--help] [-hlfv] [-s SUITE] [-t TEST]
+    Usage: (test_runner) [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]
       -h, --help  print this Help
       -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
       -a          Abort on first failure (implies -f)
       -v          Verbose output
-      -s SUITE    only run suite w/ name containing SUITE substring
-      -t TEST     only run test w/ name containing TEST substring
-      -t EXCLUDE  exclude tests containing string EXCLUDE substring
+      -s SUITE    only run suite w/ name containing substring SUITE
+      -t TEST     only run test w/ name containing substring TEST
+      -x EXCLUDE  exclude tests containing string substring EXCLUDE
 
 Any arguments after `--` will be ignored.
 

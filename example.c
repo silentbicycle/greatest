@@ -39,7 +39,7 @@ TEST expect_str_equal(void) {
 TEST expect_strn_equal(void) {
     const char *foo1 = "foo1";
     ASSERT_STRN_EQ("foo2", foo1, 3);
-    PASS();
+    PASSm("custom PASSm message");
 }
 
 /* A boxed int type, used to show type-specific equality tests. */
@@ -60,7 +60,7 @@ static int boxed_int_equal_cb(const void *exp, const void *got, void *udata) {
 }
 
 /* Callback to print a boxed_int, used to produce an
- * "Exected X, got Y" failure message. */
+ * "Executed X, got Y" failure message. */
 static int boxed_int_printf_cb(const void *t, void *udata) {
     const boxed_int *bi = (const boxed_int *)t;
     (void)udata;
@@ -134,7 +134,7 @@ TEST teardown_example_SKIP(void) {
 }
 
 /* Example of a test case that calls another function which uses ASSERT. */
-static greatest_test_res less_than_three(int arg) {
+static enum greatest_test_res less_than_three(int arg) {
     ASSERT(arg <3);
     PASS();
 }
@@ -164,14 +164,14 @@ TEST parametric_example_c99(int arg) {
 #endif
 
 #if GREATEST_USE_LONGJMP
-static greatest_test_res subfunction_with_FAIL_WITH_LONGJMP(int arg) {
+static enum greatest_test_res subfunction_with_FAIL_WITH_LONGJMP(int arg) {
     if (arg == 0) {
         FAIL_WITH_LONGJMPm("zero argument (expected failure)");
     }
     PASS();
 }
 
-static greatest_test_res subfunction_with_ASSERT_OR_LONGJMP(int arg) {
+static enum greatest_test_res subfunction_with_ASSERT_OR_LONGJMP(int arg) {
     ASSERT_OR_LONGJMPm("zero argument (expected failure)", arg != 0);
     PASS();
 }

@@ -1,5 +1,39 @@
 # greatest Changes By Release
 
+## v1.4.1 - 2018-12-30
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Fixed a warning when compiled with `-Wconversion`. (Thanks @HawkSK.)
+
+Replaced a remaining direct use of `fprintf` with `GREATEST_FPRINTF`.
+(Thanks @ligurio.)
+
+Fixed typo in example code. (Thanks @ligurio.)
+
+Bugfix: Previously, a test failure in first-fail mode didn't prevent
+later suites from running.
+
+Added a comment noting that the duplicated declaration inside the
+`GREATEST_SUITE` macro is intentional.
+
+Renamed `exp` local variable to `expd`, to prevent a possible
+warning about shadowing `exp(3)`.
+
+Updated the command line argument documentation in the README and
+the usage message.
+
+Added a description of output behaviors for each test case
+result type, and clarified that the custom message variants
+(e.g. `SKIPm("TODO")`) can be used to set custom messages, but
+do not affect whether or not the message is printed.
+
+
 ## v1.4.0 - 2018-03-05
 
 ### API Changes
