@@ -205,7 +205,7 @@ TEST expect_mem_equal(void) {
     got[23] = 'X';
     got[34] = 'X';
 
-    ASSERT_MEM_EQm("expected matching memory", got, exp, sizeof(got));
+    ASSERT_MEM_EQm("expected matching memory", exp, got, sizeof(got));
     PASS();
 }
 

@@ -9,7 +9,8 @@ None.
 
 ### Other Improvements
 
-None.
+Fixed an assertion in the example code where the expected annd actual
+parameters were swapped. (Reported by @shaohuasong.)
 
 
 ## v1.4.1 - 2018-12-30
