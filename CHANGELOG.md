@@ -9,6 +9,12 @@ None.
 
 ### Other Improvements
 
+Fixed configuration parameters for the PRNG (used for shuffling).
+Previously, certain rare combinations of test counts and input states
+could prevent the linear congruential RNG from having its full period
+before repeating values, which could cause tests to be run multiple
+times or skipped during shuffling.
+
 Fixed an assertion in the example code where the expected annd actual
 parameters were swapped. (Reported by @shaohuasong.)
 

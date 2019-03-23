@@ -1075,18 +1075,18 @@ void greatest_prng_init_first_pass(int id) {                            \
 }                                                                       \
                                                                         \
 int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
-    static unsigned long primes[] = { 11, 101, 1009, 10007,             \
-        100003, 1000003, 10000019, 100000007, 1000000007,               \
-        1538461, 1865471, 17471, 2147483647 /* 2**32 - 1 */, };         \
     struct greatest_prng *prng = &greatest_info.prng[id];               \
     if (prng->count == 0) { return 0; }                                 \
     prng->mod = 1;                                                      \
     prng->count_ceil = prng->count;                                     \
     while (prng->mod < prng->count) { prng->mod <<= 1; }                \
-    prng->state = seed & 0x1fffffff;    /* only use lower 29 bits... */ \
-    prng->a = (4LU * prng->state) + 1;  /* to avoid overflow */         \
-    prng->c = primes[(seed * 16451) % sizeof(primes)/sizeof(primes[0])];\
-    prng->initialized = 1;                                              \
+    prng->state = seed & 0x1fffffff;     /* only use lower 29 bits */   \
+    prng->a = 4LU * prng->state;         /* to avoid overflow when */   \
+    prng->a = (prng->a ? prng->a : 4) | 1;      /* multiplied by 4 */   \
+    prng->c = 2147483647;     /* and so prng->c ((2 ** 31) - 1) is */   \
+    prng->initialized = 1;  /* always relatively prime to prng->a. */   \
+    fprintf(stderr, "init_second_pass: a %lu, c %lu, state %lu\n",      \
+        prng->a, prng->c, prng->state);                                 \
     return 1;                                                           \
 }                                                                       \
                                                                         \
