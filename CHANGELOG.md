@@ -1,5 +1,17 @@
 # greatest Changes By Release
 
+## v1.4.2 - 2019-xx-yy
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+None.
+
+
 ## v1.4.1 - 2018-12-30
 
 ### API Changes
