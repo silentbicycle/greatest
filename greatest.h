@@ -539,7 +539,7 @@ typedef enum greatest_test_res {
             &greatest_type_info_string, NULL);                          \
     } while (0)                                                         \
 
-/* Fail if EXP is not equal to GOT, according to strcmp. */
+/* Fail if EXP is not equal to GOT, according to strncmp. */
 #define GREATEST_ASSERT_STRN_EQm(MSG, EXP, GOT, SIZE)                   \
     do {                                                                \
         size_t size = SIZE;                                             \

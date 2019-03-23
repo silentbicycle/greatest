@@ -12,6 +12,9 @@ None.
 Fixed an assertion in the example code where the expected annd actual
 parameters were swapped. (Reported by @shaohuasong.)
 
+Updated a comment to reflect that `GREATEST_ASSERT_STR_EQm` compares
+using `strncmp`, not `strcmp`. (Reported by @orangewait.)
+
 
 ## v1.4.1 - 2018-12-30
 
