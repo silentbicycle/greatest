@@ -1,5 +1,29 @@
 # greatest Changes By Release
 
+## v1.4.2 - 2019-03-24
+
+### API Changes
+
+None.
+
+
+### Other Improvements
+
+Fixed configuration parameters for the PRNG (used for shuffling).
+Previously, certain rare combinations of test counts and input states
+could prevent the linear congruential RNG from having its full period
+before repeating values, which could cause tests to be run multiple
+times or skipped during shuffling.
+
+Fixed an assertion in the example code where the expected annd actual
+parameters were swapped. (Reported by @shaohuasong.)
+
+Updated a comment to reflect that `GREATEST_ASSERT_STR_EQm` compares
+using `strncmp`, not `strcmp`. (Reported by @orangewait.)
+
+Minor formatting improvements in the README.
+
+
 ## v1.4.1 - 2018-12-30
 
 ### API Changes

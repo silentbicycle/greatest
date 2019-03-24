@@ -80,7 +80,7 @@ static void set_suffix(unsigned int i) {
 SUITE(suite1) {
     const unsigned int limit = TEST_COUNT;
     volatile unsigned int count;
-    const unsigned int small_test_count = 10;
+    const unsigned int small_test_count = 11;
     volatile unsigned int i = 0;
 
     /* Check that all are run exactly once, for a small number of tests */
@@ -106,6 +106,8 @@ SUITE(suite1) {
             COUNT_RUN(6);
             COUNT_RUN(7);
             COUNT_RUN(8);
+            COUNT_RUN(9);
+            COUNT_RUN(10);
         });
 #undef COUNT_RUN
 
@@ -169,9 +171,9 @@ int main(int argc, char **argv) {
 
     /* PRNG internal state assumes uint32_t values */
     assert(sizeof(greatest_info.prng[0].state) >= 4);
-    assert(sizeof(greatest_info.prng[0].mod) >= 4);
     assert(sizeof(greatest_info.prng[0].a) >= 4);
     assert(sizeof(greatest_info.prng[0].c) >= 4);
+    assert(sizeof(greatest_info.prng[0].m) >= 4);
 
     SHUFFLE_SUITES(seed_of_time(), {
         RUN_SUITE(suite1);

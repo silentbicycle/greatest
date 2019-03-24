@@ -21,10 +21,10 @@
 extern "C" {
 #endif
 
-/* 1.4.1 */
+/* 1.4.2 */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 4
-#define GREATEST_VERSION_PATCH 1
+#define GREATEST_VERSION_PATCH 2
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -223,9 +223,9 @@ struct greatest_prng {
     unsigned long count;        /* how many tests, this pass */
     unsigned long count_ceil;   /* total number of tests */
     unsigned long count_run;    /* total tests run */
-    unsigned long mod;          /* power-of-2 ceiling of count_ceil */
     unsigned long a;            /* LCG multiplier */
     unsigned long c;            /* LCG increment */
+    unsigned long m;            /* LCG modulus, based on count_ceil */
 };
 
 /* Struct containing all test runner state. */
@@ -539,7 +539,7 @@ typedef enum greatest_test_res {
             &greatest_type_info_string, NULL);                          \
     } while (0)                                                         \
 
-/* Fail if EXP is not equal to GOT, according to strcmp. */
+/* Fail if EXP is not equal to GOT, according to strncmp. */
 #define GREATEST_ASSERT_STRN_EQm(MSG, EXP, GOT, SIZE)                   \
     do {                                                                \
         size_t size = SIZE;                                             \
@@ -1075,18 +1075,17 @@ void greatest_prng_init_first_pass(int id) {                            \
 }                                                                       \
                                                                         \
 int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
-    static unsigned long primes[] = { 11, 101, 1009, 10007,             \
-        100003, 1000003, 10000019, 100000007, 1000000007,               \
-        1538461, 1865471, 17471, 2147483647 /* 2**32 - 1 */, };         \
-    struct greatest_prng *prng = &greatest_info.prng[id];               \
-    if (prng->count == 0) { return 0; }                                 \
-    prng->mod = 1;                                                      \
-    prng->count_ceil = prng->count;                                     \
-    while (prng->mod < prng->count) { prng->mod <<= 1; }                \
-    prng->state = seed & 0x1fffffff;    /* only use lower 29 bits... */ \
-    prng->a = (4LU * prng->state) + 1;  /* to avoid overflow */         \
-    prng->c = primes[(seed * 16451) % sizeof(primes)/sizeof(primes[0])];\
-    prng->initialized = 1;                                              \
+    struct greatest_prng *p = &greatest_info.prng[id];                  \
+    if (p->count == 0) { return 0; }                                    \
+    p->count_ceil = p->count;                                           \
+    for (p->m = 1; p->m < p->count; p->m <<= 1) {}                      \
+    p->state = seed & 0x1fffffff;     /* only use lower 29 bits */      \
+    p->a = 4LU * p->state;            /* to avoid overflow when */      \
+    p->a = (p->a ? p->a : 4) | 1;            /* multiplied by 4 */      \
+    p->c = 2147483647;        /* and so p->c ((2 ** 31) - 1) is */      \
+    p->initialized = 1;     /* always relatively prime to p->a. */      \
+    fprintf(stderr, "init_second_pass: a %lu, c %lu, state %lu\n",      \
+        p->a, p->c, p->state);                                          \
     return 1;                                                           \
 }                                                                       \
                                                                         \
@@ -1103,7 +1102,7 @@ int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
 void greatest_prng_step(int id) {                                       \
     struct greatest_prng *p = &greatest_info.prng[id];                  \
     do {                                                                \
-        p->state = ((p->a * p->state) + p->c) & (p->mod - 1);           \
+        p->state = ((p->a * p->state) + p->c) & (p->m - 1);             \
     } while (p->state >= p->count_ceil);                                \
 }                                                                       \
                                                                         \
