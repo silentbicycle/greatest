@@ -1075,18 +1075,17 @@ void greatest_prng_init_first_pass(int id) {                            \
 }                                                                       \
                                                                         \
 int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
-    struct greatest_prng *prng = &greatest_info.prng[id];               \
-    if (prng->count == 0) { return 0; }                                 \
-    prng->mod = 1;                                                      \
-    prng->count_ceil = prng->count;                                     \
-    while (prng->mod < prng->count) { prng->mod <<= 1; }                \
-    prng->state = seed & 0x1fffffff;     /* only use lower 29 bits */   \
-    prng->a = 4LU * prng->state;         /* to avoid overflow when */   \
-    prng->a = (prng->a ? prng->a : 4) | 1;      /* multiplied by 4 */   \
-    prng->c = 2147483647;     /* and so prng->c ((2 ** 31) - 1) is */   \
-    prng->initialized = 1;  /* always relatively prime to prng->a. */   \
+    struct greatest_prng *p = &greatest_info.prng[id];                  \
+    if (p->count == 0) { return 0; }                                    \
+    p->count_ceil = p->count;                                           \
+    for (p->mod = 1; p->mod < p->count; p->mod <<= 1) {}                \
+    p->state = seed & 0x1fffffff;     /* only use lower 29 bits */      \
+    p->a = 4LU * p->state;            /* to avoid overflow when */      \
+    p->a = (p->a ? p->a : 4) | 1;            /* multiplied by 4 */      \
+    p->c = 2147483647;        /* and so p->c ((2 ** 31) - 1) is */      \
+    p->initialized = 1;     /* always relatively prime to p->a. */      \
     fprintf(stderr, "init_second_pass: a %lu, c %lu, state %lu\n",      \
-        prng->a, prng->c, prng->state);                                 \
+        p->a, p->c, p->state);                                          \
     return 1;                                                           \
 }                                                                       \
                                                                         \
