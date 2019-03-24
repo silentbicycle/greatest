@@ -223,9 +223,9 @@ struct greatest_prng {
     unsigned long count;        /* how many tests, this pass */
     unsigned long count_ceil;   /* total number of tests */
     unsigned long count_run;    /* total tests run */
-    unsigned long mod;          /* power-of-2 ceiling of count_ceil */
     unsigned long a;            /* LCG multiplier */
     unsigned long c;            /* LCG increment */
+    unsigned long m;            /* LCG modulus, based on count_ceil */
 };
 
 /* Struct containing all test runner state. */
@@ -1078,7 +1078,7 @@ int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
     struct greatest_prng *p = &greatest_info.prng[id];                  \
     if (p->count == 0) { return 0; }                                    \
     p->count_ceil = p->count;                                           \
-    for (p->mod = 1; p->mod < p->count; p->mod <<= 1) {}                \
+    for (p->m = 1; p->m < p->count; p->m <<= 1) {}                      \
     p->state = seed & 0x1fffffff;     /* only use lower 29 bits */      \
     p->a = 4LU * p->state;            /* to avoid overflow when */      \
     p->a = (p->a ? p->a : 4) | 1;            /* multiplied by 4 */      \
@@ -1102,7 +1102,7 @@ int greatest_prng_init_second_pass(int id, unsigned long seed) {        \
 void greatest_prng_step(int id) {                                       \
     struct greatest_prng *p = &greatest_info.prng[id];                  \
     do {                                                                \
-        p->state = ((p->a * p->state) + p->c) & (p->mod - 1);           \
+        p->state = ((p->a * p->state) + p->c) & (p->m - 1);             \
     } while (p->state >= p->count_ceil);                                \
 }                                                                       \
                                                                         \
