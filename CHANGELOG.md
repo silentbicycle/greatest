@@ -21,6 +21,8 @@ parameters were swapped. (Reported by @shaohuasong.)
 Updated a comment to reflect that `GREATEST_ASSERT_STR_EQm` compares
 using `strncmp`, not `strcmp`. (Reported by @orangewait.)
 
+Minor formatting improvements in the README.
+
 
 ## v1.4.1 - 2018-12-30
 
