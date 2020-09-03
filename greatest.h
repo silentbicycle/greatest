@@ -436,6 +436,14 @@ typedef enum greatest_test_res {
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_NEQ(EXP, GOT)                                   \
     GREATEST_ASSERT_NEQm(#EXP " == " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_LT(EXP, GOT)                                    \
+    GREATEST_ASSERT_LTm(#EXP " < " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_LEQ(EXP, GOT)                                   \
+    GREATEST_ASSERT_LEQm(#EXP " <= " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_GT(EXP, GOT)                                    \
+    GREATEST_ASSERT_GTm(#EXP " > " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_GEQ(EXP, GOT)                                   \
+    GREATEST_ASSERT_GEQm(#EXP " >= " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
     GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
 #define GREATEST_ASSERT_IN_RANGE(EXP, GOT, TOL)                         \
@@ -487,6 +495,34 @@ typedef enum greatest_test_res {
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) == (GOT)) { GREATEST_FAILm(MSG); }                    \
+    } while (0)
+
+/* Fail if EXP >= GOT (comparison by <). */
+#define GREATEST_ASSERT_LTm(MSG, EXP, GOT)                              \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if ((EXP) >= (GOT)) { GREATEST_FAILm(MSG); }                    \
+    } while (0)
+
+/* Fail if EXP > GOT (comparison by <=). */
+#define GREATEST_ASSERT_LEQm(MSG, EXP, GOT)                             \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if ((EXP) > (GOT)) { GREATEST_FAILm(MSG); }                     \
+    } while (0)
+
+/* Fail if EXP <= GOT (comparison by >). */
+#define GREATEST_ASSERT_GTm(MSG, EXP, GOT)                              \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if ((EXP) <= (GOT)) { GREATEST_FAILm(MSG); }                    \
+    } while (0)
+
+/* Fail if EXP < GOT (comparison by >=). */
+#define GREATEST_ASSERT_GEQm(MSG, EXP, GOT)                             \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if ((EXP) < (GOT)) { GREATEST_FAILm(MSG); }                     \
     } while (0)
 
 /* Fail if EXP != GOT (equality comparison by ==).
@@ -1187,6 +1223,10 @@ greatest_run_info greatest_info
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
 #define ASSERT_NEQ     GREATEST_ASSERT_NEQ
+#define ASSERT_LT      GREATEST_ASSERT_LT
+#define ASSERT_LEQ     GREATEST_ASSERT_LEQ
+#define ASSERT_GT      GREATEST_ASSERT_GT
+#define ASSERT_GEQ     GREATEST_ASSERT_GEQ
 #define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
 #define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
@@ -1197,6 +1237,10 @@ greatest_run_info greatest_info
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
 #define ASSERT_NEQm    GREATEST_ASSERT_NEQm
+#define ASSERT_LTm     GREATEST_ASSERT_LTm
+#define ASSERT_LEQm    GREATEST_ASSERT_LEQm
+#define ASSERT_GTm     GREATEST_ASSERT_GTm
+#define ASSERT_GEQm    GREATEST_ASSERT_GEQm
 #define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
 #define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm

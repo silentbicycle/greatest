@@ -36,6 +36,30 @@ TEST expect_not_equal(void) {
     PASS();
 }
 
+TEST expect_less(void) {
+    int i = 9;
+    ASSERT_LT(8, i);
+    PASS();
+}
+
+TEST expect_less_equal(void) {
+    int i = 9;
+    ASSERT_LEQ(9, i);
+    PASS();
+}
+
+TEST expect_greater(void) {
+    int i = 9;
+    ASSERT_GT(10, i);
+    PASS();
+}
+
+TEST expect_greater_equal(void) {
+    int i = 9;
+    ASSERT_GEQ(9, i);
+    PASS();
+}
+
 TEST expect_str_equal(void) {
     const char *foo1 = "foo1";
     ASSERT_STR_EQ("foo2", foo1);
@@ -286,6 +310,10 @@ SUITE(suite) {
     RUN_TEST(expect_str_equal);
     printf("\nThis should pass:\n");
     RUN_TEST(expect_not_equal);
+    RUN_TEST(expect_less);
+    RUN_TEST(expect_less_equal);
+    RUN_TEST(expect_greater);
+    RUN_TEST(expect_greater_equal);
     RUN_TEST(expect_strn_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
