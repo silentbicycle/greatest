@@ -434,8 +434,8 @@ typedef enum greatest_test_res {
     GREATEST_ASSERT_FALSEm(#COND, COND)
 #define GREATEST_ASSERT_EQ(EXP, GOT)                                    \
     GREATEST_ASSERT_EQm(#EXP " != " #GOT, EXP, GOT)
-#define GREATEST_ASSERT_NE(EXP, GOT)                                    \
-    GREATEST_ASSERT_NEm(#EXP " == " #GOT, EXP, GOT)
+#define GREATEST_ASSERT_NEQ(EXP, GOT)                                   \
+    GREATEST_ASSERT_NEQm(#EXP " == " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
     GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
 #define GREATEST_ASSERT_IN_RANGE(EXP, GOT, TOL)                         \
@@ -483,7 +483,7 @@ typedef enum greatest_test_res {
     } while (0)
 
 /* Fail if EXP == GOT (equality comparison by !=). */
-#define GREATEST_ASSERT_NEm(MSG, EXP, GOT)                              \
+#define GREATEST_ASSERT_NEQm(MSG, EXP, GOT)                             \
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) == (GOT)) { GREATEST_FAILm(MSG); }                    \
@@ -1186,7 +1186,7 @@ greatest_run_info greatest_info
 #define ASSERTm        GREATEST_ASSERTm
 #define ASSERT_FALSE   GREATEST_ASSERT_FALSE
 #define ASSERT_EQ      GREATEST_ASSERT_EQ
-#define ASSERT_NE      GREATEST_ASSERT_NE
+#define ASSERT_NEQ     GREATEST_ASSERT_NEQ
 #define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
 #define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
@@ -1196,7 +1196,7 @@ greatest_run_info greatest_info
 #define ASSERT_ENUM_EQ GREATEST_ASSERT_ENUM_EQ
 #define ASSERT_FALSEm  GREATEST_ASSERT_FALSEm
 #define ASSERT_EQm     GREATEST_ASSERT_EQm
-#define ASSERT_NEm     GREATEST_ASSERT_NEm
+#define ASSERT_NEQm    GREATEST_ASSERT_NEQm
 #define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
 #define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm

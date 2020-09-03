@@ -32,7 +32,7 @@ TEST expect_equal(void) {
 
 TEST expect_not_equal(void) {
     int i = 9;
-    ASSERT_NE(10, i);
+    ASSERT_NEQ(10, i);
     PASS();
 }
 
