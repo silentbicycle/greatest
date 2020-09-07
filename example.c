@@ -30,6 +30,12 @@ TEST expect_equal(void) {
     PASS();
 }
 
+TEST expect_not_equal(void) {
+    int i = 9;
+    ASSERT_NEQ(10, i);
+    PASS();
+}
+
 TEST expect_str_equal(void) {
     const char *foo1 = "foo1";
     ASSERT_STR_EQ("foo2", foo1);
@@ -285,6 +291,7 @@ SUITE(suite) {
     printf("\nThis should fail:\n");
     RUN_TEST(expect_str_equal);
     printf("\nThis should pass:\n");
+    RUN_TEST(expect_not_equal);
     RUN_TEST(expect_strn_equal);
     printf("\nThis should fail:\n");
     RUN_TEST(expect_boxed_int_equal);
