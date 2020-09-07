@@ -232,7 +232,8 @@ struct greatest_prng {
 typedef struct greatest_run_info {
     unsigned char flags;
     unsigned char verbosity;
-    unsigned char pad_0[2];
+    unsigned char running_test; /* guard for nested RUN_TEST calls */
+    unsigned char pad_0[1];
 
     unsigned int tests_run;     /* total test count */
 
@@ -734,9 +735,14 @@ int greatest_test_pre(const char *name) {                               \
                 goto clear;       /* don't run this test yet */         \
             }                                                           \
         }                                                               \
+        if (g->running_test) {                                          \
+            fprintf(stderr, "Error: Test run inside another test.\n");  \
+            return 0;                                                   \
+        }                                                               \
         GREATEST_SET_TIME(g->suite.pre_test);                           \
         if (g->setup) { g->setup(g->setup_udata); }                     \
         p->count_run++;                                                 \
+        g->running_test = 1;                                            \
         return 1;                 /* test should be run */              \
     } else {                                                            \
         goto clear;               /* skipped */                         \
@@ -795,6 +801,7 @@ void greatest_test_post(int res) {                                      \
         greatest_info.teardown(udata);                                  \
     }                                                                   \
                                                                         \
+    greatest_info.running_test = 0;                                     \
     if (res <= GREATEST_TEST_RES_FAIL) {                                \
         greatest_do_fail();                                             \
     } else if (res >= GREATEST_TEST_RES_SKIP) {                         \

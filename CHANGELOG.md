@@ -17,6 +17,8 @@ Makefile: Fix targets so all files are rebuilt when `greatest.h` or the
 to including `greatest.h` as a linker argument to `example_trunc` (which
 could happen with clang). (Thanks vemakereporter.)
 
+Calls to `GREATEST_RUN_TEST` from inside another test are now ignored.
+
 
 ### Other Improvements
 

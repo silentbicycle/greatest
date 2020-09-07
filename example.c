@@ -255,6 +255,12 @@ TEST extra_slow_test(void) {
     PASS();
 }
 
+TEST nested_RUN_TEST(void) {
+    printf("This nested RUN_TEST call should not trigger an infinite loop...\n");
+    RUN_TEST(nested_RUN_TEST);
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -359,6 +365,7 @@ SUITE(suite) {
     RUN_TEST(expect_enum_equal_only_evaluates_args_once);
 
     RUN_TEST(extra_slow_test);
+    RUN_TEST(nested_RUN_TEST);
 }
 
 TEST standalone_test(void) {
