@@ -212,6 +212,11 @@ differ, use `ASSERT_EQ_FMT`. To compare with custom equality test
 and print functions, use `ASSERT_EQUAL_T` instead.
 
 
+### `ASSERT_NEQ(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED != ACTUAL`.
+
+
 ### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)`
 
 Assert that `EXPECTED == ACTUAL`. If they are not equal, print their

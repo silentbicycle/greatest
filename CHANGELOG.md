@@ -13,6 +13,8 @@ Added `greatest_set_exact_name_match()` / `-e` flag, which changes the
 name-based filtering from substring to exact match. Note that filtering
 on an exact suite name will not skip tests run outside of any suite.
 
+Added `GREATEST_ASSERT_NEQ`. (Thanks @tekknolagi.)
+
 
 ### Bug Fixes
 
