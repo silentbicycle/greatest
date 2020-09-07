@@ -114,19 +114,39 @@ Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
+Tests are run with `RUN_TEST(test_name)`, which can be called directly
+from the test runner's `main` function or grouped into suites (which are
+run with `RUN_SUITE(suite_name)`). (Calls to `RUN_TEST` from inside
+another test are ignored.)
+
+Test cases can be run with arguments: `RUN_TEST1(test_name, arg)` passes
+a single argument, and if C99 features are supported, then
+`RUN_TESTp(test_name, ...)` uses `__VA_ARGS__` to run a test case with
+one or mare arguments. `greatest_set_test_suffix` sets a name suffix, so
+output from the test runner can include info about arguments.
+
 Test cases should call assertions and then end with `PASS()`, `SKIP()`,
 `FAIL()`, or their custom message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
 otherwise it will return 0. (Skips do not cause the test runner to
 report failure.)
 
+`PASS()`, `SKIP()`, `FAIL()`, and their custom message variants are
+macros that updating internal bookkeeping and then returning and enum
+value, such as `GREATEST_TEST_RES_FAIL`. They all `return` from the
+current test case function.
+
 `PASS()`/`PASSm("msg")` prints as a dot when verbosity is zero, or
 the test name and custom message (if any) with verbosity >= 1.
 
 `FAIL()`/`FAILm("msg")` always prints "FAIL test_name: msg file:line".
 
-`SKIP()`/`SKIPm("msg")` prints as an 's' when verbosity is zero, or
-the test name and custom message (if any) with verbosity >= 1.
+`SKIP()`/`SKIPm("msg")` prints as an 's' when verbosity is zero, or the
+test name and custom message (if any) with verbosity >= 1. Because skips
+are not treated as a failure by the test runner, they can be used to
+skip test cases that aren't relevant in a particular build or
+environment, a way to temporarily disable broken tests, or as a sort of
+todo list for tests and functionality under active development.
 
 Tests and suites are just functions, so normal C scoping rules apply.
 For example, a test or suite named "main" will have a name collision.

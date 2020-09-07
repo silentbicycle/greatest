@@ -28,6 +28,9 @@ Calls to `GREATEST_RUN_TEST` from inside another test are now ignored.
 
 Added built `example_cpp` executable to `.gitignore`.
 
+Expanded on the role of `RUN_TEST`, `RUN_TEST1`, `RUN_TESTp`,
+`PASS`, `SKIP`, and `FAIL` in the README.
+
 
 ## v1.4.2 - 2019-03-24
 
