@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 
 /* Set to 0 to disable all use of setjmp/longjmp. */
 #ifndef GREATEST_USE_LONGJMP
-#define GREATEST_USE_LONGJMP 1
+#define GREATEST_USE_LONGJMP 0
 #endif
 
 /* Make it possible to replace fprintf with another

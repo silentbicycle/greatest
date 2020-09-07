@@ -4,7 +4,10 @@
 
 ### API Changes
 
-None.
+Changed default: `GREATEST_USE_LONGJMP` now defaults to 0. This eliminates
+a warning about variables that can possibly become stale/corrupt in the
+presence of `longjmp`. Since `GREATEST_FAIL_WITH_LONGJMP` isn't frequently
+used, it should probably be opt-in.
 
 
 ### Bug Fixes
