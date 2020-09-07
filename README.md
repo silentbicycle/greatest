@@ -3,7 +3,7 @@
 A testing system for C, contained in 1 header file.
 
 
-## Key Features
+## Key Features and Project Goals
 
 - **Small, Portable, Lightweight**
 
@@ -149,7 +149,7 @@ environment, a way to temporarily disable broken tests, or as a sort of
 todo list for tests and functionality under active development.
 
 Tests and suites are just functions, so normal C scoping rules apply.
-For example, a test or suite named "main" will have a name collision.
+For example, a test or suite named `main` will have a name collision.
 
 (For more examples, look at `example.c` and `example_suite.c`.)
 
