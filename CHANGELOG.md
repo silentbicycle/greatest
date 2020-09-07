@@ -9,6 +9,10 @@ a warning about variables that can possibly become stale/corrupt in the
 presence of `longjmp`. Since `GREATEST_FAIL_WITH_LONGJMP` isn't frequently
 used, it should probably be opt-in.
 
+Added `greatest_set_exact_name_match()` / `-e` flag, which changes the
+name-based filtering from substring to exact match. Note that filtering
+on an exact suite name will not skip tests run outside of any suite.
+
 
 ### Bug Fixes
 

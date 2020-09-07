@@ -233,7 +233,7 @@ typedef struct greatest_run_info {
     unsigned char flags;
     unsigned char verbosity;
     unsigned char running_test; /* guard for nested RUN_TEST calls */
-    unsigned char pad_0[1];
+    unsigned char exact_name_match;
 
     unsigned int tests_run;     /* total test count */
 
@@ -322,6 +322,7 @@ int greatest_all_passed(void);
 void greatest_set_suite_filter(const char *filter);
 void greatest_set_test_filter(const char *filter);
 void greatest_set_test_exclude(const char *filter);
+void greatest_set_exact_name_match(void);
 void greatest_stop_at_first_fail(void);
 void greatest_abort_on_fail(void);
 void greatest_list_only(void);
@@ -690,6 +691,9 @@ static int greatest_name_match(const char *name, const char *filter,    \
     size_t offset = 0;                                                  \
     size_t filter_len = filter ? strlen(filter) : 0;                    \
     if (filter_len == 0) { return res_if_none; } /* no filter */        \
+    if (greatest_info.exact_name_match && strlen(name) != filter_len) { \
+        return 0; /* ignore substring matches */                        \
+    }                                                                   \
     while (name[offset] != '\0') {                                      \
         if (name[offset] == filter[0]) {                                \
             if (0 == strncmp(&name[offset], filter, filter_len)) {      \
@@ -902,7 +906,7 @@ int greatest_do_assert_equal_t(const void *expd, const void *got,       \
                                                                         \
 static void greatest_usage(const char *name) {                          \
     GREATEST_FPRINTF(GREATEST_STDOUT,                                   \
-        "Usage: %s [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]\n"        \
+        "Usage: %s [-hlfavex] [-s SUITE] [-t TEST] [-x EXCLUDE]\n"      \
         "  -h, --help  print this Help\n"                               \
         "  -l          List suites and tests, then exit (dry run)\n"    \
         "  -f          Stop runner after first failure\n"               \
@@ -910,6 +914,7 @@ static void greatest_usage(const char *name) {                          \
         "  -v          Verbose output\n"                                \
         "  -s SUITE    only run suites containing substring SUITE\n"    \
         "  -t TEST     only run tests containing substring TEST\n"      \
+        "  -e          only run exact name match for -s or -t\n"        \
         "  -x EXCLUDE  exclude tests containing substring EXCLUDE\n",   \
         name);                                                          \
 }                                                                       \
@@ -929,6 +934,8 @@ static void greatest_parse_options(int argc, char **argv) {             \
                 greatest_set_test_filter(argv[i + 1]); i++; break;      \
             case 'x': /* test name exclusion */                         \
                 greatest_set_test_exclude(argv[i + 1]); i++; break;     \
+            case 'e': /* exact name match */                            \
+                greatest_set_exact_name_match(); break;                 \
             case 'f': /* first fail flag */                             \
                 greatest_stop_at_first_fail(); break;                   \
             case 'a': /* abort() on fail flag */                        \
@@ -967,6 +974,10 @@ void greatest_set_test_exclude(const char *filter) {                    \
                                                                         \
 void greatest_set_suite_filter(const char *filter) {                    \
     greatest_info.suite_filter = filter;                                \
+}                                                                       \
+                                                                        \
+void greatest_set_exact_name_match(void) {                              \
+    greatest_info.exact_name_match = 1;                                 \
 }                                                                       \
                                                                         \
 void greatest_stop_at_first_fail(void) {                                \

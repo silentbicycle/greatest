@@ -159,6 +159,11 @@ also contain "slow":
 
 The string matching includes optional test name suffixes.
 
+The `greatest_set_exact_name_match()` function and corresponding `-e`
+command line runner flag can be used to only run tests and/or suites
+whose names exactly match the name filter(s). Note: exact-match suite
+filtering by name will not skip tests that are run outside of any suite.
+
 
 ## Available Assertions
 
@@ -350,7 +355,7 @@ The function should have a return type of `enum greatest_test_res`.
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]
+    Usage: (test_runner) [-hlfave] [-s SUITE] [-t TEST] [-x EXCLUDE]
       -h, --help  print this Help
       -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
@@ -358,6 +363,7 @@ Test runners build with the following command line options:
       -v          Verbose output
       -s SUITE    only run suite w/ name containing substring SUITE
       -t TEST     only run test w/ name containing substring TEST
+      -e          only run exact name match for -s or -t
       -x EXCLUDE  exclude tests containing string substring EXCLUDE
 
 Any arguments after `--` will be ignored.
@@ -383,6 +389,7 @@ The command line flags above have corresponding functions:
 - `greatest_stop_at_first_fail()`
 - `greatest_abort_on_fail()`
 - `greatest_list_only()`
+- `greatest_set_exact_name_match()`
 - `greatest_set_suite_filter(const char *filter)`
 - `greatest_set_test_filter(const char *filter)`
 - `greatest_set_test_exclude(const char *filter)`
