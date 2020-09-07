@@ -4,4 +4,5 @@ example_no_runner
 example_random
 example_shuffle
 example_trunc
+example_cpp
 *.o

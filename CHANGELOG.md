@@ -20,7 +20,7 @@ could happen with clang). (Thanks vemakereporter.)
 
 ### Other Improvements
 
-None.
+Added built `example_cpp` executable to `.gitignore`.
 
 
 ## v1.4.2 - 2019-03-24
