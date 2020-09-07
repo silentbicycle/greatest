@@ -12,7 +12,10 @@ used, it should probably be opt-in.
 
 ### Bug Fixes
 
-None.
+Makefile: Fix targets so all files are rebuilt when `greatest.h` or the
+`Makefile` are modified, but without potentially breaking the build due
+to including `greatest.h` as a linker argument to `example_trunc` (which
+could happen with clang). (Thanks vemakereporter.)
 
 
 ### Other Improvements

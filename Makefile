@@ -32,14 +32,18 @@ example: example.o example_suite.o
 example_no_suite: example_no_suite.o
 example_no_runner: example_no_runner.o
 example_shuffle: example_shuffle.o
+example_trunc: example_trunc.o
 
-example_trunc: greatest.h
+*.o: greatest.h Makefile
 
-example_cpp: example_cpp.cpp greatest.h
+example_cpp: example_cpp.cpp greatest.h Makefile
 	${CXX} -o $@ example_cpp.cpp ${CPPFLAGS} ${LDFLAGS}
 
-%.o: %.c greatest.h Makefile
+%.o: %.c
 	${CC} -c -o $@ ${CFLAGS} $<
+
+%.o: %.cpp
+	${CXX} -c -o $@ ${CPPFLAGS} $<
 
 %: %.o
 	${CC} -o $@ ${LDFLAGS} $^
