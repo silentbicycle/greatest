@@ -955,13 +955,13 @@ static void greatest_parse_options(int argc, char **argv) {             \
                 greatest_info.verbosity++; break;                       \
             case 'h': /* help */                                        \
                 greatest_usage(argv[0]); exit(EXIT_SUCCESS);            \
+            default:                                                    \
             case '-':                                                   \
                 if (0 == strncmp("--help", argv[i], 6)) {               \
                     greatest_usage(argv[0]); exit(EXIT_SUCCESS);        \
                 } else if (0 == strncmp("--", argv[i], 2)) {            \
                     return; /* ignore following arguments */            \
-                }  /* fall through */                                   \
-            default:                                                    \
+                }                                                       \
                 GREATEST_FPRINTF(GREATEST_STDOUT,                       \
                     "Unknown argument '%s'\n", argv[i]);                \
                 greatest_usage(argv[0]);                                \
