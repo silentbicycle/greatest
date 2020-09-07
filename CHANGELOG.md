@@ -25,6 +25,10 @@ could happen with clang). (Thanks @vemakereporter, @theosotr.)
 
 Calls to `GREATEST_RUN_TEST` from inside another test are now ignored.
 
+Other flags starting with `--` besides `--help` (print help) and `--`
+(ignore rest of ARGV) now produce an "Unknown argument" message;
+previously they were unintentionally handled like `--`.
+
 
 ### Other Improvements
 

@@ -959,7 +959,7 @@ static void greatest_parse_options(int argc, char **argv) {             \
             case '-':                                                   \
                 if (0 == strncmp("--help", argv[i], 6)) {               \
                     greatest_usage(argv[0]); exit(EXIT_SUCCESS);        \
-                } else if (0 == strncmp("--", argv[i], 2)) {            \
+                } else if (0 == strcmp("--", argv[i])) {                \
                     return; /* ignore following arguments */            \
                 }                                                       \
                 GREATEST_FPRINTF(GREATEST_STDOUT,                       \
