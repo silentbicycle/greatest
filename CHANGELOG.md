@@ -19,7 +19,7 @@ on an exact suite name will not skip tests run outside of any suite.
 Makefile: Fix targets so all files are rebuilt when `greatest.h` or the
 `Makefile` are modified, but without potentially breaking the build due
 to including `greatest.h` as a linker argument to `example_trunc` (which
-could happen with clang). (Thanks vemakereporter.)
+could happen with clang). (Thanks @vemakereporter, @theosotr.)
 
 Calls to `GREATEST_RUN_TEST` from inside another test are now ignored.
 
