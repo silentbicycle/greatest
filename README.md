@@ -393,6 +393,7 @@ The command line flags above have corresponding functions:
 - `greatest_set_suite_filter(const char *filter)`
 - `greatest_set_test_filter(const char *filter)`
 - `greatest_set_test_exclude(const char *filter)`
+- `greatest_get_verbosity()`
 - `greatest_set_verbosity(unsigned int verbosity)`
 
 
