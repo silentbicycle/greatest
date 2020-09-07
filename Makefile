@@ -32,6 +32,7 @@ example: example.o example_suite.o
 example_no_suite: example_no_suite.o
 example_no_runner: example_no_runner.o
 example_shuffle: example_shuffle.o
+example_trunc: example_trunc.o
 
 example_trunc: greatest.h
 
