@@ -4,7 +4,7 @@
 
 #include "greatest.h"
 
-/* Define a suite, compiled seperately. */
+/* Define a suite, compiled separately. */
 SUITE_EXTERN(other_suite);
 
 /* Declare a local suite. */
