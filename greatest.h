@@ -906,9 +906,7 @@ static void greatest_run_suite(greatest_suite_cb *suite_cb,             \
 int greatest_do_assert_equal_t(const void *expd, const void *got,       \
         greatest_type_info *type_info, void *udata) {                   \
     int eq = 0;                                                         \
-    if (type_info == NULL || type_info->equal == NULL) {                \
-        return 0;                                                       \
-    }                                                                   \
+    if (type_info == NULL || type_info->equal == NULL) { return 0; }    \
     eq = type_info->equal(expd, got, udata);                            \
     if (!eq) {                                                          \
         if (type_info->print != NULL) {                                 \
@@ -1040,8 +1038,7 @@ void GREATEST_SET_SETUP_CB(greatest_setup_cb *cb, void *udata) {        \
     greatest_info.setup_udata = udata;                                  \
 }                                                                       \
                                                                         \
-void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb,                 \
-                                    void *udata) {                      \
+void GREATEST_SET_TEARDOWN_CB(greatest_teardown_cb *cb, void *udata) {  \
     greatest_info.teardown = cb;                                        \
     greatest_info.teardown_udata = udata;                               \
 }                                                                       \
@@ -1060,8 +1057,7 @@ static int greatest_string_printf_cb(const void *t, void *udata) {      \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_string = {                        \
-    greatest_string_equal_cb,                                           \
-    greatest_string_printf_cb,                                          \
+    greatest_string_equal_cb, greatest_string_printf_cb,                \
 };                                                                      \
                                                                         \
 static int greatest_memory_equal_cb(const void *expd, const void *got,  \
@@ -1179,8 +1175,7 @@ void GREATEST_PRINT_REPORT(void) {                                      \
 }                                                                       \
                                                                         \
 greatest_type_info greatest_type_info_memory = {                        \
-    greatest_memory_equal_cb,                                           \
-    greatest_memory_printf_cb,                                          \
+    greatest_memory_equal_cb, greatest_memory_printf_cb,                \
 };                                                                      \
                                                                         \
 greatest_run_info greatest_info
