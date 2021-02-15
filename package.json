@@ -1,6 +1,6 @@
 {
   "name": "greatest",
-  "version": "v1.4.2",
+  "version": "v1.5.0",
   "repo": "silentbicycle/greatest",
   "src": ["greatest.h"],
   "description": "A C testing library in 1 file. No dependencies, no dynamic allocation.",

@@ -1,5 +1,50 @@
 # greatest Changes By Release
 
+## v1.5.0 - 2021-02-15
+
+### API Changes
+
+Changed default: `GREATEST_USE_LONGJMP` now defaults to 0. This eliminates
+a warning about variables that can possibly become stale/corrupt in the
+presence of `longjmp`. Since `GREATEST_FAIL_WITH_LONGJMP` isn't frequently
+used, it should probably be opt-in.
+
+Added `greatest_set_exact_name_match()` / `-e` flag, which changes the
+name-based filtering from substring to exact match. Note that filtering
+on an exact suite name will not skip tests run outside of any suite.
+
+Added `GREATEST_ASSERT_NEQ` and `GREATEST_ASSERT_NEQm`. (Thanks @tekknolagi.)
+
+Added `GREATEST_ASSERT_GT`, `GREATEST_ASSERT_GTE`, `GREATEST_ASSERT_LT`,
+and `GREATEST_ASSERT_LTE`, along with their custom message (`m`)
+variants.
+
+
+### Bug Fixes
+
+Makefile: Fix targets so all files are rebuilt when `greatest.h` or the
+`Makefile` are modified, but without potentially breaking the build due
+to including `greatest.h` as a linker argument to `example_trunc` (which
+could happen with clang). (Thanks @vemakereporter, @theosotr.)
+
+Calls to `GREATEST_RUN_TEST` from inside another test are now ignored.
+
+Other flags starting with `--` besides `--help` (print help) and `--`
+(ignore rest of ARGV) now produce an "Unknown argument" message;
+previously they were unintentionally handled like `--`.
+
+
+### Other Improvements
+
+Added built `example_cpp` executable to `.gitignore`.
+
+Expanded on the role of `RUN_TEST`, `RUN_TEST1`, `RUN_TESTp`,
+`PASS`, `SKIP`, and `FAIL` in the README.
+
+Addressed a `-Wimplicit-fallthrough` warning when building with clang
+using `-Weverything`.
+
+
 ## v1.4.2 - 2019-03-24
 
 ### API Changes

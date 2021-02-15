@@ -17,8 +17,8 @@ PROGRAMS_CPP=	example_cpp
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
 
-# Uncomment to disable setjmp()/longjmp().
-#CFLAGS += -DGREATEST_USE_LONGJMP=0
+# Uncomment to enable setjmp()/longjmp().
+#CFLAGS += -DGREATEST_USE_LONGJMP=1
 
 # Uncomment to disable clock() / time.h.
 #CFLAGS += -DGREATEST_USE_TIME=0
@@ -32,19 +32,21 @@ example: example.o example_suite.o
 example_no_suite: example_no_suite.o
 example_no_runner: example_no_runner.o
 example_shuffle: example_shuffle.o
+example_trunc: example_trunc.o
 
-example_cpp: example_cpp.cpp
+*.o: greatest.h Makefile
+
+example_cpp: example_cpp.cpp greatest.h Makefile
 	${CXX} -o $@ example_cpp.cpp ${CPPFLAGS} ${LDFLAGS}
 
 %.o: %.c
 	${CC} -c -o $@ ${CFLAGS} $<
 
+%.o: %.cpp
+	${CXX} -c -o $@ ${CPPFLAGS} $<
+
 %: %.o
 	${CC} -o $@ ${LDFLAGS} $^
 
-*.o: Makefile
-*.o: greatest.h
-
 clean:
 	rm -f ${PROGRAMS_C} ${PROGRAMS_CPP} *.o *.core
-

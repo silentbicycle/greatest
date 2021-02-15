@@ -3,7 +3,7 @@
 A testing system for C, contained in 1 header file.
 
 
-## Key Features
+## Key Features and Project Goals
 
 - **Small, Portable, Lightweight**
 
@@ -114,22 +114,42 @@ Total: 1 test (47 ticks, 0.000 sec), 3 assertions
 Pass: 1, fail: 0, skip: 0.
 ```
 
+Tests are run with `RUN_TEST(test_name)`, which can be called directly
+from the test runner's `main` function or grouped into suites (which are
+run with `RUN_SUITE(suite_name)`). (Calls to `RUN_TEST` from inside
+another test are ignored.)
+
+Test cases can be run with arguments: `RUN_TEST1(test_name, arg)` passes
+a single argument, and if C99 features are supported, then
+`RUN_TESTp(test_name, ...)` uses `__VA_ARGS__` to run a test case with
+one or mare arguments. `greatest_set_test_suffix` sets a name suffix, so
+output from the test runner can include info about arguments.
+
 Test cases should call assertions and then end with `PASS()`, `SKIP()`,
 `FAIL()`, or their custom message variants (e.g. `SKIPm("TODO");`).
 If there are any test failures, the test runner will return 1,
 otherwise it will return 0. (Skips do not cause the test runner to
 report failure.)
 
+`PASS()`, `SKIP()`, `FAIL()`, and their custom message variants are
+macros that updating internal bookkeeping and then returning and enum
+value, such as `GREATEST_TEST_RES_FAIL`. They all `return` from the
+current test case function.
+
 `PASS()`/`PASSm("msg")` prints as a dot when verbosity is zero, or
 the test name and custom message (if any) with verbosity >= 1.
 
 `FAIL()`/`FAILm("msg")` always prints "FAIL test_name: msg file:line".
 
-`SKIP()`/`SKIPm("msg")` prints as an 's' when verbosity is zero, or
-the test name and custom message (if any) with verbosity >= 1.
+`SKIP()`/`SKIPm("msg")` prints as an 's' when verbosity is zero, or the
+test name and custom message (if any) with verbosity >= 1. Because skips
+are not treated as a failure by the test runner, they can be used to
+skip test cases that aren't relevant in a particular build or
+environment, a way to temporarily disable broken tests, or as a sort of
+todo list for tests and functionality under active development.
 
 Tests and suites are just functions, so normal C scoping rules apply.
-For example, a test or suite named "main" will have a name collision.
+For example, a test or suite named `main` will have a name collision.
 
 (For more examples, look at `example.c` and `example_suite.c`.)
 
@@ -159,6 +179,11 @@ also contain "slow":
 
 The string matching includes optional test name suffixes.
 
+The `greatest_set_exact_name_match()` function and corresponding `-e`
+command line runner flag can be used to only run tests and/or suites
+whose names exactly match the name filter(s). Note: exact-match suite
+filtering by name will not skip tests that are run outside of any suite.
+
 
 ## Available Assertions
 
@@ -185,6 +210,31 @@ Assert that `COND` evaluates to a false (zero) value.
 Assert that `EXPECTED == ACTUAL`. To print the values if they
 differ, use `ASSERT_EQ_FMT`. To compare with custom equality test
 and print functions, use `ASSERT_EQUAL_T` instead.
+
+
+### `ASSERT_NEQ(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED != ACTUAL`.
+
+
+### `ASSERT_GT(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED > ACTUAL`.
+
+
+### `ASSERT_GTE(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED >= ACTUAL`.
+
+
+### `ASSERT_LT(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED < ACTUAL`.
+
+
+### `ASSERT_LTE(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED <= ACTUAL`.
 
 
 ### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)`
@@ -350,7 +400,7 @@ The function should have a return type of `enum greatest_test_res`.
 
 Test runners build with the following command line options:
 
-    Usage: (test_runner) [-hlfav] [-s SUITE] [-t TEST] [-x EXCLUDE]
+    Usage: (test_runner) [-hlfave] [-s SUITE] [-t TEST] [-x EXCLUDE]
       -h, --help  print this Help
       -l          List suites and tests, then exit (dry run)
       -f          Stop runner after first failure
@@ -358,6 +408,7 @@ Test runners build with the following command line options:
       -v          Verbose output
       -s SUITE    only run suite w/ name containing substring SUITE
       -t TEST     only run test w/ name containing substring TEST
+      -e          only run exact name match for -s or -t
       -x EXCLUDE  exclude tests containing string substring EXCLUDE
 
 Any arguments after `--` will be ignored.
@@ -383,9 +434,11 @@ The command line flags above have corresponding functions:
 - `greatest_stop_at_first_fail()`
 - `greatest_abort_on_fail()`
 - `greatest_list_only()`
+- `greatest_set_exact_name_match()`
 - `greatest_set_suite_filter(const char *filter)`
 - `greatest_set_test_filter(const char *filter)`
 - `greatest_set_test_exclude(const char *filter)`
+- `greatest_get_verbosity()`
 - `greatest_set_verbosity(unsigned int verbosity)`
 
 
