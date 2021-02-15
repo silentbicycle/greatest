@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 Scott Vokes <vokes.s@gmail.com>
+ * Copyright (c) 2011-2021 Scott Vokes <vokes.s@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,10 +21,10 @@
 extern "C" {
 #endif
 
-/* 1.4.2 */
+/* 1.5.0 */
 #define GREATEST_VERSION_MAJOR 1
-#define GREATEST_VERSION_MINOR 4
-#define GREATEST_VERSION_PATCH 2
+#define GREATEST_VERSION_MINOR 5
+#define GREATEST_VERSION_PATCH 0
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
