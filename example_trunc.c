@@ -1,9 +1,6 @@
 /* Make the buffer size VERY small, to check truncation */
 #define GREATEST_TESTNAME_BUF_SIZE 8
 
-/* Disable longjmp, since it isn't used here. */
-#define GREATEST_USE_LONGJMP 0
-
 #include "greatest.h"
 
 TEST t(void) {
