@@ -217,6 +217,26 @@ and print functions, use `ASSERT_EQUAL_T` instead.
 Assert that `EXPECTED != ACTUAL`.
 
 
+### `ASSERT_GT(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED > ACTUAL`.
+
+
+### `ASSERT_GTE(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED >= ACTUAL`.
+
+
+### `ASSERT_LT(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED < ACTUAL`.
+
+
+### `ASSERT_LTE(EXPECTED, ACTUAL)`
+
+Assert that `EXPECTED <= ACTUAL`.
+
+
 ### `ASSERT_EQ_FMT(EXPECTED, ACTUAL, FORMAT)`
 
 Assert that `EXPECTED == ACTUAL`. If they are not equal, print their

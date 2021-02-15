@@ -267,6 +267,54 @@ TEST nested_RUN_TEST(void) {
     PASS();
 }
 
+TEST eq_pass_and_fail(void) {
+    const int x = 1, y = 2;
+    ASSERT_EQ(x, x);
+    ASSERT_EQm("y == y", y, y);
+    ASSERT_EQ(x, y);
+    PASS();
+}
+
+TEST neq_pass_and_fail(void) {
+    const int x = 1, y = 2;
+    ASSERT_NEQm("x != y", x, y);
+    ASSERT_NEQ(x, x);
+    PASS();
+}
+
+TEST gt_pass_and_fail(void) {
+    const int x = 1, y = 2;
+    ASSERT_GTm("y > x", y, x);
+    ASSERT_GT(x, x);
+    PASS();
+}
+
+TEST gte_pass_and_fail(void) {
+    const int x = 1, y = 2, z = 3;;
+    ASSERT_GTE(z, y);
+    ASSERT_GTE(y, x);
+    ASSERT_GTE(z, x);
+    ASSERT_GTEm("y >= y", y, y);
+    ASSERT_GTE(y, z);
+    PASS();
+}
+
+TEST lt_pass_and_fail(void) {
+    const int x = 1, y = 2;
+    ASSERT_LTm("x < y", x, y);
+    ASSERT_LT(x, x);
+    PASS();
+}
+
+TEST lte_pass_and_fail(void) {
+    const int x = 1, y = 2, z = 3;;
+    ASSERT_LTE(y, z);
+    ASSERT_LTEm("x <= y", x, y);
+    ASSERT_LTE(x, x);
+    ASSERT_LTE(z, x);
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -373,6 +421,14 @@ SUITE(suite) {
 
     RUN_TEST(extra_slow_test);
     RUN_TEST(nested_RUN_TEST);
+
+    printf("\nThese next several tests should also fail:\n");
+    RUN_TEST(eq_pass_and_fail);
+    RUN_TEST(neq_pass_and_fail);
+    RUN_TEST(gt_pass_and_fail);
+    RUN_TEST(gte_pass_and_fail);
+    RUN_TEST(lt_pass_and_fail);
+    RUN_TEST(lte_pass_and_fail);
 }
 
 TEST standalone_test(void) {
