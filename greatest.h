@@ -415,11 +415,11 @@ typedef enum greatest_test_res {
 /* Check if the test runner is in verbose mode. */
 #define GREATEST_IS_VERBOSE() ((greatest_info.verbosity) > 0)
 #define GREATEST_LIST_ONLY()                                            \
-    (greatest_info.flags & GREATEST_FLAG_LIST_ONLY)
+    (greatest_info.flags & (unsigned char)GREATEST_FLAG_LIST_ONLY)
 #define GREATEST_FIRST_FAIL()                                           \
-    (greatest_info.flags & GREATEST_FLAG_FIRST_FAIL)
+    (greatest_info.flags & (unsigned char)GREATEST_FLAG_FIRST_FAIL)
 #define GREATEST_ABORT_ON_FAIL()                                        \
-    (greatest_info.flags & GREATEST_FLAG_ABORT_ON_FAIL)
+    (greatest_info.flags & (unsigned char)GREATEST_FLAG_ABORT_ON_FAIL)
 #define GREATEST_FAILURE_ABORT()                                        \
     (GREATEST_FIRST_FAIL() &&                                           \
         (greatest_info.suite.failed > 0 || greatest_info.failed > 0))
