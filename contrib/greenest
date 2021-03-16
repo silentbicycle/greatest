@@ -30,4 +30,18 @@ BEGIN {
     gsub("<", GREEN "<" RESET, $0)
 }
 
+# color the result, indicating clearly if it fails
+/^Pass: [0-9]+, fail: [0-9]+, skip: [0-9]+./ {
+        n_failed=substr($4, 1, length($4)-1)
+        if (n_failed > 0)
+                sub("fail: [0-9]+", RED "&" RESET)
+
+        n_skipped=substr($6, 1, length($6)-1)
+        if (n_skipped > 0)
+                sub("skip: [0-9]+", YELLOW "&" RESET)
+
+        if (n_failed == 0 && n_skipped == 0)
+                sub("Pass: [0-9]+", GREEN "&" RESET)
+}
+
 { print($0) }
