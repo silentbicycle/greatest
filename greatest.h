@@ -448,6 +448,8 @@ typedef enum greatest_test_res {
     GREATEST_ASSERT_LTEm(#EXP " > " #GOT, EXP, GOT)
 #define GREATEST_ASSERT_EQ_FMT(EXP, GOT, FMT)                           \
     GREATEST_ASSERT_EQ_FMTm(#EXP " != " #GOT, EXP, GOT, FMT)
+#define GREATEST_ASSERT_NEQ_FMT(EXP, GOT, FMT)                                                  \
+    GREATEST_ASSERT_NEQ_FMTm(#EXP " == " #GOT, EXP, GOT, FMT)
 #define GREATEST_ASSERT_IN_RANGE(EXP, GOT, TOL)                         \
     GREATEST_ASSERT_IN_RANGEm(#EXP " != " #GOT " +/- " #TOL, EXP, GOT, TOL)
 #define GREATEST_ASSERT_EQUAL_T(EXP, GOT, TYPE_INFO, UDATA)             \
@@ -510,6 +512,21 @@ typedef enum greatest_test_res {
             GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: ");          \
             GREATEST_FPRINTF(GREATEST_STDOUT, FMT, EXP);                \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: ");          \
+            GREATEST_FPRINTF(GREATEST_STDOUT, FMT, GOT);                \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
+            GREATEST_FAILm(MSG);                                        \
+        }                                                               \
+    } while (0)
+
+/* Fail if EXP == GOT (equality comparison by !=).
+ * Warning: FMT, EXP, and GOT will be evaluated more
+ * than once on failure. */
+#define GREATEST_ASSERT_NEQ_FMTm(MSG, EXP, GOT, FMT)                    \
+    do {                                                                \
+        greatest_info.assertions++;                                     \
+        if ((EXP) == (GOT)) {                                           \
+            GREATEST_FPRINTF(GREATEST_STDOUT, FMT, EXP);                \
+            GREATEST_FPRINTF(GREATEST_STDOUT, "\n         Got: ");      \
             GREATEST_FPRINTF(GREATEST_STDOUT, FMT, GOT);                \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
             GREATEST_FAILm(MSG);                                        \
@@ -1214,6 +1231,7 @@ greatest_run_info greatest_info
 #define ASSERT_LT      GREATEST_ASSERT_LT
 #define ASSERT_LTE     GREATEST_ASSERT_LTE
 #define ASSERT_EQ_FMT  GREATEST_ASSERT_EQ_FMT
+#define ASSERT_NEQ_FMT GREATEST_ASSERT_NEQ_FMT
 #define ASSERT_IN_RANGE GREATEST_ASSERT_IN_RANGE
 #define ASSERT_EQUAL_T GREATEST_ASSERT_EQUAL_T
 #define ASSERT_STR_EQ  GREATEST_ASSERT_STR_EQ
@@ -1228,6 +1246,7 @@ greatest_run_info greatest_info
 #define ASSERT_LTm     GREATEST_ASSERT_LTm
 #define ASSERT_LTEm    GREATEST_ASSERT_LTEm
 #define ASSERT_EQ_FMTm GREATEST_ASSERT_EQ_FMTm
+#define ASSERT_NEQ_FMTm GREATEST_ASSERT_NEQ_FMTm
 #define ASSERT_IN_RANGEm GREATEST_ASSERT_IN_RANGEm
 #define ASSERT_EQUAL_Tm GREATEST_ASSERT_EQUAL_Tm
 #define ASSERT_STR_EQm GREATEST_ASSERT_STR_EQm

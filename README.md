@@ -251,6 +251,9 @@ failure, so they should not be a function call with side effects.
 (Since their type is not known by the macro, they cannot be
 captured in a local variable. `typeof` is a GCC extension.)
 
+### `ASSERT_NEQ_FMT(EXPECTED, ACTUAL, FORMAT)`
+
+Similar to ASSERT_EQ_FMT but asserts that `EXPECTED != ACTUAL`
 
 ### `ASSERT_IN_RANGE(EXPECTED, ACTUAL, TOLERANCE)`
 
