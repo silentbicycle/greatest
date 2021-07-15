@@ -473,3 +473,14 @@ verbose output from the default CLI test runner to TAP version 13
 format:
 
     ./example -v | contrib/entapment
+
+## CMake Integration
+
+There is a CMake module provided, `contrib/Greatest.cmake`, that provides
+functionality equivalent to GoogleTest integration for CMake.
+
+```cmake
+include( Greatest.cmake )
+add_executable( testDriver ${TEST_SOURCES} )
+greatest_add_tests( TARGET testDriver )
+```
