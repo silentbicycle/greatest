@@ -153,6 +153,16 @@ For example, a test or suite named `main` will have a name collision.
 
 (For more examples, look at `example.c` and `example_suite.c`.)
 
+## Installing greatest (vcpkg) 
+Alternatively, you can build and install greatest using [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+```sh or powershell
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh # "./bootstrap-vcpkg.bat" for Powershell
+    ./vcpkg integrate install
+    ./vcpkg install greatest
+```
+The greatest port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 ## Filtering By Name
 
