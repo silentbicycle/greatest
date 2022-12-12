@@ -339,7 +339,7 @@ void greatest_set_test_suffix(const char *suffix);
 
 /* If __VA_ARGS__ (C99) is supported, allow parametric testing
 * without needing to manually manage the argument struct. */
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 19901L) ||        \
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) ||       \
     (defined(_MSC_VER) && _MSC_VER >= 1800)
 #define GREATEST_VA_ARGS
 #endif
