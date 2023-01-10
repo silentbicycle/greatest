@@ -162,7 +162,7 @@ TEST parametric_example_c89(void *closure) {
 
 /* If using C99, greatest can also do parametric tests without
  * needing to manually manage a closure. */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 19901L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 TEST parametric_example_c99(int arg) {
     ASSERT(arg > 10);
     PASS();
@@ -388,7 +388,7 @@ SUITE(suite) {
     RUN_TEST1(parametric_example_c89, &arg);
 
     /* Run a test, with arguments. ('p' for "parametric".) */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 19901L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
     printf("\nThis should fail:\n");
     RUN_TESTp(parametric_example_c99, 10);
     RUN_TESTp(parametric_example_c99, 11);
@@ -401,7 +401,7 @@ SUITE(suite) {
 #endif
 
 #if GREATEST_USE_LONGJMP &&                                     \
-    (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 19901L)
+    (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L)
     RUN_TESTp(fail_via_FAIL_WITH_LONGJMP_if_0, 0);
 #endif
 
