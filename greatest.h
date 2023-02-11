@@ -538,10 +538,9 @@ typedef enum greatest_test_res {
         GREATEST_FLOAT greatest_GOT = (GOT);                            \
         GREATEST_FLOAT greatest_TOL = (TOL);                            \
         greatest_info.assertions++;                                     \
-        if ((greatest_EXP > greatest_GOT &&                             \
-                greatest_EXP - greatest_GOT > greatest_TOL) ||          \
-            (greatest_EXP < greatest_GOT &&                             \
-                greatest_GOT - greatest_EXP > greatest_TOL)) {          \
+        if (!(                                                          \
+            greatest_GOT >= greatest_EXP - greatest_TOL &&              \
+            greatest_GOT <= greatest_EXP + greatest_TOL)) {             \
             GREATEST_FPRINTF(GREATEST_STDOUT,                           \
                 "\nExpected: " GREATEST_FLOAT_FMT                       \
                 " +/- " GREATEST_FLOAT_FMT                              \
