@@ -700,7 +700,7 @@ typedef enum greatest_test_res {
         prng->count_run = prng->random_order = prng->initialized = 0;   \
     } while(0)
 
-#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER)
+#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER) || defined(__MINGW32__)
 #else
 /* Taken then modified from Apache-2.0 licensed Vector Packet Processing @ 4141ded */
 #include <err.h>

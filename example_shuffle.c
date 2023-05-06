@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#if _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
@@ -63,12 +63,12 @@ TEST just_fail(void) {
     FAIL();
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
-    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
-    // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
-    // until 00:00:00 January 1, 1970
+    /* Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+     * This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+     * until 00:00:00 January 1, 1970 */
     static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
 
     SYSTEMTIME  system_time;
@@ -89,8 +89,8 @@ void err(int exit_code, const char *msg) {
     fputs(msg, stderr);
     exit(exit_code);
 }
+#endif /* defined(_MSC_VER) || defined(__MINGW32__) */
 
-#endif
 static unsigned int seed_of_time(void) {
     static unsigned int counter = 1;
     struct timeval tv;
