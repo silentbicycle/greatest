@@ -700,6 +700,99 @@ typedef enum greatest_test_res {
         prng->count_run = prng->random_order = prng->initialized = 0;   \
     } while(0)
 
+#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER)
+#else
+/* Taken then modified from Apache-2.0 licensed Vector Packet Processing @ 4141ded */
+#include <err.h>
+
+#define PREDICT_FALSE(x) __builtin_expect((x),0)
+typedef unsigned int  uword __attribute__ ((mode (SI)));
+typedef unsigned char  u8;
+
+
+size_t
+strnlen_s (const char *s, size_t maxsize)
+{
+    u8 bad;
+
+    bad = (s == 0) + (maxsize == 0);
+    if (PREDICT_FALSE (bad != 0))
+    {
+        if (s == 0)
+            err(1, "[C11 violation] s NULL");
+        if (maxsize == 0)
+            err(1, "[C11 violation] maxsize 0");
+        return 0;
+    }
+    return strnlen (s, maxsize);
+}
+
+errno_t
+strncat_s (char *__restrict__ dest, rsize_t dmax,
+		  const char *__restrict__ src, rsize_t n)
+{
+  u8 bad;
+  uword low, hi;
+  size_t m, dest_size, allowed_size;
+  errno_t status = EOK;
+
+  bad = (dest == 0) + (src == 0) + (dmax == 0) + (n == 0);
+  if (PREDICT_FALSE (bad != 0))
+    {
+      /* Not actually trying to concatenate anything is OK */
+      if (n == 0)
+    	return EOK;
+      if (dest == 0)
+	    err(1, "[C11 violation] dest NULL");
+      if (src == 0)
+	    err(1, "[C11 violation] src NULL");
+      if (dmax == 0)
+	    err(1, "[C11 violation] dmax 0");
+      return EINVAL;
+    }
+
+  /* Check for src/dst overlap, which is not allowed */
+  low = (uword) (src < dest ? src : dest);
+  hi = (uword) (src < dest ? dest : src);
+
+  if (PREDICT_FALSE (low + (n - 1) >= hi))
+    {
+      err(1, "[C11 violation] src/dest overlap");
+      return EINVAL;
+    }
+
+  dest_size = clib_strnlen (dest, dmax);
+  allowed_size = dmax - dest_size;
+
+  if (PREDICT_FALSE (allowed_size == 0))
+    {
+      err(1, "[C11 violation] no space left in dest");
+      return (EINVAL);
+    }
+
+  if (PREDICT_FALSE (n >= allowed_size))
+    {
+      /*
+       * unlike strcat_s, strncat_s will do the concatenation anyway when
+       * there is not enough space in dest. But it will do the truncation and
+       * null terminate dest
+       */
+      m = strnlen (src, allowed_size);
+      if (m >= allowed_size)
+    	{
+	      m = allowed_size - 1;
+    	  status = EOVERFLOW;
+    	}
+    }
+  else
+    m = strnlen (src, n);
+
+  memcpy (dest + dest_size, src, m);
+  dest[dest_size + m] = '\0';
+  return status;
+}
+#endif /* defined(__STDC_LIB_EXT1__) || defined(_MSC_VER) */
+
 /* Include several function definitions in the main test file. */
 #define GREATEST_MAIN_DEFS()                                            \
                                                                         \
@@ -728,10 +821,11 @@ static void greatest_buffer_test_name(const char *name) {               \
     struct greatest_run_info *g = &greatest_info;                       \
     size_t len = strlen(name), size = sizeof(g->name_buf);              \
     memset(g->name_buf, 0x00, size);                                    \
-    (void)strncat(g->name_buf, name, size - 1);                         \
+    (void)strncat_s(g->name_buf, size, name, size - 1);                 \
     if (g->name_suffix && (len + 1 < size)) {                           \
         g->name_buf[len] = '_';                                         \
-        strncat(&g->name_buf[len+1], g->name_suffix, size-(len+2));     \
+        strncat_s(&g->name_buf[len+1], size, g->name_suffix,            \
+                  size-(len+2));                                        \
     }                                                                   \
 }                                                                       \
                                                                         \
