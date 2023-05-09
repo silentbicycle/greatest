@@ -344,6 +344,11 @@ void greatest_set_test_suffix(const char *suffix);
 #define GREATEST_VA_ARGS
 #endif
 
+#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER) || defined(__MINGW32__)
+#define strncat_s_else_insec strncat_s
+#else
+#define strncat_s_else_insec(dest,_,src,count)strncat(dest, src, count)
+#endif
 
 /**********
  * Macros *
@@ -728,10 +733,15 @@ static void greatest_buffer_test_name(const char *name) {               \
     struct greatest_run_info *g = &greatest_info;                       \
     size_t len = strlen(name), size = sizeof(g->name_buf);              \
     memset(g->name_buf, 0x00, size);                                    \
-    (void)strncat(g->name_buf, name, size - 1);                         \
+                                                                        \
+    (void)strncat_s_else_insec(                                         \
+      g->name_buf, size, name, size - 1                                 \
+    );                                                                  \
     if (g->name_suffix && (len + 1 < size)) {                           \
         g->name_buf[len] = '_';                                         \
-        strncat(&g->name_buf[len+1], g->name_suffix, size-(len+2));     \
+        strncat_s_else_insec(                                           \
+          &g->name_buf[len+1], size, g->name_suffix, size-(len+2)       \
+        );                                                              \
     }                                                                   \
 }                                                                       \
                                                                         \
