@@ -33,7 +33,9 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
 endif (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
 
 # Set the build directories
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows"
+        OR CMAKE_SYSTEM_NAME STREQUAL "CYGWIN"
+        OR CMAKE_SYSTEM_NAME MATCHES "MINGW.*")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
@@ -49,7 +51,7 @@ endif ()
 
 # configure a header file to pass the version number only
 configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in"
+        "${CMAKE_SOURCE_DIR}/contrib/cmake/config.h.in"
         "${PROJECT_NAME}Config.h"
 )
 
@@ -59,8 +61,8 @@ configure_file(
 
 include(CTest)
 if (BUILD_TESTING)
-    add_subdirectory("${CMAKE_SOURCE_DIR}/cmake/example")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/cmake/example_cpp")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/contrib/cmake/example")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/contrib/cmake/example_cpp")
 endif (BUILD_TESTING)
 
 #=========#
@@ -72,18 +74,18 @@ include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 set(CPACK_BUNDLE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "SamuelMarks")
-set(CPACK_PACKAGE_DESCRIPTION " A C testing library in 1 file. No dependencies, no dynamic allocation. ISC licensed.")
+set(CPACK_PACKAGE_DESCRIPTION "A C testing library in 1 file. No dependencies, no dynamic allocation. ISC licensed.")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
 if (APPLE)
-    set(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Info.plist")
-    set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Info.plist")
-    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CustomVolumeIcon.icns")
+    set(CPACK_BUNDLE_PLIST "contrib/cmake/Info.plist")
+    set(CPACK_BUNDLE_ICON "contrib/cmake/Info.plist")
+    set(CPACK_PACKAGE_ICON "contrib/cmake/CustomVolumeIcon.icns")
 endif (APPLE)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/cmake/README.txt")
-set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/cmake/Welcome.txt")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/contrib/cmake/README.txt")
+set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/contrib/cmake/Welcome.txt")
 set(CPACK_PACKAGE_CONTACT "https://github.com/silentbicycle/${PROJECT_NAME}")
 
 include(CPack)
@@ -91,7 +93,7 @@ include(CMakePackageConfigHelpers)
 
 # generate the config file that is includes the exports
 configure_package_config_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+        "contrib/cmake/Config.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         INSTALL_DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}"
         NO_SET_AND_CHECK_MACRO
