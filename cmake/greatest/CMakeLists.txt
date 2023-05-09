@@ -1,6 +1,6 @@
-get_filename_component(LIBRARY_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
+get_filename_component(LIBRARY_NAME "." NAME)
 
-set(Header_Files "../greatest.h")
+set(Header_Files "../../greatest.h")
 source_group("Header Files" FILES "${Header_Files}")
 
 add_library("${LIBRARY_NAME}" INTERFACE "${Header_Files}")

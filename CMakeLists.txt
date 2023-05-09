@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(greatest VERSION 1.5.0 LANGUAGES C CXX)
+project(greatest VERSION 1.5.0 LANGUAGES C)
 
 #===============#
 # Compiler args #
@@ -11,21 +11,29 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 set(CMAKE_C_STANDARD 90 CACHE STRING "")
 
 add_library("${PROJECT_NAME}_compiler_flags" INTERFACE)
-target_compile_features("${PROJECT_NAME}_compiler_flags" INTERFACE "c_std_${CMAKE_C_STANDARD}")
+if ((NOT DEFINED MSVC_VERSION
+        OR MSVC_VERSION STRGREATER "1900") # 2015
+        AND NOT (CMAKE_C_COMPILER_ID STREQUAL "OpenWatcom"))
+    target_compile_features("${PROJECT_NAME}_compiler_flags" INTERFACE "c_std_${CMAKE_C_STANDARD}")
+else ()
+    message(STATUS "not adding compile features")
+endif ()
 
-# add compiler warning flags just when building this project via
-# the BUILD_INTERFACE genex
-set(gcc_like "$<COMPILE_LANG_AND_ID:C,CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
-set(msvc "$<COMPILE_LANG_AND_ID:C,CXX,MSVC>")
-target_compile_options(
-        "${PROJECT_NAME}_compiler_flags"
-        INTERFACE
-        "$<${gcc_like}:$<BUILD_INTERFACE:-Wshadow;-Wformat=2;-Wall;-pedantic;-Wno-format-nonliteral;-Wno-unused-function;-Wno-long-long>>"
-        "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive->>"
-)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
+    # add compiler warning flags just when building this project via
+    # the BUILD_INTERFACE genex
+    set(gcc_like "$<COMPILE_LANG_AND_ID:C,CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
+    set(msvc "$<COMPILE_LANG_AND_ID:C,CXX,MSVC>")
+    target_compile_options(
+            "${PROJECT_NAME}_compiler_flags"
+            INTERFACE
+            "$<${gcc_like}:$<BUILD_INTERFACE:-Wshadow;-Wformat=2;-Wall;-pedantic;-Wno-format-nonliteral;-Wno-unused-function;-Wno-long-long>>"
+            "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive->>"
+    )
+endif (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
 
 # Set the build directories
-if (MSVC)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
@@ -51,7 +59,8 @@ configure_file(
 
 include(CTest)
 if (BUILD_TESTING)
-    add_subdirectory("example")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/cmake/example")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/cmake/example_cpp")
 endif (BUILD_TESTING)
 
 #=========#
